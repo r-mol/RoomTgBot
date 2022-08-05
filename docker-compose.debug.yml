@@ -1,9 +1,19 @@
 version: "3"
 services:
+  redis:
+    build: ./redis
+    ports:
+      - 6379:6379
+    restart: always
   mongo:
-    extends:
-      file: docker-compose.yml
-      service: mongo
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: roombot
+      MONGO_INITDB_ROOT_PASSWORD: roombot
+
   mongo-express:
     image: mongo-express
     restart: always
