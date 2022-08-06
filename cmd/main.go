@@ -2,13 +2,19 @@ package main
 
 import (
 	"fmt"
-	"time"
 )
 
 func main() {
 	fmt.Println("Hello Goland")
+	testAllServices()
+}
+func testAllServices(){
+	// cron
 	Test()
-	time.Sleep(3*time.Second)
+	// mongodb
 	DBTest()
+	//redis
+	ExampleClient()
+	// start echo bot
 	Setup()
 }
