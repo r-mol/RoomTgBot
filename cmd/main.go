@@ -11,13 +11,13 @@ func main() {
 
 func testAllServices() {
 	// cron
-	Test()
+	//Test()
 
 	// mongodb
-	DBTest()
+	//DBTest()
 
 	// redis
-	ExampleClient()
+	//ExampleClient()
 
 	// start echo bot
 	Setup()

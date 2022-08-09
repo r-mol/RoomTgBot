@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	tele "gopkg.in/telebot.v3"
@@ -11,11 +10,11 @@ import (
 
 func Setup() {
 	pref := tele.Settings{
-		Token:  os.Getenv("TOKEN"),
+		Token:  "5455937729:AAEVDvLDJczTncZ0aOfIA0Xn6dVcFgcMIO0",
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 	}
 
-	fmt.Println(os.Getenv("TOKEN"))
+	fmt.Println("5455937729:AAEVDvLDJczTncZ0aOfIA0Xn6dVcFgcMIO0")
 
 	bot, err := tele.NewBot(pref)
 
