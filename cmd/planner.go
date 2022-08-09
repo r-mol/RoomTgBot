@@ -1,20 +1,25 @@
 package main
 
 import (
-	"github.com/robfig/cron/v3"
 	"fmt"
+
+	cron "github.com/robfig/cron/v3"
 )
 
 func Test() {
 	c := cron.New(cron.WithSeconds())
-	// defer c.Stop()
+	//defer c.Stop()
+
 	lines := 0
-	c.AddFunc("@every 1s", func() {
+
+	_, err := c.AddFunc("@every 1s", func() {
 		fmt.Println("line")
 		lines++
 	})
+
+	if err != nil {
+		return
+	}
+
 	c.Start()
-
-	// for lines < 10 {}
-
 }

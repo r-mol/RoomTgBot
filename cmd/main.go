@@ -8,13 +8,17 @@ func main() {
 	fmt.Println("Hello Goland")
 	testAllServices()
 }
-func testAllServices(){
+
+func testAllServices() {
 	// cron
 	Test()
+
 	// mongodb
 	DBTest()
-	//redis
+
+	// redis
 	ExampleClient()
+
 	// start echo bot
 	Setup()
 }
