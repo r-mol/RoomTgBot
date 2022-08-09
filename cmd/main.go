@@ -1,7 +1,6 @@
 package main
 
 import (
-	"RoomTgBot/cmd/bot"
 	"fmt"
 )
 
@@ -18,8 +17,8 @@ func testAllServices() {
 	//DBTest()
 
 	// redis
-	//ExampleClient()
+	ExampleClient()
 
 	// start echo bot
-	bot.Setup()
+	//bot.Setup()
 }
