@@ -1,6 +1,7 @@
 package main
 
 import (
+	"RoomTgBot/cmd/bot"
 	"fmt"
 )
 
@@ -20,5 +21,5 @@ func testAllServices() {
 	//ExampleClient()
 
 	// start echo bot
-	Setup()
+	bot.Setup()
 }
