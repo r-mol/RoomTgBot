@@ -5,6 +5,14 @@ import (
 	telegram "gopkg.in/telebot.v3"
 )
 
+const (
+	commandStart = "/start"
+	commandStop  = "/stop"
+	commandHelp  = "/help"
+	commandWater = "/bring_water"
+	commandClean = "/clean_room"
+)
+
 func startHandling(bot *telegram.Bot) {
 	bot.Handle(commandStart, func(ctx telegram.Context) error {
 		newUser := &internal.User{
