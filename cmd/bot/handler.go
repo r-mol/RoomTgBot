@@ -5,6 +5,7 @@ import (
 	"RoomTgBot/internal/menus"
 	"RoomTgBot/internal/state"
 	"RoomTgBot/internal/user"
+	"fmt"
 
 	"context"
 	"log"
@@ -21,6 +22,15 @@ func handling(bot *telegram.Bot) {
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
+
+	testUser := &user.User{
+		ID: 471895149,
+
+		FirstName: "Roman",
+		Username:  "roman_molochkov",
+		IsBot:     false,
+		CurState:  &state.State{},
+	}
 
 	rdb.Ping(contex)
 
@@ -58,6 +68,9 @@ func handling(bot *telegram.Bot) {
 
 		newUser.CurState = curState
 
+		// Add new data of user to database
+		testUser = newUser
+
 		err = state.SetStateToRDB(contex, rdb, curState)
 
 		if err != nil {
@@ -78,10 +91,12 @@ func handling(bot *telegram.Bot) {
 		tgUser := &user.User{}
 
 		// Find person in database
+		tgUser = testUser
 
 		tgUser.CurState = curState
 
 		// Add new data of user to database
+		testUser = tgUser
 
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
@@ -96,10 +111,12 @@ func handling(bot *telegram.Bot) {
 		tgUser := &user.User{}
 
 		// Find person in database
+		tgUser = testUser
 
 		tgUser.CurState = curState
 
 		// Add new data of user to database
+		testUser = tgUser
 
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
@@ -114,10 +131,12 @@ func handling(bot *telegram.Bot) {
 		tgUser := &user.User{}
 
 		// Find person in database
+		tgUser = testUser
 
 		tgUser.CurState = curState
 
 		// Add new data of user to database
+		testUser = tgUser
 
 		return ctx.Send("Now you are in the room", menus.RoomMenu)
 	})
@@ -132,16 +151,20 @@ func handling(bot *telegram.Bot) {
 		tgUser := &user.User{}
 
 		// Find person in database
+		tgUser = testUser
 
 		tgUser.CurState = curState
 
 		// Add new data of user to database
+		testUser = tgUser
 
 		return ctx.Send("Now you are aqua-man", menus.AquaManMenu)
 	})
 
 	bot.Handle(&menus.BtnBack, func(ctx telegram.Context) error {
-		return ctx.Send("Now you are aqua-man", menus.AquaManMenu)
+		fmt.Println(testUser)
+		fmt.Println(testUser.CurState)
+		return ctx.Send("salam")
 	})
 
 	bot.Handle(telegram.OnText, func(ctx telegram.Context) error {
