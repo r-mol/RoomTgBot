@@ -2,6 +2,7 @@ package main
 
 import (
 	"RoomTgBot/cmd/bot"
+
 	"fmt"
 )
 
@@ -12,11 +13,11 @@ func main() {
 
 func testAllServices() {
 	// cron
-	Test()
+	// Test()
 	// mongodb
-	DBTest()
+	// DBTest()
 	// redis
-	ExampleClient()
+	// ExampleClient()
 	// start echo bot
 	bot.Setup()
 }
