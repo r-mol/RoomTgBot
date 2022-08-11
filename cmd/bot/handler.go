@@ -27,20 +27,7 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 		CurState:  &state.State{},
 	}
 
-	menus.MainMenu.Reply(
-		menus.MainMenu.Row(menus.BtnRoom, menus.BtnNews),
-		menus.MainMenu.Row(menus.BtnExam, menus.BtnSettings),
-	)
-
-	menus.RoomMenu.Reply(
-		menus.RoomMenu.Row(menus.BtnShop, menus.BtnAquaMan, menus.BtnCleanMan),
-		menus.MainMenu.Row(menus.BtnBack),
-	)
-
-	menus.AquaManMenu.Reply(
-		menus.AquaManMenu.Row(menus.BtnBringWater),
-		menus.MainMenu.Row(menus.BtnBack),
-	)
+	menus.InitializeMenus()
 
 	bot.Handle(commands.CommandStart, func(ctx telegram.Context) error {
 		newUser := &user.User{}

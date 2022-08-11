@@ -28,3 +28,20 @@ var (
 
 	BtnBack = MainMenu.Text(commands.CommandBack)
 )
+
+func InitializeMenus() {
+	MainMenu.Reply(
+		MainMenu.Row(BtnRoom, BtnNews),
+		MainMenu.Row(BtnExam, BtnSettings),
+	)
+
+	RoomMenu.Reply(
+		RoomMenu.Row(BtnShop, BtnAquaMan, BtnCleanMan),
+		MainMenu.Row(BtnBack),
+	)
+
+	AquaManMenu.Reply(
+		AquaManMenu.Row(BtnBringWater),
+		MainMenu.Row(BtnBack),
+	)
+}
