@@ -20,62 +20,62 @@ type State struct {
 	IsNow     bool      `json:"is_now"`
 }
 
-func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Context, prevCommand, initCommand string) error {
+func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Context, prevCommand, initCommand string) (*State, error) {
 	prevState := &State{}
-	st := &State{}
+	curState := &State{}
 
 	err := GetStateFromRDB(contex, rdb, prevState, prevCommand)
 
 	log.Println(prevState)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if !prevState.IsNow {
-		return ctx.Send("Something bad happened, we return you to the beginning", menus.MainMenu)
+		return nil, ctx.Send("Something bad happened, we return you to the beginning", menus.MainMenu)
 	}
 
 	prevState.IsNow = false
 	err = SetStateToRDB(contex, rdb, prevState)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = GetStateFromRDB(contex, rdb, st, initCommand)
+	err = GetStateFromRDB(contex, rdb, curState, initCommand)
 
 	switch err {
 	case redis.Nil:
-		st = &State{
+		curState = &State{
 			InitState: initCommand,
 			PrevState: prevState.InitState,
 			IsNow:     true,
 		}
 
-		err = SetStateToRDB(contex, rdb, st)
+		err = SetStateToRDB(contex, rdb, curState)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 	default:
-		st.IsNow = true
-		err = SetStateToRDB(contex, rdb, st)
+		curState.IsNow = true
+		err = SetStateToRDB(contex, rdb, curState)
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		log.Println(prevState)
-		log.Println(st)
+		log.Println(curState)
 
-		return err
+		return nil, err
 	}
 
 	log.Println(prevState)
-	log.Println(st)
+	log.Println(curState)
 
-	return nil
+	return curState, nil
 }
 
 func GetStateFromRDB(contex context.Context, rdb *redis.Client, st *State, command string) error {

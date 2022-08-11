@@ -42,7 +42,6 @@ func handling(bot *telegram.Bot) {
 	bot.Handle(commands.CommandStart, func(ctx telegram.Context) error {
 		newUser := &user.User{}
 		err := user.CreateUser(bot, ctx, newUser)
-		newUser.CurState = commands.CommandStart
 
 		if err != nil {
 			return err
@@ -52,58 +51,61 @@ func handling(bot *telegram.Bot) {
 
 		// Add to new user to database
 
-		st := &state.State{
+		curState := &state.State{
 			InitState: commands.CommandStart,
 			IsNow:     true,
 		}
 
-		err = state.SetStateToRDB(contex, rdb, st)
+		newUser.CurState = curState
+
+		err = state.SetStateToRDB(contex, rdb, curState)
 
 		if err != nil {
 			return err
 		}
-		log.Println(st)
+		log.Println(curState)
 
 		return ctx.Send("Nice to meet you "+newUser.FirstName+" !!!", menus.MainMenu)
 	})
 
 	bot.Handle(commands.CommandBringWater, func(ctx telegram.Context) error {
-		tgUser := &user.User{}
-
-		// Find person in database
-
-		tgUser.CurState = commands.CommandStart
-
-		// Add new data of user to database
-
-		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandAquaMan, commands.CommandStart)
+		curState, err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandAquaMan, commands.CommandStart)
 
 		if err != nil {
 			return err
 		}
+
+		tgUser := &user.User{}
+
+		// Find person in database
+
+		tgUser.CurState = curState
+
+		// Add new data of user to database
 
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
 
 	bot.Handle(commands.CommandClean, func(ctx telegram.Context) error {
-		tgUser := &user.User{}
-
-		// Find person in database
-
-		tgUser.CurState = commands.CommandStart
-
-		// Add new data of user to database
-
-		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandCleanMan, commands.CommandStart)
+		curState, err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandCleanMan, commands.CommandStart)
 
 		if err != nil {
 			return err
 		}
+
+		tgUser := &user.User{}
+
+		// Find person in database
+
+		tgUser.CurState = curState
+
+		// Add new data of user to database
+
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
 
 	bot.Handle(&menus.BtnRoom, func(ctx telegram.Context) error {
-		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandStart, commands.CommandRoom)
+		curState, err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandStart, commands.CommandRoom)
 
 		if err != nil {
 			return err
@@ -113,7 +115,7 @@ func handling(bot *telegram.Bot) {
 
 		// Find person in database
 
-		tgUser.CurState = commands.CommandRoom
+		tgUser.CurState = curState
 
 		// Add new data of user to database
 
@@ -121,7 +123,7 @@ func handling(bot *telegram.Bot) {
 	})
 
 	bot.Handle(&menus.BtnAquaMan, func(ctx telegram.Context) error {
-		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandRoom, commands.CommandAquaMan)
+		curState, err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandRoom, commands.CommandAquaMan)
 
 		if err != nil {
 			return err
@@ -131,7 +133,7 @@ func handling(bot *telegram.Bot) {
 
 		// Find person in database
 
-		tgUser.CurState = commands.CommandAquaMan
+		tgUser.CurState = curState
 
 		// Add new data of user to database
 
