@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"github.com/go-redis/redis/v9"
 	"log"
 	"time"
 
@@ -25,7 +26,15 @@ func Setup() {
 		return
 	}
 
-	handling(bot)
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	rdb.Ping(contex)
+
+	handling(bot, rdb)
 
 	bot.Start()
 }

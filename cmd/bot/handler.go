@@ -16,12 +16,7 @@ import (
 
 var contex = context.Background()
 
-func handling(bot *telegram.Bot) {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
+func handling(bot *telegram.Bot, rdb *redis.Client) {
 
 	testUser := &user.User{
 		ID: 471895149,
@@ -31,8 +26,6 @@ func handling(bot *telegram.Bot) {
 		IsBot:     false,
 		CurState:  &state.State{},
 	}
-
-	rdb.Ping(contex)
 
 	menus.MainMenu.Reply(
 		menus.MainMenu.Row(menus.BtnRoom, menus.BtnNews),
