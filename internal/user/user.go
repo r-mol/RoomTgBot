@@ -15,8 +15,14 @@ type User struct {
 }
 
 func CreateUser(bot *telegram.Bot, ctx telegram.Context, newUser *User) error {
+	id := ctx.Sender().ID
+
+	//TODO if user with id exist in database then:
+	// newUser = database(id)
+	// else create new user
+
 	*newUser = User{
-		ID: ctx.Sender().ID,
+		ID: id,
 
 		FirstName: ctx.Sender().FirstName,
 		Username:  ctx.Sender().Username,
