@@ -45,3 +45,13 @@ func InitializeMenus() {
 		MainMenu.Row(BtnBack),
 	)
 }
+
+func GetMenus() map[string]*telegram.ReplyMarkup {
+	allMenus := map[string]*telegram.ReplyMarkup{}
+
+	allMenus[commands.CommandStart] = MainMenu
+	allMenus[commands.CommandRoom] = RoomMenu
+	allMenus[commands.CommandAquaMan] = AquaManMenu
+
+	return allMenus
+}
