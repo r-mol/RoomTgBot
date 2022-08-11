@@ -11,7 +11,7 @@ const (
 	CommandNews     = "📰 News"
 	CommandExam     = "🧐 Exam"
 	CommandSettings = "⚙️ Settings"
-	CommandBack     = "↩️ Back"
+	CommandBack     = "Back ↩️"
 
 	CommandShop     = "🛍 Shop"
 	CommandAquaMan  = "\U0001F9A6 Aqua-Man"
