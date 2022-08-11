@@ -69,7 +69,7 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 		log.Println(prevState)
 		log.Println(curState)
 
-		return nil, err
+		return curState, err
 	}
 
 	log.Println(prevState)
