@@ -2,10 +2,10 @@ package bot
 
 import (
 	"fmt"
-	"github.com/go-redis/redis/v9"
 	"log"
 	"time"
 
+	"github.com/go-redis/redis/v9"
 	telegram "gopkg.in/telebot.v3"
 )
 
