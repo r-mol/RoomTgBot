@@ -8,10 +8,12 @@ import (
 	telegram "gopkg.in/telebot.v3"
 )
 
+const timeOutMultiplier = 10
+
 func Setup() {
 	pref := telegram.Settings{
 		Token:  "5455937729:AAEVDvLDJczTncZ0aOfIA0Xn6dVcFgcMIO0",
-		Poller: &telegram.LongPoller{Timeout: 10 * time.Second},
+		Poller: &telegram.LongPoller{Timeout: timeOutMultiplier * time.Second},
 	}
 
 	fmt.Println("5455937729:AAEVDvLDJczTncZ0aOfIA0Xn6dVcFgcMIO0")
