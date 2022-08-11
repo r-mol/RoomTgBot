@@ -2,6 +2,7 @@ package user
 
 import (
 	"RoomTgBot/internal/state"
+
 	telegram "gopkg.in/telebot.v3"
 )
 
@@ -17,9 +18,9 @@ type User struct {
 func CreateUser(bot *telegram.Bot, ctx telegram.Context, newUser *User) error {
 	id := ctx.Sender().ID
 
-	//TODO if user with id exist in database then:
-	// newUser = database(id)
-	// else create new user
+	// TODO if user with id exist in database then:
+	//   newUser = database(id)
+	//   else create new user
 
 	*newUser = User{
 		ID: id,
