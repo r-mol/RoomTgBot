@@ -23,7 +23,7 @@ func Setup() {
 		return
 	}
 
-	startHandling(bot)
+	handling(bot)
 
 	bot.Start()
 }
