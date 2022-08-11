@@ -5,8 +5,6 @@ import (
 	"RoomTgBot/internal/menus"
 	"RoomTgBot/internal/state"
 	"RoomTgBot/internal/user"
-	"fmt"
-
 	"context"
 	"log"
 
@@ -28,6 +26,8 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 	}
 
 	menus.InitializeMenus()
+
+	allMenus := menus.GetMenus()
 
 	bot.Handle(commands.CommandStart, func(ctx telegram.Context) error {
 		newUser := &user.User{}
@@ -62,16 +62,17 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(commands.CommandBringWater, func(ctx telegram.Context) error {
-		curState, err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandAquaMan, commands.CommandStart)
-
-		if err != nil {
-			return err
-		}
-
 		tgUser := &user.User{}
 
 		// TODO Find person in database
 		tgUser = testUser
+
+		commandFrom := tgUser.CurState.InitState
+		curState, err := state.CheckOfUserState(contex, rdb, ctx, commandFrom, commands.CommandStart)
+
+		if err != nil {
+			return err
+		}
 
 		tgUser.CurState = curState
 
@@ -82,16 +83,16 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(commands.CommandClean, func(ctx telegram.Context) error {
+		tgUser := &user.User{}
+
+		// TODO Find person in database
+		tgUser = testUser
+
 		curState, err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandCleanMan, commands.CommandStart)
 
 		if err != nil {
 			return err
 		}
-
-		tgUser := &user.User{}
-
-		// TODO Find person in database
-		tgUser = testUser
 
 		tgUser.CurState = curState
 
@@ -102,16 +103,16 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnRoom, func(ctx telegram.Context) error {
+		tgUser := &user.User{}
+
+		// TODO Find person in database
+		tgUser = testUser
+
 		curState, err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandStart, commands.CommandRoom)
 
 		if err != nil {
 			return err
 		}
-
-		tgUser := &user.User{}
-
-		// TODO Find person in database
-		tgUser = testUser
 
 		tgUser.CurState = curState
 
@@ -122,16 +123,16 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnAquaMan, func(ctx telegram.Context) error {
+		tgUser := &user.User{}
+
+		// TODO Find person in database
+		tgUser = testUser
+
 		curState, err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandRoom, commands.CommandAquaMan)
 
 		if err != nil {
 			return err
 		}
-
-		tgUser := &user.User{}
-
-		// TODO Find person in database
-		tgUser = testUser
 
 		tgUser.CurState = curState
 
@@ -142,9 +143,25 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnBack, func(ctx telegram.Context) error {
-		fmt.Println(testUser)
-		fmt.Println(testUser.CurState)
-		return ctx.Send("salam")
+		tgUser := &user.User{}
+
+		// TODO Find person in database
+		tgUser = testUser
+
+		commandFrom := tgUser.CurState.InitState
+		commandTo := tgUser.CurState.PrevState
+		curState, err := state.CheckOfUserState(contex, rdb, ctx, commandFrom, commandTo)
+
+		if err != nil {
+			return err
+		}
+
+		tgUser.CurState = curState
+
+		// TODO Add new data of user to database
+		testUser = tgUser
+
+		return ctx.Send("We return you back ", allMenus[commandTo])
 	})
 
 	bot.Handle(telegram.OnText, func(ctx telegram.Context) error {
