@@ -15,10 +15,7 @@ import (
 var contex = context.Background()
 
 func handling(bot *telegram.Bot, rdb *redis.Client) {
-
 	testUser := &user.User{
-		ID: 471895149,
-
 		FirstName: "Roman",
 		Username:  "roman_molochkov",
 		IsBot:     false,
