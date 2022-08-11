@@ -59,7 +59,7 @@ func handling(bot *telegram.Bot) {
 
 		log.Println("User is authorized")
 
-		// Add to new user to database
+		// TODO Add to new user to database
 
 		curState := &state.State{
 			InitState: commands.CommandStart,
@@ -68,7 +68,7 @@ func handling(bot *telegram.Bot) {
 
 		newUser.CurState = curState
 
-		// Add new data of user to database
+		// TODO Add new data of user to database
 		testUser = newUser
 
 		err = state.SetStateToRDB(contex, rdb, curState)
@@ -90,12 +90,12 @@ func handling(bot *telegram.Bot) {
 
 		tgUser := &user.User{}
 
-		// Find person in database
+		// TODO Find person in database
 		tgUser = testUser
 
 		tgUser.CurState = curState
 
-		// Add new data of user to database
+		// TODO Add new data of user to database
 		testUser = tgUser
 
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
@@ -110,12 +110,12 @@ func handling(bot *telegram.Bot) {
 
 		tgUser := &user.User{}
 
-		// Find person in database
+		// TODO Find person in database
 		tgUser = testUser
 
 		tgUser.CurState = curState
 
-		// Add new data of user to database
+		// TODO Add new data of user to database
 		testUser = tgUser
 
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
@@ -130,12 +130,12 @@ func handling(bot *telegram.Bot) {
 
 		tgUser := &user.User{}
 
-		// Find person in database
+		// TODO Find person in database
 		tgUser = testUser
 
 		tgUser.CurState = curState
 
-		// Add new data of user to database
+		// TODO Add new data of user to database
 		testUser = tgUser
 
 		return ctx.Send("Now you are in the room", menus.RoomMenu)
@@ -150,12 +150,12 @@ func handling(bot *telegram.Bot) {
 
 		tgUser := &user.User{}
 
-		// Find person in database
+		// TODO Find person in database
 		tgUser = testUser
 
 		tgUser.CurState = curState
 
-		// Add new data of user to database
+		// TODO Add new data of user to database
 		testUser = tgUser
 
 		return ctx.Send("Now you are aqua-man", menus.AquaManMenu)
