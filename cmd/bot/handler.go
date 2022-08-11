@@ -5,9 +5,10 @@ import (
 	"RoomTgBot/internal/menus"
 	"RoomTgBot/internal/state"
 	"RoomTgBot/internal/user"
-	"log"
 
 	"context"
+	"log"
+
 	"github.com/go-redis/redis/v9"
 	telegram "gopkg.in/telebot.v3"
 )
@@ -39,7 +40,6 @@ func handling(bot *telegram.Bot) {
 	)
 
 	bot.Handle(commands.CommandStart, func(ctx telegram.Context) error {
-
 		newUser := &user.User{}
 		err := user.CreateUser(bot, ctx, newUser)
 		newUser.CurState = commands.CommandStart
@@ -57,7 +57,7 @@ func handling(bot *telegram.Bot) {
 			IsNow:     true,
 		}
 
-		err = state.SetStateToRDB(rdb, contex, st)
+		err = state.SetStateToRDB(contex, rdb, st)
 
 		if err != nil {
 			return err
@@ -76,7 +76,7 @@ func handling(bot *telegram.Bot) {
 
 		// Add new data of user to database
 
-		err := state.CheckOfUserState(rdb, ctx, contex, commands.CommandAquaMan, commands.CommandStart)
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandAquaMan, commands.CommandStart)
 
 		if err != nil {
 			return err
@@ -94,7 +94,7 @@ func handling(bot *telegram.Bot) {
 
 		// Add new data of user to database
 
-		err := state.CheckOfUserState(rdb, ctx, contex, commands.CommandCleanMan, commands.CommandStart)
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandCleanMan, commands.CommandStart)
 
 		if err != nil {
 			return err
@@ -103,7 +103,7 @@ func handling(bot *telegram.Bot) {
 	})
 
 	bot.Handle(&menus.BtnRoom, func(ctx telegram.Context) error {
-		err := state.CheckOfUserState(rdb, ctx, contex, commands.CommandStart, commands.CommandRoom)
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandStart, commands.CommandRoom)
 
 		if err != nil {
 			return err
@@ -121,7 +121,7 @@ func handling(bot *telegram.Bot) {
 	})
 
 	bot.Handle(&menus.BtnAquaMan, func(ctx telegram.Context) error {
-		err := state.CheckOfUserState(rdb, ctx, contex, commands.CommandRoom, commands.CommandAquaMan)
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandRoom, commands.CommandAquaMan)
 
 		if err != nil {
 			return err
@@ -138,10 +138,9 @@ func handling(bot *telegram.Bot) {
 		return ctx.Send("Now you are aqua-man", menus.AquaManMenu)
 	})
 
-	//bot.Handle(&menus.BtnBack, func(ctx telegram.Context) error {
-	//
-	//	return ctx.Send("Now you are aqua-man", menus.AquaManMenu)
-	//})
+	bot.Handle(&menus.BtnBack, func(ctx telegram.Context) error {
+		return ctx.Send("Now you are aqua-man", menus.AquaManMenu)
+	})
 
 	bot.Handle(telegram.OnText, func(ctx telegram.Context) error {
 		return ctx.Send(ctx.Message().Text)

@@ -2,12 +2,14 @@ package state
 
 import (
 	"RoomTgBot/internal/menus"
+
 	"context"
 	"encoding/json"
-	"github.com/go-redis/redis/v9"
-	telegram "gopkg.in/telebot.v3"
 	"log"
 	"os"
+
+	"github.com/go-redis/redis/v9"
+	telegram "gopkg.in/telebot.v3"
 )
 
 type State struct {
@@ -18,11 +20,11 @@ type State struct {
 	IsNow     bool      `json:"is_now"`
 }
 
-func CheckOfUserState(rdb *redis.Client, ctx telegram.Context, contex context.Context, prevCommand string, initCommand string) error {
+func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Context, prevCommand, initCommand string) error {
 	prevState := &State{}
 	st := &State{}
 
-	err := GetStateFromRDB(rdb, contex, prevState, prevCommand)
+	err := GetStateFromRDB(contex, rdb, prevState, prevCommand)
 
 	log.Println(prevState)
 
@@ -35,13 +37,13 @@ func CheckOfUserState(rdb *redis.Client, ctx telegram.Context, contex context.Co
 	}
 
 	prevState.IsNow = false
-	err = SetStateToRDB(rdb, contex, prevState)
+	err = SetStateToRDB(contex, rdb, prevState)
 
 	if err != nil {
 		return err
 	}
 
-	err = GetStateFromRDB(rdb, contex, st, initCommand)
+	err = GetStateFromRDB(contex, rdb, st, initCommand)
 
 	switch err {
 	case redis.Nil:
@@ -51,29 +53,32 @@ func CheckOfUserState(rdb *redis.Client, ctx telegram.Context, contex context.Co
 			IsNow:     true,
 		}
 
-		err = SetStateToRDB(rdb, contex, st)
+		err = SetStateToRDB(contex, rdb, st)
 
 		if err != nil {
 			return err
 		}
 	default:
 		st.IsNow = true
-		err = SetStateToRDB(rdb, contex, st)
+		err = SetStateToRDB(contex, rdb, st)
 
 		if err != nil {
 			return err
 		}
+
 		log.Println(prevState)
 		log.Println(st)
+
 		return err
 	}
+
 	log.Println(prevState)
 	log.Println(st)
 
 	return nil
 }
 
-func GetStateFromRDB(rdb *redis.Client, contex context.Context, st *State, command string) error {
+func GetStateFromRDB(contex context.Context, rdb *redis.Client, st *State, command string) error {
 	stBytes, err := rdb.Get(contex, command).Result()
 
 	switch {
@@ -91,7 +96,7 @@ func GetStateFromRDB(rdb *redis.Client, contex context.Context, st *State, comma
 	return nil
 }
 
-func SetStateToRDB(rdb *redis.Client, contex context.Context, st *State) error {
+func SetStateToRDB(contex context.Context, rdb *redis.Client, st *State) error {
 	stateBytes, err := json.Marshal(st)
 
 	if err != nil {

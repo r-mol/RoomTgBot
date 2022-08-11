@@ -8,7 +8,6 @@ import (
 
 func Test() {
 	c := cron.New(cron.WithSeconds())
-	//defer c.Stop()
 
 	lines := 0
 
