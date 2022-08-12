@@ -43,16 +43,26 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 			IsNow:     true,
 		}
 
-		newUser.CurState = curState
+		states := state.States{}
+		err = state.GetStatesFromRDB(contex, rdb, ctx, &states)
 
-		// TODO Add new data of user to database
-		testUser = newUser
-
-		err = state.SetStateToRDB(contex, rdb, curState)
-
-		if err != nil {
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
 			return err
 		}
+
+		states[commands.CommandStart] = curState
+		states[state.InitState] = curState
+
+		err = state.SetStatesToRDB(contex, rdb, ctx, &states)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
 		log.Println(curState)
 
 		return ctx.Send("Nice to meet you "+newUser.FirstName+" !!!", menus.MainMenu)
@@ -64,14 +74,21 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 		// TODO Find person in database
 		tgUser = testUser
 
-		commandFrom := tgUser.CurState.InitState
-		curState, err := state.CheckOfUserState(contex, rdb, ctx, commandFrom, commands.CommandStart)
-
-		if err != nil {
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
 			return err
 		}
 
-		tgUser.CurState = curState
+		commandFrom := curState.InitState
+		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, commands.CommandStart)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
 
 		// TODO Add new data of user to database
 		testUser = tgUser
@@ -85,13 +102,21 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 		// TODO Find person in database
 		tgUser = testUser
 
-		curState, err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandCleanMan, commands.CommandStart)
-
-		if err != nil {
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
 			return err
 		}
 
-		tgUser.CurState = curState
+		commandFrom := curState.InitState
+		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, commands.CommandStart)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
 
 		// TODO Add new data of user to database
 		testUser = tgUser
@@ -100,63 +125,50 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnRoom, func(ctx telegram.Context) error {
-		tgUser := &user.User{}
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandStart, commands.CommandRoom)
 
-		// TODO Find person in database
-		tgUser = testUser
-
-		curState, err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandStart, commands.CommandRoom)
-
-		if err != nil {
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
 			return err
 		}
-
-		tgUser.CurState = curState
-
-		// TODO Add new data of user to database
-		testUser = tgUser
 
 		return ctx.Send("Now you are in the room", menus.RoomMenu)
 	})
 
 	bot.Handle(&menus.BtnAquaMan, func(ctx telegram.Context) error {
-		tgUser := &user.User{}
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandRoom, commands.CommandAquaMan)
 
-		// TODO Find person in database
-		tgUser = testUser
-
-		curState, err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandRoom, commands.CommandAquaMan)
-
-		if err != nil {
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
 			return err
 		}
-
-		tgUser.CurState = curState
-
-		// TODO Add new data of user to database
-		testUser = tgUser
 
 		return ctx.Send("Now you are aqua-man", menus.AquaManMenu)
 	})
 
 	bot.Handle(&menus.BtnBack, func(ctx telegram.Context) error {
-		tgUser := &user.User{}
-
-		// TODO Find person in database
-		tgUser = testUser
-
-		commandFrom := tgUser.CurState.InitState
-		commandTo := tgUser.CurState.PrevState
-		curState, err := state.CheckOfUserState(contex, rdb, ctx, commandFrom, commandTo)
-
-		if err != nil {
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
 			return err
 		}
 
-		tgUser.CurState = curState
+		if curState.InitState == commands.CommandStart {
+			return nil
+		}
 
-		// TODO Add new data of user to database
-		testUser = tgUser
+		commandFrom := curState.InitState
+		commandTo := curState.PrevState
+		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, commandTo)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
 
 		return ctx.Send("We return you back ", allMenus[commandTo])
 	})
