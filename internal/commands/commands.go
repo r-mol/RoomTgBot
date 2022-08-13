@@ -16,4 +16,8 @@ const (
 	CommandShop     = "🛍 Shop"
 	CommandAquaMan  = "\U0001F9A6 Aqua-Man"
 	CommandCleanMan = "\U0001F9F9 Clean-Man"
+
+	CommandUpload = "📥 Upload"
+	CommandGet    = "📤 Get"
+	CommandCheck  = "\U0001F9FE Check"
 )
