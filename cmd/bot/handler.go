@@ -118,7 +118,7 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		return ctx.Send("Now you are in the room", menus.RoomMenu)
+		return ctx.Send("Now you are in the room menu...", menus.RoomMenu)
 	})
 
 	bot.Handle(&menus.BtnAquaMan, func(ctx telegram.Context) error {
@@ -130,7 +130,7 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		return ctx.Send("Now you are aqua-man", menus.AquaManMenu)
+		return ctx.Send("Now you are aqua-man...", menus.AquaManMenu)
 	})
 
 	bot.Handle(&menus.BtnBack, func(ctx telegram.Context) error {
@@ -155,7 +155,7 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		return ctx.Send("We return you back ", allMenus[commandTo])
+		return ctx.Send("Welcome back 🛑", allMenus[commandTo])
 	})
 
 	bot.Handle(telegram.OnText, func(ctx telegram.Context) error {
