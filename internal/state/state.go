@@ -39,7 +39,7 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 
 	prevState, ok := states[prevCommand]
 	if !ok {
-		err = ctx.Send("Something bad happened, we return you to the beginning", menus.MainMenu)
+		err = ctx.Send("Something bad happened,\nwe return you to the beginning...", menus.MainMenu)
 
 		if err != nil {
 			return err
@@ -61,7 +61,7 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 	}
 
 	if !prevState.IsNow {
-		err = ctx.Send("Something bad happened, we return you to the beginning", menus.MainMenu)
+		err = ctx.Send("Something bad happened,\nwe return you to the beginning...", menus.MainMenu)
 
 		if err != nil {
 			return err
@@ -165,6 +165,7 @@ func resetToZeroState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 	}
 
 	curState.IsNow = false
+	states[curState.InitState] = curState
 
 	newCurState := states[commands.CommandStart]
 
