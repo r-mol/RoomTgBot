@@ -5,6 +5,7 @@ import (
 	"RoomTgBot/internal/menus"
 	"RoomTgBot/internal/state"
 	"RoomTgBot/internal/user"
+
 	"context"
 	"log"
 
@@ -19,7 +20,6 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 		FirstName: "Roman",
 		Username:  "roman_molochkov",
 		IsBot:     false,
-		CurState:  &state.State{},
 	}
 
 	menus.InitializeMenus()
@@ -36,7 +36,7 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 
 		log.Println("User is authorized")
 
-		// TODO Add to new user to database
+		// TODO Add new user to database
 
 		curState := &state.State{
 			InitState: commands.CommandStart,
@@ -44,13 +44,6 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 		}
 
 		states := state.States{}
-		err = state.GetStatesFromRDB(contex, rdb, ctx, &states)
-
-		if err == redis.Nil {
-			return ctx.Send("Please restart bot ✨")
-		} else if err != nil {
-			return err
-		}
 
 		states[commands.CommandStart] = curState
 		states[state.InitState] = curState
