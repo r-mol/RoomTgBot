@@ -33,9 +33,7 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 
 	err := GetStatesFromRDB(contex, rdb, ctx, &states)
 
-	if err == redis.Nil {
-		return ctx.Send("Please restart bot ✨")
-	} else if err != nil {
+	if err != nil {
 		return err
 	}
 
@@ -47,11 +45,9 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 			return err
 		}
 
-		err = resetToZeroState(contex, rdb, ctx)
+		err = resetToZeroState(contex, rdb, ctx, states)
 
-		if err == redis.Nil {
-			return ctx.Send("Please restart bot ✨")
-		} else if err != nil {
+		if err != nil {
 			return err
 		}
 
@@ -71,11 +67,9 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 			return err
 		}
 
-		err = resetToZeroState(contex, rdb, ctx)
+		err = resetToZeroState(contex, rdb, ctx, states)
 
-		if err == redis.Nil {
-			return ctx.Send("Please restart bot ✨")
-		} else if err != nil {
+		if err != nil {
 			return err
 		}
 
@@ -83,7 +77,7 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 	}
 
 	prevState.IsNow = false
-	states[prevCommand] = prevState
+	//states[prevCommand] = prevState
 
 	if err != nil {
 		return err
@@ -120,9 +114,7 @@ func GetCurStateFromRDB(contex context.Context, rdb *redis.Client, ctx telegram.
 	states := States{}
 	err := GetStatesFromRDB(contex, rdb, ctx, &states)
 
-	if err == redis.Nil {
-		return nil, ctx.Send("Please restart bot ✨")
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -137,8 +129,6 @@ func GetStatesFromRDB(contex context.Context, rdb *redis.Client, ctx telegram.Co
 	stateBytes, err := rdb.Get(contex, id).Result()
 
 	switch {
-	case err == redis.Nil:
-		sts = &States{}
 	case err != nil:
 		return err
 	default:
@@ -168,32 +158,26 @@ func SetStatesToRDB(contex context.Context, rdb *redis.Client, ctx telegram.Cont
 	return nil
 }
 
-func resetToZeroState(contex context.Context, rdb *redis.Client, ctx telegram.Context) error {
-	states := States{}
+func resetToZeroState(contex context.Context, rdb *redis.Client, ctx telegram.Context, states States) error {
 	curState, err := GetCurStateFromRDB(contex, rdb, ctx)
 
-	if err == redis.Nil {
-		return ctx.Send("Please restart bot ✨")
-	} else if err != nil {
+	if err != nil {
 		return err
 	}
 
 	curState.IsNow = false
 
-	states[curState.InitState] = curState
+	// states[curState.InitState] = curState
 
 	newCurState := states[commands.CommandStart]
 
 	newCurState.IsNow = true
 
-	states[commands.CommandStart] = newCurState
 	states[InitState] = newCurState
 
 	err = SetStatesToRDB(contex, rdb, ctx, &states)
 
-	if err == redis.Nil {
-		return ctx.Send("Please restart bot ✨")
-	} else if err != nil {
+	if err != nil {
 		return err
 	}
 
