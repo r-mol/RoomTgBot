@@ -1,6 +1,8 @@
 package user
 
 import (
+	"strconv"
+
 	telegram "gopkg.in/telebot.v3"
 )
 
@@ -33,4 +35,8 @@ func CreateUser(bot *telegram.Bot, ctx telegram.Context, newUser *User) error {
 	}
 
 	return nil
+}
+
+func (u *User) Recipient() string {
+	return strconv.FormatInt(u.ID, 10)
 }
