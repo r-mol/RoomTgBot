@@ -13,6 +13,7 @@ var (
 	AquaManMenu  = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	CleanManMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	ShopMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	ExamMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
 	// Main menu buttons.
 	BtnRoom     = MainMenu.Text(commands.CommandRoom)
@@ -46,22 +47,27 @@ func InitializeMenus() {
 
 	RoomMenu.Reply(
 		RoomMenu.Row(BtnShop, BtnAquaMan, BtnCleanMan),
-		MainMenu.Row(BtnBack),
+		RoomMenu.Row(BtnBack),
 	)
 
 	AquaManMenu.Reply(
 		AquaManMenu.Row(BtnBringWater),
-		MainMenu.Row(BtnBack),
+		AquaManMenu.Row(BtnBack),
 	)
 
 	CleanManMenu.Reply(
 		CleanManMenu.Row(BtnCleanRoom),
-		MainMenu.Row(BtnBack),
+		CleanManMenu.Row(BtnBack),
 	)
 
 	ShopMenu.Reply(
 		ShopMenu.Row(BtnUpload, BtnCheckShopping),
-		MainMenu.Row(BtnBack),
+		ShopMenu.Row(BtnBack),
+	)
+
+	ExamMenu.Reply(
+		ExamMenu.Row(BtnUpload, BtnGet),
+		ExamMenu.Row(BtnBack),
 	)
 }
 
@@ -73,6 +79,7 @@ func GetMenus() map[string]*telegram.ReplyMarkup {
 	allMenus[commands.CommandAquaMan] = AquaManMenu
 	allMenus[commands.CommandCleanMan] = CleanManMenu
 	allMenus[commands.CommandShop] = ShopMenu
+	allMenus[commands.CommandExam] = ExamMenu
 
 	return allMenus
 }
