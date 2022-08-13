@@ -12,12 +12,5 @@ func main() {
 }
 
 func testAllServices() {
-	// cron
-	// Test()
-	// mongodb
-	// DBTest()
-	// redis
-	// ExampleClient()
-	// start echo bot
 	bot.Setup()
 }
