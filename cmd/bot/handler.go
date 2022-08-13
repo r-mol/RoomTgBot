@@ -16,12 +16,6 @@ import (
 var contex = context.Background()
 
 func handling(bot *telegram.Bot, rdb *redis.Client) {
-	testUser := &user.User{
-		FirstName: "Roman",
-		Username:  "roman_molochkov",
-		IsBot:     false,
-	}
-
 	menus.InitializeMenus()
 
 	allMenus := menus.GetMenus()
@@ -62,10 +56,9 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(commands.CommandBringWater, func(ctx telegram.Context) error {
-		tgUser := &user.User{}
-
 		// TODO Find person in database
-		tgUser = testUser
+		//   tgUser := &user.User{}
+		//   tgUser = testUser
 
 		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
 		if err == redis.Nil {
@@ -84,16 +77,15 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 		}
 
 		// TODO Add new data of user to database
-		testUser = tgUser
+		//   testUser = tgUser
 
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
 
 	bot.Handle(commands.CommandClean, func(ctx telegram.Context) error {
-		tgUser := &user.User{}
-
 		// TODO Find person in database
-		tgUser = testUser
+		//  tgUser := &user.User{}
+		//  tgUser = testUser
 
 		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
 		if err == redis.Nil {
@@ -112,7 +104,7 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 		}
 
 		// TODO Add new data of user to database
-		testUser = tgUser
+		//  testUser = tgUser
 
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
