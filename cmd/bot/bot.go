@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -16,8 +15,6 @@ func Setup() {
 		Token:  "5455937729:AAEVDvLDJczTncZ0aOfIA0Xn6dVcFgcMIO0",
 		Poller: &telegram.LongPoller{Timeout: timeOutMultiplier * time.Second},
 	}
-
-	fmt.Println("5455937729:AAEVDvLDJczTncZ0aOfIA0Xn6dVcFgcMIO0")
 
 	bot, err := telegram.NewBot(pref)
 
