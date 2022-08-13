@@ -8,12 +8,14 @@ import (
 
 var (
 	// Universal markup builders.
-	MainMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	RoomMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	AquaManMenu  = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	CleanManMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	ShopMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	ExamMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	MainMenu       = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	RoomMenu       = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	AquaManMenu    = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	CleanManMenu   = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	ShopMenu       = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	ExamMenu       = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	NewsMenu       = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	AcceptNewsMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
 	// Main menu buttons.
 	BtnRoom     = MainMenu.Text(commands.CommandRoom)
@@ -37,6 +39,11 @@ var (
 
 	// Shop menu buttons.
 	BtnCheckShopping = ShopMenu.Text(commands.CommandCheck)
+
+	// News menu buttons.
+	BtnDone        = ShopMenu.Text(commands.CommandDone)
+	BtnPostNews    = ShopMenu.Text(commands.CommandPostNews)
+	BtnDeleteDraft = ShopMenu.Text(commands.CommandDeleteDraft)
 )
 
 func InitializeMenus() {
@@ -69,6 +76,16 @@ func InitializeMenus() {
 		ExamMenu.Row(BtnUpload, BtnGet),
 		ExamMenu.Row(BtnBack),
 	)
+
+	NewsMenu.Reply(
+		NewsMenu.Row(BtnDone, BtnDeleteDraft),
+		NewsMenu.Row(BtnBack),
+	)
+
+	AcceptNewsMenu.Reply(
+		AcceptNewsMenu.Row(BtnPostNews, BtnDeleteDraft),
+		AcceptNewsMenu.Row(BtnBack),
+	)
 }
 
 func GetMenus() map[string]*telegram.ReplyMarkup {
@@ -80,6 +97,8 @@ func GetMenus() map[string]*telegram.ReplyMarkup {
 	allMenus[commands.CommandCleanMan] = CleanManMenu
 	allMenus[commands.CommandShop] = ShopMenu
 	allMenus[commands.CommandExam] = ExamMenu
+	allMenus[commands.CommandNews] = NewsMenu
+	allMenus[commands.CommandDone] = AcceptNewsMenu
 
 	return allMenus
 }
