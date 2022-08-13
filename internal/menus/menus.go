@@ -8,9 +8,10 @@ import (
 
 var (
 	// Universal markup builders.
-	MainMenu    = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	RoomMenu    = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	AquaManMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	MainMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	RoomMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	AquaManMenu  = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	CleanManMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
 	// Main menu buttons.
 	BtnRoom     = MainMenu.Text(commands.CommandRoom)
@@ -25,6 +26,9 @@ var (
 
 	// Aqua man menu buttons.
 	BtnBringWater = AquaManMenu.Text(commands.CommandBringWater)
+
+	// Clean man menu buttons.
+	BtnCleanRoom = CleanManMenu.Text(commands.CommandCleanRoom)
 
 	BtnBack = MainMenu.Text(commands.CommandBack)
 )
@@ -42,6 +46,11 @@ func InitializeMenus() {
 
 	AquaManMenu.Reply(
 		AquaManMenu.Row(BtnBringWater),
+		MainMenu.Row(BtnBack),
+	)
+
+	CleanManMenu.Reply(
+		CleanManMenu.Row(BtnCleanRoom),
 		MainMenu.Row(BtnBack),
 	)
 }
