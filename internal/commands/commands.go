@@ -2,7 +2,7 @@ package commands
 
 const (
 	CommandStart      = "/start"
-	CommandStop       = "/stop"
+	CommandContact    = "/contact"
 	CommandHelp       = "/help"
 	CommandBringWater = "/bring_water"
 	CommandClean      = "/clean_room"
