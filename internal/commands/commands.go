@@ -5,7 +5,7 @@ const (
 	CommandContact    = "/contact"
 	CommandHelp       = "/help"
 	CommandBringWater = "/bring_water"
-	CommandClean      = "/clean_room"
+	CommandCleanRoom  = "/clean_room"
 
 	CommandRoom     = "\U0001F6D6 Room"
 	CommandNews     = "📰 News"
