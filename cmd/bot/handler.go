@@ -82,7 +82,7 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
 
-	bot.Handle(commands.CommandClean, func(ctx telegram.Context) error {
+	bot.Handle(commands.CommandCleanRoom, func(ctx telegram.Context) error {
 		// TODO Find person in database
 		//  tgUser := &user.User{}
 		//  tgUser = testUser
@@ -131,6 +131,18 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 		}
 
 		return ctx.Send("Now you are aqua-man...", menus.AquaManMenu)
+	})
+
+	bot.Handle(&menus.BtnCleanMan, func(ctx telegram.Context) error {
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandRoom, commands.CommandCleanMan)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		return ctx.Send("Now you are aqua-man...", menus.CleanManMenu)
 	})
 
 	bot.Handle(&menus.BtnBack, func(ctx telegram.Context) error {
