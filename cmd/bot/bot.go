@@ -10,6 +10,18 @@ import (
 
 const timeOutMultiplier = 10
 
+var rdb *redis.Client
+
+func init() {
+	rdb = redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	rdb.Ping(contex)
+}
+
 func Setup() {
 	pref := telegram.Settings{
 		Token:  "5455937729:AAEVDvLDJczTncZ0aOfIA0Xn6dVcFgcMIO0",
@@ -22,14 +34,6 @@ func Setup() {
 		log.Fatal(err)
 		return
 	}
-
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
-
-	rdb.Ping(contex)
 
 	handling(bot, rdb)
 
