@@ -121,6 +121,18 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 		return ctx.Send("Now you are in the room menu...", menus.RoomMenu)
 	})
 
+	bot.Handle(&menus.BtnExam, func(ctx telegram.Context) error {
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandStart, commands.CommandExam)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		return ctx.Send("Now you are in the exam menu...", menus.ExamMenu)
+	})
+
 	bot.Handle(&menus.BtnAquaMan, func(ctx telegram.Context) error {
 		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandRoom, commands.CommandAquaMan)
 
