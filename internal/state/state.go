@@ -26,10 +26,10 @@ type State struct {
 type States map[string]*State
 
 const InitState = "init_state"
+const baseForConvertToInt = 10
 
 func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Context, prevCommand, initCommand string) error {
 	states := States{}
-	curState := &State{}
 
 	err := GetStatesFromRDB(contex, rdb, ctx, &states)
 
@@ -77,13 +77,12 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 	}
 
 	prevState.IsNow = false
-	//states[prevCommand] = prevState
 
 	if err != nil {
 		return err
 	}
 
-	curState, ok = states[initCommand]
+	curState, ok := states[initCommand]
 
 	if !ok {
 		curState = &State{
@@ -124,7 +123,7 @@ func GetCurStateFromRDB(contex context.Context, rdb *redis.Client, ctx telegram.
 }
 
 func GetStatesFromRDB(contex context.Context, rdb *redis.Client, ctx telegram.Context, sts *States) error {
-	id := strconv.FormatInt(ctx.Sender().ID, 10)
+	id := strconv.FormatInt(ctx.Sender().ID, baseForConvertToInt)
 
 	stateBytes, err := rdb.Get(contex, id).Result()
 
@@ -142,7 +141,7 @@ func GetStatesFromRDB(contex context.Context, rdb *redis.Client, ctx telegram.Co
 }
 
 func SetStatesToRDB(contex context.Context, rdb *redis.Client, ctx telegram.Context, sts *States) error {
-	id := strconv.FormatInt(ctx.Sender().ID, 10)
+	id := strconv.FormatInt(ctx.Sender().ID, baseForConvertToInt)
 
 	stateBytes, err := json.Marshal(sts)
 
@@ -166,8 +165,6 @@ func resetToZeroState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 	}
 
 	curState.IsNow = false
-
-	// states[curState.InitState] = curState
 
 	newCurState := states[commands.CommandStart]
 
