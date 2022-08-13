@@ -20,4 +20,8 @@ const (
 	CommandUpload = "📥 Upload"
 	CommandGet    = "📤 Get"
 	CommandCheck  = "\U0001F9FE Check"
+
+	CommandDone        = "✅ Done"
+	CommandPostNews    = "✉️ Post news"
+	CommandDeleteDraft = "🗑 Remove draft"
 )
