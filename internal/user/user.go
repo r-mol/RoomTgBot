@@ -1,18 +1,15 @@
 package user
 
 import (
-	"RoomTgBot/internal/state"
-
 	telegram "gopkg.in/telebot.v3"
 )
 
 type User struct {
 	ID int64 `json:"id"`
 
-	FirstName string       `json:"first_name"`
-	Username  string       `json:"username"`
-	IsBot     bool         `json:"is_bot"`
-	CurState  *state.State `json:"cur_state"`
+	FirstName string `json:"first_name"`
+	Username  string `json:"username"`
+	IsBot     bool   `json:"is_bot"`
 }
 
 func CreateUser(bot *telegram.Bot, ctx telegram.Context, newUser *User) error {
@@ -28,7 +25,6 @@ func CreateUser(bot *telegram.Bot, ctx telegram.Context, newUser *User) error {
 		FirstName: ctx.Sender().FirstName,
 		Username:  ctx.Sender().Username,
 		IsBot:     ctx.Sender().IsBot,
-		CurState:  &state.State{},
 	}
 
 	if newUser.IsBot {
