@@ -8,17 +8,7 @@ import (
 
 var Cron = cron.New()
 
-type Task interface {
-	Run()
-}
-
-type job struct {
-	callback func()
-}
-
-func (j job) Run() { j.callback() }
-
 func ScheduleForEvery(t time.Duration, cmd func()) {
-	Cron.Schedule(cron.Every(t), job{callback: cmd})
+	Cron.Schedule(cron.Every(t), cron.FuncJob(cmd))
 }
 
