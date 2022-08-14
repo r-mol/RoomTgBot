@@ -1,25 +1,24 @@
 package main
 
 import (
-	"fmt"
+	"time"
 
-	cron "github.com/robfig/cron/v3"
+	"github.com/robfig/cron/v3"
 )
 
-func Test() {
-	c := cron.New(cron.WithSeconds())
-	//defer c.Stop()
+var Cron = cron.New()
 
-	lines := 0
-
-	_, err := c.AddFunc("@every 1s", func() {
-		fmt.Println("line")
-		lines++
-	})
-
-	if err != nil {
-		return
-	}
-
-	c.Start()
+type Task interface {
+	Run()
 }
+
+type job struct {
+	callback func()
+}
+
+func (j job) Run() { j.callback() }
+
+func ScheduleForEvery(t time.Duration, cmd func()) {
+	Cron.Schedule(cron.Every(t), job{callback: cmd})
+}
+
