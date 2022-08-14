@@ -145,6 +145,18 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 		return ctx.Send("Please, send test/file messages to create news:", menus.NewsMenu)
 	})
 
+	bot.Handle(&menus.BtnSettings, func(ctx telegram.Context) error {
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandStart, commands.CommandSettings)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		return ctx.Send("Now you are in the settings menu...", menus.SettingsMenu)
+	})
+
 	bot.Handle(&menus.BtnDone, func(ctx telegram.Context) error {
 		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandNews, commands.CommandDone)
 
