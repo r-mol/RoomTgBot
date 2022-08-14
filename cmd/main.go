@@ -2,7 +2,12 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
+
+func init() {
+	Cron.Start()
+}
 
 func main() {
 	fmt.Println("Hello Goland")
@@ -11,7 +16,6 @@ func main() {
 
 func testAllServices() {
 	// cron
-	//Test()
 
 	// mongodb
 	//DBTest()
