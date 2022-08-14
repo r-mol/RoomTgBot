@@ -24,4 +24,7 @@ const (
 	CommandDone        = "✅ Done"
 	CommandPostNews    = "✉️ Post news"
 	CommandDeleteDraft = "🗑 Remove draft"
+
+	CommandNotificationSettings = "📬 Notification settings"
+	CommandSettingsOfBot        = "🔐 Settings of bot"
 )
