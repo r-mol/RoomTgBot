@@ -142,7 +142,7 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		return ctx.Send("Please, send test/file messages to create news:", menus.NewsMenu)
+		return ctx.Send("Please, send text/file messages to create news:", menus.NewsMenu)
 	})
 
 	bot.Handle(&menus.BtnSettings, func(ctx telegram.Context) error {
