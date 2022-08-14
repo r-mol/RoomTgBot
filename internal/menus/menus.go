@@ -10,11 +10,12 @@ var (
 	// Universal markup builders.
 	MainMenu       = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	RoomMenu       = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	ExamMenu       = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	NewsMenu       = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	SettingsMenu   = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	AquaManMenu    = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	CleanManMenu   = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	ShopMenu       = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	ExamMenu       = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	NewsMenu       = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	AcceptNewsMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
 	// Main menu buttons.
@@ -44,6 +45,10 @@ var (
 	BtnDone        = ShopMenu.Text(commands.CommandDone)
 	BtnPostNews    = ShopMenu.Text(commands.CommandPostNews)
 	BtnDeleteDraft = ShopMenu.Text(commands.CommandDeleteDraft)
+
+	// Setting menu buttons.
+	BtnNotificationSettings = ShopMenu.Text(commands.CommandNotificationSettings)
+	BtnSettingsOfBot        = ShopMenu.Text(commands.CommandSettingsOfBot)
 )
 
 func InitializeMenus() {
@@ -86,6 +91,11 @@ func InitializeMenus() {
 		AcceptNewsMenu.Row(BtnPostNews, BtnDeleteDraft),
 		AcceptNewsMenu.Row(BtnBack),
 	)
+
+	SettingsMenu.Reply(
+		SettingsMenu.Row(BtnSettingsOfBot, BtnNotificationSettings),
+		SettingsMenu.Row(BtnBack),
+	)
 }
 
 func GetMenus() map[string]*telegram.ReplyMarkup {
@@ -93,11 +103,12 @@ func GetMenus() map[string]*telegram.ReplyMarkup {
 
 	allMenus[commands.CommandStart] = MainMenu
 	allMenus[commands.CommandRoom] = RoomMenu
+	allMenus[commands.CommandExam] = ExamMenu
+	allMenus[commands.CommandNews] = NewsMenu
+	allMenus[commands.CommandSettings] = SettingsMenu
 	allMenus[commands.CommandAquaMan] = AquaManMenu
 	allMenus[commands.CommandCleanMan] = CleanManMenu
 	allMenus[commands.CommandShop] = ShopMenu
-	allMenus[commands.CommandExam] = ExamMenu
-	allMenus[commands.CommandNews] = NewsMenu
 	allMenus[commands.CommandDone] = AcceptNewsMenu
 
 	return allMenus
