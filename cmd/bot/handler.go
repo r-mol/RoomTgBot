@@ -265,6 +265,106 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(telegram.OnText, func(ctx telegram.Context) error {
-		return ctx.Send(ctx.Message().Text)
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		setOfStates := state.GetSetOfAvailableStates()
+
+		if _, ok := setOfStates[curState.StateName]; !ok {
+			return ctx.Send("You can not write here or you send unavailable command...")
+		}
+
+		curState.Message += " " + ctx.Message().Text
+
+		err = curState.ChangeDataInState(contex, rdb, ctx)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	bot.Handle(telegram.OnDocument, func(ctx telegram.Context) error {
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		setOfStates := state.GetSetOfAvailableStates()
+
+		if _, ok := setOfStates[curState.StateName]; !ok {
+			return ctx.Send("You can not write here or you send unavailable command...")
+		}
+
+		curState.Files = append(curState.Files, ctx.Message().Document)
+
+		err = curState.ChangeDataInState(contex, rdb, ctx)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	bot.Handle(telegram.OnPhoto, func(ctx telegram.Context) error {
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		setOfStates := state.GetSetOfAvailableStates()
+
+		if _, ok := setOfStates[curState.StateName]; !ok {
+			return ctx.Send("You can not write here or you send unavailable command...")
+		}
+
+		curState.Photos = append(curState.Photos, ctx.Message().Photo)
+
+		err = curState.ChangeDataInState(contex, rdb, ctx)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	bot.Handle(&menus.BtnBack, func(ctx telegram.Context) error {
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		if curState.StateName == commands.CommandStart {
+			return nil
+		}
+
+		commandFrom := curState.StateName
+		commandTo := curState.PrevState
+		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, commandTo)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		curState.RemoveAll()
+
+		err = curState.ChangeDataInState(contex, rdb, ctx)
+		if err != nil {
+			return err
+		}
+
+		return ctx.Send("Welcome back 🛑", allMenus[commandTo])
 	})
 }
