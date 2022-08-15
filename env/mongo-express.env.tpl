@@ -1,0 +1,4 @@
+ME_CONFIG_MONGODB_ADMINUSERNAME=your_username
+ME_CONFIG_MONGODB_ADMINPASSWORD=your_password
+ME_CONFIG_MONGODB_URL=mongodb://username:password@ip:port/
+
