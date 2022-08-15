@@ -1,0 +1,2 @@
+MONGO_INITDB_ROOT_USERNAME=your_db_username
+MONGO_INITDB_ROOT_PASSWORD=your_db_password
