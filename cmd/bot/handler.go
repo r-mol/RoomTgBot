@@ -166,7 +166,66 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		return ctx.Send("Please, check your draft of news:", menus.AcceptNewsMenu)
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		err = curState.SendAllAvailableMessages(ctx)
+		if err != nil {
+			return err
+		}
+
+		return ctx.Send("Please, check your draft of news:", menus.PostNewsMenu)
+	})
+
+	bot.Handle(&menus.BtnPostNews, func(ctx telegram.Context) error {
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		// TODO add news to database and make notification
+
+		curState.RemoveAll()
+
+		err = curState.ChangeDataInState(contex, rdb, ctx)
+		if err != nil {
+			return err
+		}
+
+		err = state.CheckOfUserState(contex, rdb, ctx, commands.CommandDone, commands.CommandStart)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		return ctx.Send("Your news has been posted 📨", menus.MainMenu)
+	})
+
+	bot.Handle(&menus.BtnDeleteDraft, func(ctx telegram.Context) error {
+
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		curState.RemoveAll()
+
+		err = curState.ChangeDataInState(contex, rdb, ctx)
+		if err != nil {
+			return err
+		}
+
+		return ctx.Send("All you messages have been removed")
 	})
 
 	bot.Handle(&menus.BtnAquaMan, func(ctx telegram.Context) error {
