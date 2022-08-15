@@ -11,12 +11,14 @@ import (
 )
 
 // Connection URI
-// const uri = "mongodb://roombot:roombot@localhost:27017/?maxPoolSize=20&w=majority"
-var uri = fmt.Sprintf("mongodb://%s:%s@%s/?maxPoolSize=20&w=majority", os.Getenv("MONGO_INITDB_ROOT_USERNAME"), os.Getenv("MONGO_INITDB_ROOT_PASSWORD"), os.Getenv("MONGO_URL"))
+func uri() string {
+	// "runtime constant". Protect value from overriding
+	return fmt.Sprintf("mongodb://%s:%s@%s/?maxPoolSize=20&w=majority", os.Getenv("MONGO_INITDB_ROOT_USERNAME"), os.Getenv("MONGO_INITDB_ROOT_PASSWORD"), os.Getenv("MONGO_URL"))
+}
 
 func DBTest() {
 	// Create a new client and connect to the server
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri()))
 
 	if err != nil {
 		panic(err)
