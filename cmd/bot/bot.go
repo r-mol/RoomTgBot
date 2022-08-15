@@ -3,6 +3,7 @@ package bot
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	telegram "gopkg.in/telebot.v3"
@@ -10,11 +11,11 @@ import (
 
 func Setup() {
 	pref := telegram.Settings{
-		Token:  "5455937729:AAEVDvLDJczTncZ0aOfIA0Xn6dVcFgcMIO0",
+		Token: os.Getenv("TG_TOKEN"),
 		Poller: &telegram.LongPoller{Timeout: 10 * time.Second},
 	}
 
-	fmt.Println("5455937729:AAEVDvLDJczTncZ0aOfIA0Xn6dVcFgcMIO0")
+	fmt.Println(os.Getenv("TG_TOKEN"))
 
 	bot, err := telegram.NewBot(pref)
 
