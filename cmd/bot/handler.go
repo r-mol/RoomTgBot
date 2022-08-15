@@ -33,7 +33,7 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 		// TODO Add new user to database
 
 		curState := &state.State{
-			InitState: commands.CommandStart,
+			StateName: commands.CommandStart,
 			IsNow:     true,
 		}
 
