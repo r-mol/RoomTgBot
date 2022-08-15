@@ -13,7 +13,7 @@ import (
 // Connection URI
 func uri() string {
 	// "runtime constant". Protect value from overriding
-	return fmt.Sprintf("mongodb://%s:%s@%s/?maxPoolSize=20&w=majority", os.Getenv("MONGO_INITDB_ROOT_USERNAME"), os.Getenv("MONGO_INITDB_ROOT_PASSWORD"), os.Getenv("MONGO_URL"))
+	return os.Getenv("MONGO_URI")
 }
 
 func DBTest() {

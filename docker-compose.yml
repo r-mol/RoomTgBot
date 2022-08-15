@@ -8,9 +8,6 @@ services:
     restart: always
     env_file:
       - ./env/bot.env
-      - ./env/mongo.env
-    environment:
-      MONGO_URL: "mongo:27017"
 
   redis:
     build: ./redis
