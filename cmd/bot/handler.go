@@ -156,7 +156,6 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnDeleteDraft, func(ctx telegram.Context) error {
-
 		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")

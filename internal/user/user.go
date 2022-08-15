@@ -14,6 +14,8 @@ type User struct {
 	IsBot     bool   `json:"is_bot"`
 }
 
+const baseForConvertToInt = 10
+
 func CreateUser(bot *telegram.Bot, ctx telegram.Context, newUser *User) error {
 	id := ctx.Sender().ID
 
@@ -38,5 +40,5 @@ func CreateUser(bot *telegram.Bot, ctx telegram.Context, newUser *User) error {
 }
 
 func (u *User) Recipient() string {
-	return strconv.FormatInt(u.ID, 10)
+	return strconv.FormatInt(u.ID, baseForConvertToInt)
 }

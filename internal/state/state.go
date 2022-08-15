@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 
 	"github.com/go-redis/redis/v9"
@@ -198,46 +197,44 @@ func GetSetOfAvailableStates() map[string]struct{} {
 	return setOfStates
 }
 
-func (prevState *State) MoveMessagesTo(curState *State) {
-	if prevState.Message != "" {
-		curState.Message = prevState.Message
-		prevState.Message = ""
+func (state *State) MoveMessagesTo(curState *State) {
+	if state.Message != "" {
+		curState.Message = state.Message
+		state.Message = ""
 	}
 
-	if len(prevState.Files) != 0 {
-		for _, file := range prevState.Files {
-			curState.Files = append(curState.Files, file)
-		}
-		prevState.Files = []*telegram.Document{}
+	if len(state.Files) != 0 {
+		curState.Files = append(curState.Files, state.Files...)
+
+		state.Files = []*telegram.Document{}
 	}
 
-	if len(prevState.Photos) != 0 {
-		for _, photo := range prevState.Photos {
-			curState.Photos = append(curState.Photos, photo)
-		}
-		prevState.Photos = []*telegram.Photo{}
+	if len(state.Photos) != 0 {
+		curState.Photos = append(curState.Photos, state.Photos...)
+
+		state.Photos = []*telegram.Photo{}
 	}
 }
 
-func (curState *State) RemoveAll() {
-	curState.Message = ""
-	curState.Files = []*telegram.Document{}
-	curState.Photos = []*telegram.Photo{}
+func (state *State) RemoveAll() {
+	state.Message = ""
+	state.Files = []*telegram.Document{}
+	state.Photos = []*telegram.Photo{}
 }
 
-func (curState State) SendAllAvailableMessages(ctx telegram.Context) error {
+func (state *State) SendAllAvailableMessages(ctx telegram.Context) error {
 	var err error
 
-	if curState.Message != "" {
-		err = ctx.Send(curState.Message)
+	if state.Message != "" {
+		err = ctx.Send(state.Message)
 	}
 
 	if err != nil {
 		return err
 	}
 
-	if len(curState.Files) != 0 {
-		for _, file := range curState.Files {
+	if len(state.Files) != 0 {
+		for _, file := range state.Files {
 			err = ctx.Send(file)
 			if err != nil {
 				return err
@@ -245,8 +242,8 @@ func (curState State) SendAllAvailableMessages(ctx telegram.Context) error {
 		}
 	}
 
-	if len(curState.Photos) != 0 {
-		for _, photo := range curState.Photos {
+	if len(state.Photos) != 0 {
+		for _, photo := range state.Photos {
 			err = ctx.Send(photo)
 			if err != nil {
 				return err
@@ -257,8 +254,7 @@ func (curState State) SendAllAvailableMessages(ctx telegram.Context) error {
 	return nil
 }
 
-func (curState *State) ChangeDataInState(contex context.Context, rdb *redis.Client, ctx telegram.Context) error {
-
+func (state *State) ChangeDataInState(contex context.Context, rdb *redis.Client, ctx telegram.Context) error {
 	states := States{}
 
 	err := GetStatesFromRDB(contex, rdb, ctx, &states)
@@ -267,10 +263,11 @@ func (curState *State) ChangeDataInState(contex context.Context, rdb *redis.Clie
 		return err
 	}
 
-	if states[InitState].StateName == curState.StateName {
-		states[InitState] = curState
+	if states[InitState].StateName == state.StateName {
+		states[InitState] = state
 	}
-	states[curState.StateName] = curState
+
+	states[state.StateName] = state
 
 	err = SetStatesToRDB(contex, rdb, ctx, &states)
 
