@@ -1,5 +1,5 @@
 # secreets and enviromental variables
-**/.env
+**/*.env
 # Binaries for programs and plugins
 *.exe
 *.exe~
