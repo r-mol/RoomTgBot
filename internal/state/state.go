@@ -16,11 +16,12 @@ import (
 )
 
 type State struct {
-	InitState string    `json:"init_state"`
-	PrevState string    `json:"prev_state"`
-	Message   string    `json:"message"`
-	File      []os.File `json:"file"`
-	IsNow     bool      `json:"is_now"`
+	StateName string               `json:"init_state"`
+	PrevState string               `json:"prev_state"`
+	Message   string               `json:"message"`
+	Files     []*telegram.Document `json:"document"`
+	Photos    []*telegram.Photo    `json:"photo"`
+	IsNow     bool                 `json:"is_now"`
 }
 
 type States map[string]*State
