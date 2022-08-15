@@ -214,6 +214,76 @@ func handlingRoomMenu(bot *telegram.Bot, rdb *redis.Client) {
 		return ctx.Send("Now you are in the shop menu...", menus.ShopMenu)
 	})
 
+	bot.Handle(&menus.BtnUploadPurchase, func(ctx telegram.Context) error {
+
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandShop, commands.CommandUploadPurchase)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		return ctx.Send("Please, send:\n1.Name of purchase\n2. Image of purchase\n3. Cost of purchase", menus.ShopUploadMenu)
+	})
+
+	bot.Handle(&menus.BtnPurchaseDone, func(ctx telegram.Context) error {
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandUploadPurchase, commands.CommandPurchaseDone)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		err = ctx.Send("Please, check your draft of purchase:", menus.PostPurchaseMenu)
+		if err != nil {
+			return err
+		}
+
+		err = curState.SendAllAvailableMessages(ctx)
+		if err != nil {
+			return err
+		}
+
+		return err
+	})
+
+	bot.Handle(&menus.BtnPostPurchase, func(ctx telegram.Context) error {
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		// TODO add purchase to database and make notification
+
+		curState.RemoveAll()
+
+		err = curState.ChangeDataInState(contex, rdb, ctx)
+		if err != nil {
+			return err
+		}
+
+		err = state.CheckOfUserState(contex, rdb, ctx, commands.CommandPurchaseDone, commands.CommandStart)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		return ctx.Send("Your purchase has been sand to database 📨", menus.MainMenu)
+	})
+
 	bot.Handle(commands.CommandBringWater, func(ctx telegram.Context) error {
 		// TODO Find person in database
 		//   tgUser := &user.User{}
@@ -282,8 +352,8 @@ func handlingNewsMenu(bot *telegram.Bot, rdb *redis.Client) {
 		return ctx.Send("Please, send text/file messages to create news:", menus.NewsMenu)
 	})
 
-	bot.Handle(&menus.BtnDone, func(ctx telegram.Context) error {
-		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandNews, commands.CommandDone)
+	bot.Handle(&menus.BtnNewsDone, func(ctx telegram.Context) error {
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandNews, commands.CommandNewsDone)
 
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
@@ -298,12 +368,17 @@ func handlingNewsMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
+		err = ctx.Send("Please, check your draft of news:", menus.PostNewsMenu)
+		if err != nil {
+			return err
+		}
+
 		err = curState.SendAllAvailableMessages(ctx)
 		if err != nil {
 			return err
 		}
 
-		return ctx.Send("Please, check your draft of news:", menus.PostNewsMenu)
+		return err
 	})
 
 	bot.Handle(&menus.BtnPostNews, func(ctx telegram.Context) error {
@@ -323,7 +398,7 @@ func handlingNewsMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		err = state.CheckOfUserState(contex, rdb, ctx, commands.CommandDone, commands.CommandStart)
+		err = state.CheckOfUserState(contex, rdb, ctx, commands.CommandNewsDone, commands.CommandStart)
 
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
@@ -363,6 +438,48 @@ func handlingExamMenu(bot *telegram.Bot, rdb *redis.Client) {
 		}
 
 		return ctx.Send("Now you are in the exam menu...", menus.ExamMenu)
+	})
+
+	bot.Handle(&menus.BtnUploadExam, func(ctx telegram.Context) error {
+
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandShop, commands.CommandUploadPurchase)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		return ctx.Send("Please, send files:", menus.ShopUploadMenu)
+	})
+
+	bot.Handle(&menus.BtnExamDone, func(ctx telegram.Context) error {
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandUploadExam, commands.CommandExamDone)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		err = ctx.Send("Please, check your files of exam:", menus.PostNewsMenu)
+		if err != nil {
+			return err
+		}
+
+		err = curState.SendAllAvailableMessages(ctx)
+		if err != nil {
+			return err
+		}
+
+		return err
 	})
 }
 func handlingSettingsMenu(bot *telegram.Bot, rdb *redis.Client) {
