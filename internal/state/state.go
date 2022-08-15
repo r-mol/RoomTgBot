@@ -179,6 +179,98 @@ func resetToZeroState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 	newCurState.IsNow = true
 
 	states[InitState] = newCurState
+	states[newCurState.StateName] = newCurState
+
+	err = SetStatesToRDB(contex, rdb, ctx, &states)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetSetOfAvailableStates() map[string]struct{} {
+	setOfStates := map[string]struct{}{}
+
+	setOfStates[commands.CommandNews] = struct{}{}
+
+	return setOfStates
+}
+
+func (prevState *State) MoveMessagesTo(curState *State) {
+	if prevState.Message != "" {
+		curState.Message = prevState.Message
+		prevState.Message = ""
+	}
+
+	if len(prevState.Files) != 0 {
+		for _, file := range prevState.Files {
+			curState.Files = append(curState.Files, file)
+		}
+		prevState.Files = []*telegram.Document{}
+	}
+
+	if len(prevState.Photos) != 0 {
+		for _, photo := range prevState.Photos {
+			curState.Photos = append(curState.Photos, photo)
+		}
+		prevState.Photos = []*telegram.Photo{}
+	}
+}
+
+func (curState *State) RemoveAll() {
+	curState.Message = ""
+	curState.Files = []*telegram.Document{}
+	curState.Photos = []*telegram.Photo{}
+}
+
+func (curState State) SendAllAvailableMessages(ctx telegram.Context) error {
+	var err error
+
+	if curState.Message != "" {
+		err = ctx.Send(curState.Message)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if len(curState.Files) != 0 {
+		for _, file := range curState.Files {
+			err = ctx.Send(file)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(curState.Photos) != 0 {
+		for _, photo := range curState.Photos {
+			err = ctx.Send(photo)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (curState *State) ChangeDataInState(contex context.Context, rdb *redis.Client, ctx telegram.Context) error {
+
+	states := States{}
+
+	err := GetStatesFromRDB(contex, rdb, ctx, &states)
+
+	if err != nil {
+		return err
+	}
+
+	if states[InitState].StateName == curState.StateName {
+		states[InitState] = curState
+	}
+	states[curState.StateName] = curState
 
 	err = SetStatesToRDB(contex, rdb, ctx, &states)
 
