@@ -97,6 +97,10 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 		curState.IsNow = true
 	}
 
+	if prevState.PrevState != initCommand {
+		prevState.MoveMessagesTo(curState)
+	}
+
 	states[initCommand] = curState
 	states[InitState] = curState
 
