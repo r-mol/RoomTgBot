@@ -87,8 +87,10 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 
 	if !ok {
 		curState = &State{
-			InitState: initCommand,
-			PrevState: prevState.InitState,
+			StateName: initCommand,
+			PrevState: prevState.StateName,
+			Files:     []*telegram.Document{},
+			Photos:    []*telegram.Photo{},
 			IsNow:     true,
 		}
 	} else {
