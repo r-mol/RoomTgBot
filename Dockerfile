@@ -1,4 +1,4 @@
-FROM golang as build
+FROM golang:1-alpine as build
 WORKDIR /app
 
 # avoid redownloading without dependencies changing
