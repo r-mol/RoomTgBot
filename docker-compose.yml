@@ -7,8 +7,8 @@ services:
       - mongo
     restart: always
     env_file:
-      - bot.env
-      - mongo.env
+      - ./env/bot.env
+      - ./env/mongo.env
 
   redis:
     build: ./redis
@@ -22,4 +22,4 @@ services:
     ports:
       - 27017:27017
     env_file:
-      - mongo.env
+      - ./env/mongo.env
