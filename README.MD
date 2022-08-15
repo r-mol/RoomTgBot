@@ -11,7 +11,7 @@ Tool for room responsibilities tracking
 `docker-compose build app`
 
 ## source all env keys (for local development)
-`source ./env/*.env`
+`export $(cat env/*.env)`
 
 # Services
 - MongoDB `localhost:27017`
