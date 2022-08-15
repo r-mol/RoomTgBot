@@ -10,6 +10,9 @@ Tool for room responsibilities tracking
 ## force rebuild app
 `docker-compose build app`
 
+## source all env keys (for local development)
+`source ./env/*.env`
+
 # Services
 - MongoDB `localhost:27017`
 - Redis `localhost:6379`
