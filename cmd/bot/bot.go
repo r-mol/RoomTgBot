@@ -2,6 +2,7 @@ package bot
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"github.com/go-redis/redis/v9"
@@ -24,7 +25,7 @@ func init() {
 
 func Setup() {
 	pref := telegram.Settings{
-		Token:  "5455937729:AAEVDvLDJczTncZ0aOfIA0Xn6dVcFgcMIO0",
+		Token:  os.Getenv("TG_TOKEN"),
 		Poller: &telegram.LongPoller{Timeout: timeOutMultiplier * time.Second},
 	}
 
