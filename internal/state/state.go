@@ -172,7 +172,7 @@ func resetToZeroState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 	}
 
 	curState.IsNow = false
-	states[curState.InitState] = curState
+	states[curState.StateName] = curState
 
 	newCurState := states[commands.CommandStart]
 
