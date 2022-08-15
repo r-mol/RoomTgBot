@@ -17,14 +17,19 @@ const (
 	CommandAquaMan  = "\U0001F9A6 Aqua-Man"
 	CommandCleanMan = "\U0001F9F9 Clean-Man"
 
-	CommandUpload = "📥 Upload"
-	CommandGet    = "📤 Get"
-	CommandCheck  = "\U0001F9FE Check"
+	CommandPostPurchase   = "📦 Post purchase"
+	CommandUploadPurchase = "📥 Upload purchase"
+	CommandPurchaseDone   = "✅ Purchase done"
+	CommandCheck          = "\U0001F9FE Check"
 
-	CommandDone        = "✅ Done"
+	CommandNewsDone    = "✅ News done"
 	CommandPostNews    = "✉️ Post news"
 	CommandDeleteDraft = "🗑 Remove draft"
 
 	CommandNotificationSettings = "📬 Notification settings"
 	CommandSettingsOfBot        = "🔐 Settings of bot"
+
+	CommandUploadExam = "📥 Upload exam"
+	CommandGetExam    = "📤 Get exam"
+	CommandExamDone   = "✅ Exam done"
 )
