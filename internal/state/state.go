@@ -193,6 +193,8 @@ func GetSetOfAvailableStates() map[string]struct{} {
 	setOfStates := map[string]struct{}{}
 
 	setOfStates[commands.CommandNews] = struct{}{}
+	setOfStates[commands.CommandUploadPurchase] = struct{}{}
+	setOfStates[commands.CommandUploadExam] = struct{}{}
 
 	return setOfStates
 }
@@ -225,14 +227,6 @@ func (state *State) RemoveAll() {
 func (state *State) SendAllAvailableMessages(ctx telegram.Context) error {
 	var err error
 
-	if state.Message != "" {
-		err = ctx.Send(state.Message)
-	}
-
-	if err != nil {
-		return err
-	}
-
 	if len(state.Files) != 0 {
 		for _, file := range state.Files {
 			err = ctx.Send(file)
@@ -248,6 +242,13 @@ func (state *State) SendAllAvailableMessages(ctx telegram.Context) error {
 			if err != nil {
 				return err
 			}
+		}
+	}
+
+	if state.Message != "" {
+		err = ctx.Send(state.Message)
+		if err != nil {
+			return err
 		}
 	}
 
