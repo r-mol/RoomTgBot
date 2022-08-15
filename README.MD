@@ -5,8 +5,10 @@ Tool for room responsibilities tracking
 `docker-compose up`
 
 ## launch DB viewer 
-`docker-compose -f ./docker-compose.debug.yml up`
+`docker-compose --profile=debug up`
 
+## force rebuild app
+`docker-compose build app`
 
 # Services
 - MongoDB `localhost:27017`
