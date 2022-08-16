@@ -8,18 +8,25 @@ import (
 
 var (
 	// Universal markup builders.
-	MainMenu         = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	RoomMenu         = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	ExamMenu         = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	NewsMenu         = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	SettingsMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	AquaManMenu      = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	CleanManMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	ShopMenu         = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	PostNewsMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	MainMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	RoomMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	ExamMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	NewsMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	SettingsMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
+
+	AquaManMenu  = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	CleanManMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	ShopMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
+
+	PostNewsMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
+
 	ShopUploadMenu   = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	ShopCheckMenu    = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	PostPurchaseMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	ExamUploadMenu   = &telegram.ReplyMarkup{ResizeKeyboard: true}
+
+	ExamUploadMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
+
+	ListMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
 	// Main menu buttons.
 	BtnRoom     = MainMenu.Text(commands.CommandRoom)
@@ -27,6 +34,9 @@ var (
 	BtnExam     = MainMenu.Text(commands.CommandExam)
 	BtnSettings = MainMenu.Text(commands.CommandSettings)
 	BtnBack     = MainMenu.Text(commands.CommandBack)
+	BtnPrevious = ListMenu.Data(commands.CommandPrevious, "prev")
+	BtnNext     = ListMenu.Data(commands.CommandNext, "next")
+	BtnExit     = ListMenu.Data(commands.CommandExit, "exit")
 
 	// Room menu buttons.
 	BtnShop     = RoomMenu.Text(commands.CommandShop)
@@ -54,6 +64,7 @@ var (
 	BtnNotificationSettings = SettingsMenu.Text(commands.CommandNotificationSettings)
 	BtnSettingsOfBot        = SettingsMenu.Text(commands.CommandSettingsOfBot)
 
+	// Exam menu buttons.
 	BtnUploadExam = ExamMenu.Text(commands.CommandUploadExam)
 	BtnGetExam    = ExamMenu.Text(commands.CommandGetExam)
 	BtnExamDone   = ExamMenu.Text(commands.CommandExamDone)
@@ -68,6 +79,21 @@ func InitializeMenus() {
 	RoomMenu.Reply(
 		RoomMenu.Row(BtnShop, BtnAquaMan, BtnCleanMan),
 		RoomMenu.Row(BtnBack),
+	)
+
+	ExamMenu.Reply(
+		ExamMenu.Row(BtnUploadExam, BtnGetExam),
+		ExamMenu.Row(BtnBack),
+	)
+
+	NewsMenu.Reply(
+		NewsMenu.Row(BtnNewsDone, BtnDeleteDraft),
+		NewsMenu.Row(BtnBack),
+	)
+
+	SettingsMenu.Reply(
+		SettingsMenu.Row(BtnSettingsOfBot, BtnNotificationSettings),
+		SettingsMenu.Row(BtnBack),
 	)
 
 	AquaManMenu.Reply(
@@ -85,29 +111,13 @@ func InitializeMenus() {
 		ShopMenu.Row(BtnBack),
 	)
 
-	ExamMenu.Reply(
-		ExamMenu.Row(BtnUploadExam, BtnGetExam),
-		ExamMenu.Row(BtnBack),
-	)
-
-	NewsMenu.Reply(
-		NewsMenu.Row(BtnNewsDone, BtnDeleteDraft),
-		NewsMenu.Row(BtnBack),
-	)
-
-	PostNewsMenu.Reply(
-		PostNewsMenu.Row(BtnPostNews, BtnDeleteDraft),
-		PostNewsMenu.Row(BtnBack),
-	)
-
-	SettingsMenu.Reply(
-		SettingsMenu.Row(BtnSettingsOfBot, BtnNotificationSettings),
-		SettingsMenu.Row(BtnBack),
-	)
-
 	ShopUploadMenu.Reply(
 		ShopUploadMenu.Row(BtnPurchaseDone, BtnDeleteDraft),
 		ShopUploadMenu.Row(BtnBack),
+	)
+
+	ShopCheckMenu.Reply(
+		ShopCheckMenu.Row(BtnBack),
 	)
 
 	PostPurchaseMenu.Reply(
@@ -115,10 +125,17 @@ func InitializeMenus() {
 		PostPurchaseMenu.Row(BtnBack),
 	)
 
+	PostNewsMenu.Reply(
+		PostNewsMenu.Row(BtnPostNews, BtnDeleteDraft),
+		PostNewsMenu.Row(BtnBack),
+	)
+
 	ExamUploadMenu.Reply(
 		ExamUploadMenu.Row(BtnExamDone, BtnDeleteDraft),
 		ExamUploadMenu.Row(BtnBack),
 	)
+
+	ListMenu.Inline(ListMenu.Row(BtnPrevious, BtnExit, BtnNext))
 }
 
 func GetMenus() map[string]*telegram.ReplyMarkup {
@@ -132,8 +149,9 @@ func GetMenus() map[string]*telegram.ReplyMarkup {
 	allMenus[commands.CommandAquaMan] = AquaManMenu
 	allMenus[commands.CommandCleanMan] = CleanManMenu
 	allMenus[commands.CommandShop] = ShopMenu
-	allMenus[commands.CommandNewsDone] = PostNewsMenu
 	allMenus[commands.CommandUploadPurchase] = ShopUploadMenu
+	allMenus[commands.CommandCheck] = ShopCheckMenu
+	allMenus[commands.CommandNewsDone] = PostNewsMenu
 	allMenus[commands.CommandPurchaseDone] = PostPurchaseMenu
 	allMenus[commands.CommandUploadExam] = ExamUploadMenu
 
