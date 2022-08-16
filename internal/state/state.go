@@ -278,3 +278,23 @@ func (state *State) ChangeDataInState(contex context.Context, rdb *redis.Client,
 
 	return nil
 }
+
+func (state *State) GetNextMessageOfList() *Message {
+	if len(state.ListMessage)-1 == state.Index {
+		state.Index = 0
+	} else {
+		state.Index++
+	}
+
+	return state.ListMessage[state.Index]
+}
+
+func (state *State) GetPrevMessageOfList() *Message {
+	if 0 == state.Index {
+		state.Index = len(state.ListMessage) - 1
+	} else {
+		state.Index--
+	}
+
+	return state.ListMessage[state.Index]
+}
