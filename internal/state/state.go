@@ -14,13 +14,23 @@ import (
 	telegram "gopkg.in/telebot.v3"
 )
 
+type Message struct {
+	Text   string               `json:"text"`
+	Files  []*telegram.Document `json:"document"`
+	Photos []*telegram.Photo    `json:"photo"`
+}
+
+type List struct {
+	Index       int        `json:"index"`
+	ListMessage []*Message `json:"list_message"`
+}
+
 type State struct {
-	StateName string               `json:"init_state"`
-	PrevState string               `json:"prev_state"`
-	Message   string               `json:"message"`
-	Files     []*telegram.Document `json:"document"`
-	Photos    []*telegram.Photo    `json:"photo"`
-	IsNow     bool                 `json:"is_now"`
+	StateName string `json:"init_state"`
+	PrevState string `json:"prev_state"`
+	Message
+	List
+	IsNow bool `json:"is_now"`
 }
 
 type States map[string]*State
@@ -88,9 +98,11 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 		curState = &State{
 			StateName: initCommand,
 			PrevState: prevState.StateName,
-			Files:     []*telegram.Document{},
-			Photos:    []*telegram.Photo{},
-			IsNow:     true,
+			Message: Message{
+				Files:  []*telegram.Document{},
+				Photos: []*telegram.Photo{},
+			},
+			IsNow: true,
 		}
 	} else {
 		curState.IsNow = true
@@ -189,7 +201,7 @@ func resetToZeroState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 	return nil
 }
 
-func GetSetOfAvailableStates() map[string]struct{} {
+func GetSetOfAvailableChattingStates() map[string]struct{} {
 	setOfStates := map[string]struct{}{}
 
 	setOfStates[commands.CommandNews] = struct{}{}
@@ -199,10 +211,18 @@ func GetSetOfAvailableStates() map[string]struct{} {
 	return setOfStates
 }
 
+func GetSetOfAvailableListStates() map[string]struct{} {
+	setOfStates := map[string]struct{}{}
+
+	setOfStates[commands.CommandCheck] = struct{}{}
+
+	return setOfStates
+}
+
 func (state *State) MoveMessagesTo(curState *State) {
-	if state.Message != "" {
-		curState.Message = state.Message
-		state.Message = ""
+	if state.Text != "" {
+		curState.Text = state.Text
+		state.Text = ""
 	}
 
 	if len(state.Files) != 0 {
@@ -219,16 +239,21 @@ func (state *State) MoveMessagesTo(curState *State) {
 }
 
 func (state *State) RemoveAll() {
-	state.Message = ""
+	state.Text = ""
 	state.Files = []*telegram.Document{}
 	state.Photos = []*telegram.Photo{}
+	state.ListMessage = []*Message{}
 }
 
-func (state *State) SendAllAvailableMessages(ctx telegram.Context) error {
+func (state *State) SendAllAvailableMessages(ctx telegram.Context, message *Message) error {
 	var err error
 
-	if len(state.Files) != 0 {
-		for _, file := range state.Files {
+	if message == nil {
+		message = &state.Message
+	}
+
+	if len(message.Files) != 0 {
+		for _, file := range message.Files {
 			err = ctx.Send(file)
 			if err != nil {
 				return err
@@ -236,8 +261,8 @@ func (state *State) SendAllAvailableMessages(ctx telegram.Context) error {
 		}
 	}
 
-	if len(state.Photos) != 0 {
-		for _, photo := range state.Photos {
+	if len(message.Photos) != 0 {
+		for _, photo := range message.Photos {
 			err = ctx.Send(photo)
 			if err != nil {
 				return err
@@ -245,8 +270,8 @@ func (state *State) SendAllAvailableMessages(ctx telegram.Context) error {
 		}
 	}
 
-	if state.Message != "" {
-		err = ctx.Send(state.Message)
+	if message.Text != "" {
+		err = ctx.Send(message.Text)
 		if err != nil {
 			return err
 		}
