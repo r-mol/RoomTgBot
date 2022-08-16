@@ -427,6 +427,7 @@ func handlingNewsMenu(bot *telegram.Bot, rdb *redis.Client) {
 		return ctx.Send("All you messages have been removed")
 	})
 }
+
 func handlingExamMenu(bot *telegram.Bot, rdb *redis.Client) {
 	bot.Handle(&menus.BtnExam, func(ctx telegram.Context) error {
 		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandStart, commands.CommandExam)
@@ -441,8 +442,7 @@ func handlingExamMenu(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnUploadExam, func(ctx telegram.Context) error {
-
-		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandShop, commands.CommandUploadPurchase)
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandExam, commands.CommandUploadExam)
 
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
@@ -450,7 +450,7 @@ func handlingExamMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		return ctx.Send("Please, send files:", menus.ShopUploadMenu)
+		return ctx.Send("Please, send files:", menus.ExamUploadMenu)
 	})
 
 	bot.Handle(&menus.BtnExamDone, func(ctx telegram.Context) error {
@@ -468,8 +468,8 @@ func handlingExamMenu(bot *telegram.Bot, rdb *redis.Client) {
 		} else if err != nil {
 			return err
 		}
-
-		err = ctx.Send("Please, check your files of exam:", menus.PostNewsMenu)
+		// TODO Create moving in list of subjects
+		err = ctx.Send("Please, check your files of exam and choose subject from list:")
 		if err != nil {
 			return err
 		}
