@@ -60,6 +60,82 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 		return ctx.Send("Nice to meet you "+newUser.FirstName+" !!!", menus.MainMenu)
 	})
 
+	bot.Handle(&menus.BtnPrevious, func(ctx telegram.Context) error {
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		setOfStates := state.GetSetOfAvailableListStates()
+
+		if _, ok := setOfStates[curState.StateName]; !ok {
+			return ctx.Send("Please restart bot ✨")
+		}
+
+		message := curState.GetPrevMessageOfList()
+
+		err = curState.ChangeDataInState(contex, rdb, ctx)
+		if err != nil {
+			return err
+		}
+
+		err = curState.SendAllAvailableMessages(ctx, message)
+		if err != nil {
+			return err
+		}
+
+		return ctx.Send("You can list in the items:", menus.ListMenu)
+	})
+
+	bot.Handle(&menus.BtnNext, func(ctx telegram.Context) error {
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		setOfStates := state.GetSetOfAvailableListStates()
+
+		if _, ok := setOfStates[curState.StateName]; !ok {
+			return ctx.Send("Please restart bot ✨")
+		}
+
+		message := curState.GetNextMessageOfList()
+
+		err = curState.ChangeDataInState(contex, rdb, ctx)
+		if err != nil {
+			return err
+		}
+
+		err = curState.SendAllAvailableMessages(ctx, message)
+		if err != nil {
+			return err
+		}
+
+		return ctx.Send("You can list in the items:", menus.ListMenu)
+	})
+
+	bot.Handle(&menus.BtnExit, func(ctx telegram.Context) error {
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		curState.RemoveAll()
+
+		err = curState.ChangeDataInState(contex, rdb, ctx)
+		if err != nil {
+			return err
+		}
+
+		return ctx.Send("You exit from list", allMenus[curState.StateName])
+	})
+
 	bot.Handle(telegram.OnText, func(ctx telegram.Context) error {
 		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
 		if err == redis.Nil {
