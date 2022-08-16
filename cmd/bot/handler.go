@@ -144,13 +144,13 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		setOfStates := state.GetSetOfAvailableStates()
+		setOfStates := state.GetSetOfAvailableChattingStates()
 
 		if _, ok := setOfStates[curState.StateName]; !ok {
 			return ctx.Send("You can not write here or you send unavailable command...")
 		}
 
-		curState.Message += " " + ctx.Message().Text
+		curState.Text += " " + ctx.Message().Text
 
 		err = curState.ChangeDataInState(contex, rdb, ctx)
 		if err != nil {
@@ -168,7 +168,7 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		setOfStates := state.GetSetOfAvailableStates()
+		setOfStates := state.GetSetOfAvailableChattingStates()
 
 		if _, ok := setOfStates[curState.StateName]; !ok {
 			return ctx.Send("You can not write here or you send unavailable command...")
@@ -192,7 +192,7 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		setOfStates := state.GetSetOfAvailableStates()
+		setOfStates := state.GetSetOfAvailableChattingStates()
 
 		if _, ok := setOfStates[curState.StateName]; !ok {
 			return ctx.Send("You can not write here or you send unavailable command...")
@@ -300,7 +300,51 @@ func handlingRoomMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		return ctx.Send("Please, send:\n1.Name of purchase\n2. Image of purchase\n3. Cost of purchase", menus.ShopUploadMenu)
+		return ctx.Send("Please, send:\n1. Name of purchase\n2. Image of purchase\n3. Cost of purchase", menus.ShopUploadMenu)
+	})
+
+	bot.Handle(&menus.BtnCheckShopping, func(ctx telegram.Context) error {
+		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandShop, commands.CommandCheck)
+
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		setOfStates := state.GetSetOfAvailableListStates()
+
+		if _, ok := setOfStates[curState.StateName]; !ok {
+			return ctx.Send("Please restart bot ✨")
+		}
+
+		// TODO Get list of purchases from database
+		setOfMessages := []*state.Message{{Text: "Test1"}, {Text: "Test2"}, {Text: "Test3"}}
+		curState.ListMessage = setOfMessages
+
+		err = curState.ChangeDataInState(contex, rdb, ctx)
+		if err != nil {
+			return err
+		}
+
+		err = ctx.Send("Here you can check purchases from new to old one:", menus.ShopCheckMenu)
+		if err != nil {
+			return err
+		}
+
+		err = curState.SendAllAvailableMessages(ctx, setOfMessages[0])
+		if err != nil {
+			return err
+		}
+
+		return ctx.Send("You can list in the items:", menus.ListMenu)
 	})
 
 	bot.Handle(&menus.BtnPurchaseDone, func(ctx telegram.Context) error {
@@ -324,7 +368,7 @@ func handlingRoomMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		err = curState.SendAllAvailableMessages(ctx)
+		err = curState.SendAllAvailableMessages(ctx, nil)
 		if err != nil {
 			return err
 		}
@@ -449,7 +493,7 @@ func handlingNewsMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		err = curState.SendAllAvailableMessages(ctx)
+		err = curState.SendAllAvailableMessages(ctx, nil)
 		if err != nil {
 			return err
 		}
@@ -550,7 +594,7 @@ func handlingExamMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		err = curState.SendAllAvailableMessages(ctx)
+		err = curState.SendAllAvailableMessages(ctx, nil)
 		if err != nil {
 			return err
 		}
