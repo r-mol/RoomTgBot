@@ -25,6 +25,7 @@ var (
 	PostPurchaseMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
 	ExamUploadMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	SubjectMenu    = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
 	ListMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
@@ -68,6 +69,42 @@ var (
 	BtnUploadExam = ExamMenu.Text(commands.CommandUploadExam)
 	BtnGetExam    = ExamMenu.Text(commands.CommandGetExam)
 	BtnExamDone   = ExamMenu.Text(commands.CommandExamDone)
+
+	// Subjects menu buttons.
+	Subject1  = SubjectMenu.Data("Compilers Construction", "CC")
+	Subject2  = SubjectMenu.Data("Control Theory", "CT")
+	Subject3  = SubjectMenu.Data("Data Mining", "DM")
+	Subject4  = SubjectMenu.Data("Data Modeling and Databases I", "DMDI")
+	Subject5  = SubjectMenu.Data("Data Modeling and Databases II", "DMDII")
+	Subject6  = SubjectMenu.Data("Differential Equations", "DE")
+	Subject7  = SubjectMenu.Data("Digital Signal Processing", "DSP")
+	Subject8  = SubjectMenu.Data("Distributed Systems", "DS")
+	Subject9  = SubjectMenu.Data("Fundamentals of Computer Security", "FCS")
+	Subject10 = SubjectMenu.Data("Fundamentals of Robotics", "FR")
+	Subject11 = SubjectMenu.Data("Game Theory", "GF")
+	Subject12 = SubjectMenu.Data("Information Retrieval", "IR")
+	Subject13 = SubjectMenu.Data("Information Theory", "IT")
+	Subject14 = SubjectMenu.Data("Introduction to AI", "IA")
+	Subject15 = SubjectMenu.Data("Introduction to Big Data", "IBD")
+	Subject16 = SubjectMenu.Data("Introduction to Machine Learning", "IML")
+	Subject17 = SubjectMenu.Data("Lean Software Development", "LSD")
+	Subject18 = SubjectMenu.Data("Mechanics and Machines", "MM")
+	Subject19 = SubjectMenu.Data("Networks", "N")
+	Subject20 = SubjectMenu.Data("Network and Cyber Security", "NCS")
+	Subject21 = SubjectMenu.Data("Non-Linear Optimization", "NLO")
+	Subject22 = SubjectMenu.Data("Operating Systems", "OS")
+	Subject23 = SubjectMenu.Data("Philosophy II", "PII")
+	Subject24 = SubjectMenu.Data("Physics I", "PHYSICSI")
+	Subject25 = SubjectMenu.Data("Practicum Project", "PP")
+	Subject26 = SubjectMenu.Data("Probability and Statistics", "PS")
+	Subject27 = SubjectMenu.Data("Robotics Systems", "RS")
+	Subject28 = SubjectMenu.Data("Sensors and Sensing", "SS")
+	Subject29 = SubjectMenu.Data("Software Architecture", "SA")
+	Subject30 = SubjectMenu.Data("Software Project", "SP")
+	Subject31 = SubjectMenu.Data("Software Systems Design", "SSD")
+	Subject32 = SubjectMenu.Data("System and Network Administration", "SNA")
+	Subject33 = SubjectMenu.Data("Theoretical Computer Science", "TCS")
+	Subject34 = SubjectMenu.Data("Theoretical Mechanics", "TM")
 )
 
 func InitializeMenus() {
@@ -136,6 +173,44 @@ func InitializeMenus() {
 	)
 
 	ListMenu.Inline(ListMenu.Row(BtnPrevious, BtnExit, BtnNext))
+
+	SubjectMenu.Inline(
+		SubjectMenu.Row(Subject1),
+		SubjectMenu.Row(Subject2),
+		SubjectMenu.Row(Subject3),
+		SubjectMenu.Row(Subject4),
+		SubjectMenu.Row(Subject4),
+		SubjectMenu.Row(Subject5),
+		SubjectMenu.Row(Subject6),
+		SubjectMenu.Row(Subject7),
+		SubjectMenu.Row(Subject8),
+		SubjectMenu.Row(Subject9),
+		SubjectMenu.Row(Subject10),
+		SubjectMenu.Row(Subject11),
+		SubjectMenu.Row(Subject12),
+		SubjectMenu.Row(Subject13),
+		SubjectMenu.Row(Subject14),
+		SubjectMenu.Row(Subject15),
+		SubjectMenu.Row(Subject16),
+		SubjectMenu.Row(Subject17),
+		SubjectMenu.Row(Subject18),
+		SubjectMenu.Row(Subject19),
+		SubjectMenu.Row(Subject20),
+		SubjectMenu.Row(Subject21),
+		SubjectMenu.Row(Subject22),
+		SubjectMenu.Row(Subject23),
+		SubjectMenu.Row(Subject24),
+		SubjectMenu.Row(Subject25),
+		SubjectMenu.Row(Subject26),
+		SubjectMenu.Row(Subject27),
+		SubjectMenu.Row(Subject28),
+		SubjectMenu.Row(Subject29),
+		SubjectMenu.Row(Subject30),
+		SubjectMenu.Row(Subject31),
+		SubjectMenu.Row(Subject32),
+		SubjectMenu.Row(Subject33),
+		SubjectMenu.Row(Subject34),
+	)
 }
 
 func GetMenus() map[string]*telegram.ReplyMarkup {
@@ -154,6 +229,7 @@ func GetMenus() map[string]*telegram.ReplyMarkup {
 	allMenus[commands.CommandNewsDone] = PostNewsMenu
 	allMenus[commands.CommandPurchaseDone] = PostPurchaseMenu
 	allMenus[commands.CommandUploadExam] = ExamUploadMenu
+	allMenus[commands.CommandExamDone] = SubjectMenu
 
 	return allMenus
 }
