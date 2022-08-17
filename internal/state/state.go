@@ -315,7 +315,7 @@ func (state *State) GetNextMessageOfList() *Message {
 }
 
 func (state *State) GetPrevMessageOfList() *Message {
-	if 0 == state.Index {
+	if state.Index == 0 {
 		state.Index = len(state.ListMessage) - 1
 	} else {
 		state.Index--
