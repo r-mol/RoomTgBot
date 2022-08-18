@@ -6,9 +6,10 @@ COPY ./go.mod ./go.sum ./
 RUN go mod download && go mod verify
 
 # copy sources
-COPY ./cmd ./
+COPY ./cmd ./cmd
+COPY ./internal ./internal
 # build standalone application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd
 
 FROM busybox as production
 WORKDIR /app
