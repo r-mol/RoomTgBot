@@ -14,9 +14,11 @@ var (
 	NewsMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	SettingsMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
-	AquaManMenu  = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	CleanManMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	ShopMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	AquaManMenu      = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	InitAquaManMenu  = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	InitCleanManMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	CleanManMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	ShopMenu         = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
 	PostNewsMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
@@ -45,10 +47,17 @@ var (
 	BtnCleanMan = RoomMenu.Text(commands.CommandCleanMan)
 
 	// Aqua man menu buttons.
-	BtnBringWater = AquaManMenu.Text(commands.CommandBringWater)
+	BtnBringWater   = AquaManMenu.Text(commands.CommandBringWater)
+	BtnWaterIsOver  = AquaManMenu.Text(commands.CommandWaterIsOver)
+	BtnBringWaterIN = InitAquaManMenu.Data(commands.CommandBringWater, "BW")
+	BtnNotInInnoAQ  = InitAquaManMenu.Data(commands.CommandNotInInno, "NIIAQ")
+	BtnCantAQ       = InitAquaManMenu.Data(commands.CommandCant, "CantAQ")
 
 	// Clean man menu buttons.
-	BtnCleanRoom = CleanManMenu.Text(commands.CommandCleanRoom)
+	BtnCleanRoom   = CleanManMenu.Text(commands.CommandCleanRoom)
+	BtnCleanRoomIN = InitCleanManMenu.Data(commands.CommandCleanRoom, "CR")
+	BtnNotInInnoCR = InitCleanManMenu.Data(commands.CommandNotInInno, "NIICR")
+	BtnCantCR      = InitCleanManMenu.Data(commands.CommandCant, "CantCR")
 
 	// Shop menu buttons.
 	BtnCheckShopping  = ShopMenu.Text(commands.CommandCheck)
@@ -134,8 +143,18 @@ func InitializeMenus() {
 	)
 
 	AquaManMenu.Reply(
-		AquaManMenu.Row(BtnBringWater),
+		AquaManMenu.Row(BtnBringWater, BtnWaterIsOver),
 		AquaManMenu.Row(BtnBack),
+	)
+
+	InitAquaManMenu.Inline(
+		InitAquaManMenu.Row(BtnNotInInnoAQ, BtnCantAQ),
+		InitAquaManMenu.Row(BtnBringWaterIN),
+	)
+
+	InitCleanManMenu.Inline(
+		InitCleanManMenu.Row(BtnNotInInnoCR, BtnCantCR),
+		InitCleanManMenu.Row(BtnCleanRoomIN),
 	)
 
 	CleanManMenu.Reply(
@@ -230,6 +249,8 @@ func GetMenus() map[string]*telegram.ReplyMarkup {
 	allMenus[commands.CommandPurchaseDone] = PostPurchaseMenu
 	allMenus[commands.CommandUploadExam] = ExamUploadMenu
 	allMenus[commands.CommandExamDone] = SubjectMenu
+	allMenus[commands.CommandAquaManIN] = InitAquaManMenu
+	allMenus[commands.CommandCleanManIN] = InitCleanManMenu
 
 	return allMenus
 }

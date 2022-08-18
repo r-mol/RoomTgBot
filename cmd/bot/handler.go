@@ -61,8 +61,6 @@ func handlingStart(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		log.Println(curState)
-
 		return ctx.Send("Nice to meet you "+newUser.FirstName+" !!!", menus.MainMenu)
 	})
 }
@@ -190,9 +188,68 @@ func handlingRoomMenu(bot *telegram.Bot, rdb *redis.Client) {
 		return ctx.Send("Now you are in the room menu...", menus.RoomMenu)
 	})
 
+	handlingDebter(bot, rdb)
 	handlingShopMenu(bot, rdb)
 	handlingAquaMan(bot, rdb)
 	handlingCleanMan(bot, rdb)
+}
+
+func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
+	bot.Handle(&menus.BtnNotInInnoAQ, func(ctx telegram.Context) error {
+		err := state.ReturnToStartState(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		// TODO find next person to bring water
+
+		return ctx.Send("Thanks for the answer, have a good time 😊", menus.MainMenu)
+	})
+
+	bot.Handle(&menus.BtnNotInInnoCR, func(ctx telegram.Context) error {
+		err := state.ReturnToStartState(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		// TODO find next person to clean room
+
+		return ctx.Send("Thanks for the answer, have a good time 😊", menus.MainMenu)
+	})
+
+	bot.Handle(&menus.BtnCantAQ, func(ctx telegram.Context) error {
+		// TODO Find person and remove one credit from him
+
+		err := state.ReturnToStartState(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		// TODO find next person to bring water
+
+		return ctx.Send("We heard you, please don't let this happen again 🥺", menus.MainMenu)
+	})
+
+	bot.Handle(&menus.BtnCantCR, func(ctx telegram.Context) error {
+		// TODO Find person and remove one credit from him
+
+		err := state.ReturnToStartState(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		// TODO find next person to clean room
+
+		return ctx.Send("We heard you, please don't let this happen again 🥺", menus.MainMenu)
+	})
 }
 
 func handlingShopMenu(bot *telegram.Bot, rdb *redis.Client) {
@@ -349,6 +406,19 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 		// TODO Add new data of user to database
 		//   testUser = tgUser
 
+		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
+	})
+
+	bot.Handle(commands.CommandWaterIsOver, func(ctx telegram.Context) error {
+		// TODO Find person in database to
+		// 		send notification that water is over
+
+		err := state.ReturnToStartState(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
 }
