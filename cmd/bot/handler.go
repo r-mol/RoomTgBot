@@ -325,7 +325,6 @@ func handlingShopMenu(bot *telegram.Bot, rdb *redis.Client) {
 func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 	bot.Handle(&menus.BtnAquaMan, func(ctx telegram.Context) error {
 		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandRoom, commands.CommandAquaMan)
-
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -340,16 +339,7 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 		//   tgUser := &user.User{}
 		//   tgUser = testUser
 
-		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
-		if err == redis.Nil {
-			return ctx.Send("Please restart bot ✨")
-		} else if err != nil {
-			return err
-		}
-
-		commandFrom := curState.StateName
-		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, commands.CommandStart)
-
+		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -366,7 +356,6 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 func handlingCleanMan(bot *telegram.Bot, rdb *redis.Client) {
 	bot.Handle(&menus.BtnCleanMan, func(ctx telegram.Context) error {
 		err := state.CheckOfUserState(contex, rdb, ctx, commands.CommandRoom, commands.CommandCleanMan)
-
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -381,16 +370,7 @@ func handlingCleanMan(bot *telegram.Bot, rdb *redis.Client) {
 		//  tgUser := &user.User{}
 		//  tgUser = testUser
 
-		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
-		if err == redis.Nil {
-			return ctx.Send("Please restart bot ✨")
-		} else if err != nil {
-			return err
-		}
-
-		commandFrom := curState.StateName
-		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, commands.CommandStart)
-
+		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {

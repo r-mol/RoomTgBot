@@ -323,3 +323,19 @@ func (state *State) GetPrevMessageOfList() *Message {
 
 	return state.ListMessage[state.Index]
 }
+
+func ReturnToStartState(contex context.Context, rdb *redis.Client, ctx telegram.Context) error {
+	state, err := GetCurStateFromRDB(contex, rdb, ctx)
+	if err != nil {
+		return err
+	}
+
+	commandFrom := state.StateName
+	err = CheckOfUserState(contex, rdb, ctx, commandFrom, commands.CommandStart)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
