@@ -1,21 +1,33 @@
 package bot
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"time"
 
+	"github.com/go-redis/redis/v9"
 	telegram "gopkg.in/telebot.v3"
 )
 
+const timeOutMultiplier = 10
+
+var rdb *redis.Client
+
+func init() {
+	rdb = redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	rdb.Ping(contex)
+}
+
 func Setup() {
 	pref := telegram.Settings{
-		Token: os.Getenv("TG_TOKEN"),
-		Poller: &telegram.LongPoller{Timeout: 10 * time.Second},
+		Token:  os.Getenv("TG_TOKEN"),
+		Poller: &telegram.LongPoller{Timeout: timeOutMultiplier * time.Second},
 	}
-
-	fmt.Println(os.Getenv("TG_TOKEN"))
 
 	bot, err := telegram.NewBot(pref)
 
@@ -24,7 +36,7 @@ func Setup() {
 		return
 	}
 
-	startHandling(bot)
+	handling(bot, rdb)
 
 	bot.Start()
 }

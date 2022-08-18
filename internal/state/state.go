@@ -1,0 +1,335 @@
+package state
+
+import (
+	"RoomTgBot/internal/commands"
+	"RoomTgBot/internal/menus"
+
+	"context"
+	"encoding/json"
+	"fmt"
+	"strconv"
+
+	"github.com/go-redis/redis/v9"
+	telegram "gopkg.in/telebot.v3"
+)
+
+type Message struct {
+	Text   string               `json:"text"`
+	Files  []*telegram.Document `json:"document"`
+	Photos []*telegram.Photo    `json:"photo"`
+}
+
+type List struct {
+	Index       int        `json:"index"`
+	ListMessage []*Message `json:"list_message"`
+}
+
+type State struct {
+	StateName string `json:"init_state"`
+	PrevState string `json:"prev_state"`
+	Message
+	List
+	IsNow bool `json:"is_now"`
+}
+
+type States map[string]*State
+
+const InitState = "init_state"
+const baseForConvertToInt = 10
+
+func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Context, prevCommand, initCommand string) error {
+	states := States{}
+
+	err := GetStatesFromRDB(contex, rdb, ctx, &states)
+
+	if err != nil {
+		return err
+	}
+
+	prevState, ok := states[prevCommand]
+	if !ok {
+		err = ctx.Send("Something bad happened,\nwe return you to the beginning...", menus.MainMenu)
+
+		if err != nil {
+			return err
+		}
+
+		err = resetToZeroState(contex, rdb, ctx, states)
+
+		if err != nil {
+			return err
+		}
+
+		return fmt.Errorf("bad request prevState is not exist")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if !prevState.IsNow {
+		err = ctx.Send("Something bad happened,\nwe return you to the beginning...", menus.MainMenu)
+
+		if err != nil {
+			return err
+		}
+
+		err = resetToZeroState(contex, rdb, ctx, states)
+
+		if err != nil {
+			return err
+		}
+
+		return fmt.Errorf("bad request: prevState is not now")
+	}
+
+	prevState.IsNow = false
+
+	if err != nil {
+		return err
+	}
+
+	curState, ok := states[initCommand]
+
+	if !ok {
+		curState = &State{
+			StateName: initCommand,
+			PrevState: prevState.StateName,
+			Message: Message{
+				Files:  []*telegram.Document{},
+				Photos: []*telegram.Photo{},
+			},
+			IsNow: true,
+		}
+	} else {
+		curState.IsNow = true
+	}
+
+	if prevState.PrevState != initCommand {
+		prevState.MoveMessagesTo(curState)
+	}
+
+	states[initCommand] = curState
+	states[InitState] = curState
+
+	err = SetStatesToRDB(contex, rdb, ctx, &states)
+
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func GetCurStateFromRDB(contex context.Context, rdb *redis.Client, ctx telegram.Context) (*State, error) {
+	states := States{}
+	err := GetStatesFromRDB(contex, rdb, ctx, &states)
+
+	if err != nil {
+		return nil, err
+	}
+
+	curState := states[InitState]
+
+	return curState, nil
+}
+
+func GetStatesFromRDB(contex context.Context, rdb *redis.Client, ctx telegram.Context, sts *States) error {
+	id := strconv.FormatInt(ctx.Sender().ID, baseForConvertToInt)
+
+	stateBytes, err := rdb.Get(contex, id).Result()
+
+	switch {
+	case err != nil:
+		return err
+	default:
+		err = json.Unmarshal([]byte(stateBytes), &sts)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func SetStatesToRDB(contex context.Context, rdb *redis.Client, ctx telegram.Context, sts *States) error {
+	id := strconv.FormatInt(ctx.Sender().ID, baseForConvertToInt)
+
+	stateBytes, err := json.Marshal(sts)
+
+	if err != nil {
+		return err
+	}
+
+	err = rdb.Set(contex, id, stateBytes, 0).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func resetToZeroState(contex context.Context, rdb *redis.Client, ctx telegram.Context, states States) error {
+	curState, err := GetCurStateFromRDB(contex, rdb, ctx)
+
+	if err != nil {
+		return err
+	}
+
+	curState.IsNow = false
+	states[curState.StateName] = curState
+
+	newCurState := states[commands.CommandStart]
+
+	newCurState.IsNow = true
+
+	states[InitState] = newCurState
+	states[newCurState.StateName] = newCurState
+
+	err = SetStatesToRDB(contex, rdb, ctx, &states)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetSetOfAvailableChattingStates() map[string]struct{} {
+	setOfStates := map[string]struct{}{}
+
+	setOfStates[commands.CommandNews] = struct{}{}
+	setOfStates[commands.CommandUploadPurchase] = struct{}{}
+	setOfStates[commands.CommandUploadExam] = struct{}{}
+
+	return setOfStates
+}
+
+func GetSetOfAvailableListStates() map[string]struct{} {
+	setOfStates := map[string]struct{}{}
+
+	setOfStates[commands.CommandCheck] = struct{}{}
+
+	return setOfStates
+}
+
+func (state *State) MoveMessagesTo(curState *State) {
+	if state.Text != "" {
+		curState.Text = state.Text
+		state.Text = ""
+	}
+
+	if len(state.Files) != 0 {
+		curState.Files = append(curState.Files, state.Files...)
+
+		state.Files = []*telegram.Document{}
+	}
+
+	if len(state.Photos) != 0 {
+		curState.Photos = append(curState.Photos, state.Photos...)
+
+		state.Photos = []*telegram.Photo{}
+	}
+}
+
+func (state *State) RemoveAll() {
+	state.Text = ""
+	state.Files = []*telegram.Document{}
+	state.Photos = []*telegram.Photo{}
+	state.ListMessage = []*Message{}
+}
+
+func (state *State) SendAllAvailableMessages(ctx telegram.Context, message *Message) error {
+	var err error
+
+	if message == nil {
+		message = &state.Message
+	}
+
+	if len(message.Files) != 0 {
+		for _, file := range message.Files {
+			err = ctx.Send(file)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(message.Photos) != 0 {
+		for _, photo := range message.Photos {
+			err = ctx.Send(photo)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if message.Text != "" {
+		err = ctx.Send(message.Text)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (state *State) ChangeDataInState(contex context.Context, rdb *redis.Client, ctx telegram.Context) error {
+	states := States{}
+
+	err := GetStatesFromRDB(contex, rdb, ctx, &states)
+
+	if err != nil {
+		return err
+	}
+
+	if states[InitState].StateName == state.StateName {
+		states[InitState] = state
+	}
+
+	states[state.StateName] = state
+
+	err = SetStatesToRDB(contex, rdb, ctx, &states)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (state *State) GetNextMessageOfList() *Message {
+	if len(state.ListMessage)-1 == state.Index {
+		state.Index = 0
+	} else {
+		state.Index++
+	}
+
+	return state.ListMessage[state.Index]
+}
+
+func (state *State) GetPrevMessageOfList() *Message {
+	if state.Index == 0 {
+		state.Index = len(state.ListMessage) - 1
+	} else {
+		state.Index--
+	}
+
+	return state.ListMessage[state.Index]
+}
+
+func ReturnToStartState(contex context.Context, rdb *redis.Client, ctx telegram.Context) error {
+	state, err := GetCurStateFromRDB(contex, rdb, ctx)
+	if err != nil {
+		return err
+	}
+
+	commandFrom := state.StateName
+	err = CheckOfUserState(contex, rdb, ctx, commandFrom, commands.CommandStart)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
