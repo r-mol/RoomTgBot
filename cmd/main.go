@@ -16,20 +16,25 @@ func main() {
 	testAllServices()
 }
 
+const (
+	two   = 2
+	three = 3
+)
+
 func cronExample() {
 	// set repeating action
 	const sec = time.Second
-	id := ScheduleForEvery(1*sec/2, func() { fmt.Println("repeating") })
+	id := ScheduleForEvery(sec/two, func() { fmt.Println("repeating") })
 	// set one time action. Cannot be canceled (for now?)
-	RunOnceAfter(sec/2*3, func() { fmt.Println("Once") })
+	RunOnceAfter(sec/two*three, func() { fmt.Println("Once") })
 	// cancel first task
-	RunOnceAfter(sec*2, func() {
+	RunOnceAfter(sec*two, func() {
 		fmt.Println("cancel task")
 		CancelTask(id)
 	})
 
 	// because tasks execute in background
-	time.Sleep(3 * time.Second)
+	time.Sleep(three * time.Second)
 }
 
 func testAllServices() {
@@ -37,10 +42,10 @@ func testAllServices() {
 	cronExample()
 
 	// mongodb
-	//DBTest()
+	DBTest()
 
 	// redis
-	//ExampleClient()
+	ExampleClient()
 
 	// start echo bot
 	bot.Setup()
