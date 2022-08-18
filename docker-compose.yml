@@ -8,13 +8,16 @@ services:
     restart: always
     env_file:
       - ./env/bot.env
+      - ./env/redis.env
 
   redis:
     build: ./redis
     ports:
       - 6379:6379
     restart: always
-
+    env_file:
+      - ./env/redis.env
+      
 
   mongo:
     image: mongo
