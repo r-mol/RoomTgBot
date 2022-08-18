@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strconv"
 
 	"github.com/go-redis/redis/v9"
@@ -64,8 +63,6 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 		return fmt.Errorf("bad request prevState is not exist")
 	}
 
-	log.Println(prevState)
-
 	if err != nil {
 		return err
 	}
@@ -120,9 +117,6 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 	if err != nil {
 		return err
 	}
-
-	log.Println(prevState)
-	log.Println(curState)
 
 	return err
 }
