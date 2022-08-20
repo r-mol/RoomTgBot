@@ -22,9 +22,9 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 	allMenus := menus.GetMenus()
 
 	handlingStart(bot, rdb)
-	handlingList(bot, rdb, allMenus)
+	functionalHandling(bot, rdb, allMenus)
 	handlingRoomMenu(bot, rdb)
-	handlingNewsMenu(bot, rdb)
+	handlingNewsMenu(bot, rdb, allMenus)
 	handlingExamMenu(bot, rdb)
 	handlingSettingsMenu(bot, rdb)
 	handlingTriggersOnMessages(bot, rdb)
@@ -53,7 +53,7 @@ func handlingStart(bot *telegram.Bot, rdb *redis.Client) {
 		}
 
 		states := state.States{}
-		states[consts.Notification] = &state.State{StateName: consts.Notification, PrevState: consts.CommandStart}
+		states[consts.Notification] = &state.State{StateName: consts.Notification, PrevState: consts.CommandStart, Notifications: state.Notifications{}}
 		states[consts.CommandStart] = curState
 		states[consts.InitState] = curState
 
@@ -69,73 +69,7 @@ func handlingStart(bot *telegram.Bot, rdb *redis.Client) {
 	})
 }
 
-func handlingList(bot *telegram.Bot, rdb *redis.Client, allMenus map[string]*telegram.ReplyMarkup) {
-	bot.Handle(&menus.BtnPrevious, func(ctx telegram.Context) error {
-		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx.Sender().ID)
-		if err == redis.Nil {
-			return ctx.Send("Please restart bot ✨")
-		} else if err != nil {
-			return err
-		}
-
-		setOfStates := state.GetSetOfAvailableListStates()
-
-		if _, ok := setOfStates[curState.StateName]; !ok {
-			return ctx.Send("Please restart bot ✨")
-		}
-
-		message := curState.GetPrevMessageOfList()
-
-		err = curState.ChangeDataInState(contex, rdb, ctx.Sender().ID)
-		if err != nil {
-			return err
-		}
-
-		return curState.SendAllAvailableMessages(bot, ctx.Sender(), message, menus.ListMenu)
-	})
-
-	bot.Handle(&menus.BtnNext, func(ctx telegram.Context) error {
-		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx.Sender().ID)
-		if err == redis.Nil {
-			return ctx.Send("Please restart bot ✨")
-		} else if err != nil {
-			return err
-		}
-
-		setOfStates := state.GetSetOfAvailableListStates()
-
-		if _, ok := setOfStates[curState.StateName]; !ok {
-			return ctx.Send("Please restart bot ✨")
-		}
-
-		message := curState.GetNextMessageOfList()
-
-		err = curState.ChangeDataInState(contex, rdb, ctx.Sender().ID)
-		if err != nil {
-			return err
-		}
-
-		return curState.SendAllAvailableMessages(bot, ctx.Sender(), message, menus.ListMenu)
-	})
-
-	bot.Handle(&menus.BtnExit, func(ctx telegram.Context) error {
-		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx.Sender().ID)
-		if err == redis.Nil {
-			return ctx.Send("Please restart bot ✨")
-		} else if err != nil {
-			return err
-		}
-
-		curState.RemoveAll()
-
-		err = curState.ChangeDataInState(contex, rdb, ctx.Sender().ID)
-		if err != nil {
-			return err
-		}
-
-		return ctx.Send("You exit from list", allMenus[curState.StateName])
-	})
-
+func functionalHandling(bot *telegram.Bot, rdb *redis.Client, allMenus map[string]*telegram.ReplyMarkup) {
 	bot.Handle(&menus.BtnBack, func(ctx telegram.Context) error {
 		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx.Sender().ID)
 		if err == redis.Nil {
@@ -297,7 +231,6 @@ func handlingShopMenu(bot *telegram.Bot, rdb *redis.Client) {
 
 	bot.Handle(&menus.BtnUploadPurchase, func(ctx telegram.Context) error {
 		err := state.CheckOfUserState(contex, rdb, ctx, consts.CommandShop, consts.CommandUploadPurchase)
-
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -328,7 +261,16 @@ func handlingShopMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		return curState.SendAllAvailableMessages(bot, ctx.Sender(), state.Message{}, menus.PostPurchaseMenu)
+		curState.Message.Text = "🛍 Purchase report 🛍\n\n" + curState.Message.Text
+
+		err = curState.ChangeDataInState(contex, rdb, ctx.Sender().ID)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		return curState.SendAllAvailableMessage(bot, ctx.Sender(), state.Message{}, menus.PostPurchaseMenu)
 	})
 
 	bot.Handle(&menus.BtnPostPurchase, func(ctx telegram.Context) error {
@@ -339,7 +281,12 @@ func handlingShopMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		// TODO add purchase to database and make notification
+		// TODO add purchase to database
+
+		err = state.SetNotificationToAllUsers(contex, rdb, consts.NotificationShop, curState.Message)
+		if err != nil {
+			return err
+		}
 
 		curState.RemoveAll()
 
@@ -360,42 +307,19 @@ func handlingShopMenu(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnCheckShopping, func(ctx telegram.Context) error {
-		err := state.CheckOfUserState(contex, rdb, ctx, consts.CommandShop, consts.CommandCheck)
-
+		err := state.CheckOfUserState(contex, rdb, ctx, consts.CommandShop, consts.CommandStart)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
 			return err
 		}
 
-		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx.Sender().ID)
-		if err == redis.Nil {
-			return ctx.Send("Please restart bot ✨")
-		} else if err != nil {
-			return err
-		}
-
-		setOfStates := state.GetSetOfAvailableListStates()
-
-		if _, ok := setOfStates[curState.StateName]; !ok {
-			return ctx.Send("Please restart bot ✨")
-		}
-
-		// TODO Get list of purchases from database
-		setOfMessages := []state.Message{{Text: "Test1"}, {Text: "Test2"}, {Text: "Test3"}}
-		curState.ListMessages = setOfMessages
-
-		err = curState.ChangeDataInState(contex, rdb, ctx.Sender().ID)
+		err = ctx.Send("Here you can check new purchases:")
 		if err != nil {
 			return err
 		}
 
-		err = ctx.Send("Here you can check purchases from new to old one:", menus.ShopCheckMenu)
-		if err != nil {
-			return err
-		}
-
-		return curState.SendAllAvailableMessages(bot, ctx.Sender(), setOfMessages[0], menus.ListMenu)
+		return state.SendSpecialNotificationByKey(contex, bot, ctx.Sender(), rdb, consts.NotificationShop)
 	})
 }
 
@@ -507,7 +431,7 @@ func FindInitCleanMan() error {
 	return nil
 }
 
-func handlingNewsMenu(bot *telegram.Bot, rdb *redis.Client) {
+func handlingNewsMenu(bot *telegram.Bot, rdb *redis.Client, allMenus map[string]*telegram.ReplyMarkup) {
 	bot.Handle(&menus.BtnNews, func(ctx telegram.Context) error {
 		err := state.CheckOfUserState(contex, rdb, ctx, consts.CommandStart, consts.CommandNews)
 
@@ -517,11 +441,22 @@ func handlingNewsMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		return ctx.Send("Please, send text/file messages to create news:", menus.NewsMenu)
+		return ctx.Send("Now you are in the news menu...", menus.NewsMenu)
+	})
+
+	bot.Handle(&menus.BtnUploadNews, func(ctx telegram.Context) error {
+		err := state.CheckOfUserState(contex, rdb, ctx, consts.CommandNews, consts.CommandUploadNews)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		return ctx.Send("Please, send text/files/photos messages to create news:", menus.NewsUploadMenu)
 	})
 
 	bot.Handle(&menus.BtnNewsDone, func(ctx telegram.Context) error {
-		err := state.CheckOfUserState(contex, rdb, ctx, consts.CommandNews, consts.CommandNewsDone)
+		err := state.CheckOfUserState(contex, rdb, ctx, consts.CommandUploadNews, consts.CommandNewsDone)
 
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
@@ -541,7 +476,16 @@ func handlingNewsMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		return curState.SendAllAvailableMessages(bot, ctx.Sender(), state.Message{}, menus.PostNewsMenu)
+		curState.Message.Text = "‼️‼️ News ‼️‼️\n\n" + curState.Message.Text
+
+		err = curState.ChangeDataInState(contex, rdb, ctx.Sender().ID)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		return curState.SendAllAvailableMessage(bot, ctx.Sender(), state.Message{}, menus.PostNewsMenu)
 	})
 
 	bot.Handle(&menus.BtnPostNews, func(ctx telegram.Context) error {
@@ -552,12 +496,12 @@ func handlingNewsMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		// TODO add news to database and make notification
-
+		// TODO add news to database
 		err = state.SetNotificationToAllUsers(contex, rdb, consts.NotificationNews, curState.Message)
 		if err != nil {
 			return err
 		}
+
 		curState.RemoveAll()
 
 		err = curState.ChangeDataInState(contex, rdb, ctx.Sender().ID)
@@ -576,8 +520,38 @@ func handlingNewsMenu(bot *telegram.Bot, rdb *redis.Client) {
 		return ctx.Send("Your news has been posted 📨", menus.MainMenu)
 	})
 
+	bot.Handle(&menus.BtnCheckNews, func(ctx telegram.Context) error {
+		err := state.CheckOfUserState(contex, rdb, ctx, consts.CommandNews, consts.CommandStart)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		err = ctx.Send("Here you can check News:")
+		if err != nil {
+			return err
+		}
+
+		return state.SendSpecialNotificationByKey(contex, bot, ctx.Sender(), rdb, consts.NotificationNews)
+	})
+
 	bot.Handle(&menus.BtnDeleteDraft, func(ctx telegram.Context) error {
 		curState, err := state.GetCurStateFromRDB(contex, rdb, ctx.Sender().ID)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		if curState.StateName == consts.CommandStart {
+			return nil
+		}
+
+		commandFrom := curState.StateName
+		commandTo := curState.PrevState
+		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, commandTo)
+
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -591,7 +565,7 @@ func handlingNewsMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		return ctx.Send("All you messages have been removed")
+		return ctx.Send("All you messages have been removed", allMenus[commandTo])
 	})
 }
 
@@ -650,12 +624,12 @@ func handlingExamMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		err = ctx.Send("Please, check your files of exam:", menus.MainMenu)
+		err = curState.SendAllAvailableMessage(bot, ctx.Sender(), state.Message{}, menus.MainMenu)
 		if err != nil {
 			return err
 		}
 
-		return curState.SendAllAvailableMessages(bot, ctx.Sender(), state.Message{}, menus.SubjectMenu)
+		return ctx.Send("Please, check your files of exam:", menus.SubjectMenu)
 	})
 }
 
