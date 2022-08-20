@@ -28,6 +28,7 @@ func GetSetExam(contex context.Context, bot *telegram.Bot, rdb *redis.Client, ct
 			return err
 		}
 
+		curState.RemoveAll()
 		commandFrom := curState.StateName
 		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, consts.CommandStart)
 
@@ -46,7 +47,7 @@ func GetSetExam(contex context.Context, bot *telegram.Bot, rdb *redis.Client, ct
 
 		curState.Files = files
 		curState.Photos = photos
-		err = curState.SendAllAvailableMessages(bot, ctx.Sender(), state.Message{}, menus.MainMenu)
+		err = curState.SendAllAvailableMessage(bot, ctx.Sender(), state.Message{}, menus.MainMenu)
 		if err != nil {
 			return err
 		}
@@ -60,7 +61,7 @@ func GetSetExam(contex context.Context, bot *telegram.Bot, rdb *redis.Client, ct
 			return err
 		}
 
-		return ctx.Send("Exams successful set...", menus.MainMenu)
+		return ctx.Send("Exams successful get...", menus.MainMenu)
 	}
 
 	return ctx.Send("Please restart bot ✨")
