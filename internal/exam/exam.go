@@ -11,7 +11,7 @@ import (
 	telegram "gopkg.in/telebot.v3"
 )
 
-func GetSetExam(bot *telegram.Bot, contex context.Context, rdb *redis.Client, ctx telegram.Context, subjectName string) error {
+func GetSetExam(contex context.Context, bot *telegram.Bot, rdb *redis.Client, ctx telegram.Context, subjectName string) error {
 	curState, err := state.GetCurStateFromRDB(contex, rdb, ctx.Sender().ID)
 	if err == redis.Nil {
 		return ctx.Send("Please restart bot ✨")
