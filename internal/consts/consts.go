@@ -1,4 +1,4 @@
-package commands
+package consts
 
 const (
 	// Commands
@@ -9,44 +9,55 @@ const (
 	CommandWaterIsOver = "/water_is_over"
 	CommandCleanRoom   = "/clean_room"
 
-	// Main commands
+	// Main consts
 	CommandRoom     = "\U0001F6D6 Room"
 	CommandNews     = "📰 News"
 	CommandExam     = "🧐 Exam"
 	CommandSettings = "⚙️ Settings"
 	CommandBack     = "Back ↩️"
 
-	// List commands
+	// Messages consts
 	CommandPrevious = "⬅️"
 	CommandNext     = "➡️"
 	CommandExit     = "Exit"
 
-	// Room commands
+	// Room consts
 	CommandShop       = "🛍 Shop"
 	CommandAquaMan    = "\U0001F9A6 Aqua-Man"
 	CommandCleanMan   = "\U0001F9F9 Clean-Man"
-	CommandAquaManIN  = "Init Aqua-Man"
-	CommandCleanManIN = "Init Clean-Man"
+	CommandAquaManIN  = "Bring Water"
+	CommandCleanManIN = "Clean Room"
 	CommandNotInInno  = "🛫 Not in Innopolis"
 	CommandCant       = "😥 Can't do it now"
 
-	// Upload purchase commands
+	// Upload purchase consts
 	CommandPostPurchase   = "📦 Post purchase"
 	CommandUploadPurchase = "📥 Upload purchase"
 	CommandPurchaseDone   = "✅ Purchase done"
 	CommandCheck          = "\U0001F9FE Check"
 
-	// News commands
+	// News consts
 	CommandNewsDone    = "✅ News done"
 	CommandPostNews    = "✉️ Post news"
 	CommandDeleteDraft = "🗑 Remove draft"
 
-	// Settings commands
+	// Settings consts
 	CommandNotificationSettings = "📬 Notification settings"
 	CommandSettingsOfBot        = "🔐 Settings of bot"
 
-	// Exam commands
+	// Exam consts
 	CommandUploadExam = "📥 Upload exam"
 	CommandGetExam    = "📤 Get exam"
 	CommandExamDone   = "✅ Exam done"
+
+	// Notification const
+	Notification         = "Notification"
+	NotificationNews     = "News"
+	NotificationMoney    = "Money"
+	NotificationExam     = "Exam"
+	NotificationShop     = "Shop"
+	NotificationCleaning = "Cleaning"
+
+	InitState           = "init_state"
+	BaseForConvertToInt = 10
 )
