@@ -1,7 +1,7 @@
 package menus
 
 import (
-	"RoomTgBot/internal/commands"
+	"RoomTgBot/internal/consts"
 
 	telegram "gopkg.in/telebot.v3"
 )
@@ -32,52 +32,52 @@ var (
 	ListMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
 	// Main menu buttons.
-	BtnRoom     = MainMenu.Text(commands.CommandRoom)
-	BtnNews     = MainMenu.Text(commands.CommandNews)
-	BtnExam     = MainMenu.Text(commands.CommandExam)
-	BtnSettings = MainMenu.Text(commands.CommandSettings)
-	BtnBack     = MainMenu.Text(commands.CommandBack)
-	BtnPrevious = ListMenu.Data(commands.CommandPrevious, "prev")
-	BtnNext     = ListMenu.Data(commands.CommandNext, "next")
-	BtnExit     = ListMenu.Data(commands.CommandExit, "exit")
+	BtnRoom     = MainMenu.Text(consts.CommandRoom)
+	BtnNews     = MainMenu.Text(consts.CommandNews)
+	BtnExam     = MainMenu.Text(consts.CommandExam)
+	BtnSettings = MainMenu.Text(consts.CommandSettings)
+	BtnBack     = MainMenu.Text(consts.CommandBack)
+	BtnPrevious = ListMenu.Data(consts.CommandPrevious, "prev")
+	BtnNext     = ListMenu.Data(consts.CommandNext, "next")
+	BtnExit     = ListMenu.Data(consts.CommandExit, "exit")
 
 	// Room menu buttons.
-	BtnShop     = RoomMenu.Text(commands.CommandShop)
-	BtnAquaMan  = RoomMenu.Text(commands.CommandAquaMan)
-	BtnCleanMan = RoomMenu.Text(commands.CommandCleanMan)
+	BtnShop     = RoomMenu.Text(consts.CommandShop)
+	BtnAquaMan  = RoomMenu.Text(consts.CommandAquaMan)
+	BtnCleanMan = RoomMenu.Text(consts.CommandCleanMan)
 
 	// Aqua man menu buttons.
-	BtnBringWater   = AquaManMenu.Text(commands.CommandBringWater)
-	BtnWaterIsOver  = AquaManMenu.Text(commands.CommandWaterIsOver)
-	BtnBringWaterIN = InitAquaManMenu.Data(commands.CommandBringWater, "BW")
-	BtnNotInInnoAQ  = InitAquaManMenu.Data(commands.CommandNotInInno, "NIIAQ")
-	BtnCantAQ       = InitAquaManMenu.Data(commands.CommandCant, "CantAQ")
+	BtnBringWater  = AquaManMenu.Text(consts.CommandBringWater)
+	BtnWaterIsOver = AquaManMenu.Text(consts.CommandWaterIsOver)
+	BtnAquaManIN   = InitAquaManMenu.Data(consts.CommandAquaManIN, "BW")
+	BtnNotInInnoAQ = InitAquaManMenu.Data(consts.CommandNotInInno, "NIIAQ")
+	BtnCantAQ      = InitAquaManMenu.Data(consts.CommandCant, "CantAQ")
 
 	// Clean man menu buttons.
-	BtnCleanRoom   = CleanManMenu.Text(commands.CommandCleanRoom)
-	BtnCleanRoomIN = InitCleanManMenu.Data(commands.CommandCleanRoom, "CR")
-	BtnNotInInnoCR = InitCleanManMenu.Data(commands.CommandNotInInno, "NIICR")
-	BtnCantCR      = InitCleanManMenu.Data(commands.CommandCant, "CantCR")
+	BtnCleanRoom   = CleanManMenu.Text(consts.CommandCleanRoom)
+	BtnCleanManIN  = InitCleanManMenu.Data(consts.CommandCleanManIN, "CR")
+	BtnNotInInnoCR = InitCleanManMenu.Data(consts.CommandNotInInno, "NIICR")
+	BtnCantCR      = InitCleanManMenu.Data(consts.CommandCant, "CantCR")
 
 	// Shop menu buttons.
-	BtnCheckShopping  = ShopMenu.Text(commands.CommandCheck)
-	BtnUploadPurchase = ShopMenu.Text(commands.CommandUploadPurchase)
-	BtnPurchaseDone   = ShopMenu.Text(commands.CommandPurchaseDone)
-	BtnPostPurchase   = ShopMenu.Text(commands.CommandPostPurchase)
+	BtnCheckShopping  = ShopMenu.Text(consts.CommandCheck)
+	BtnUploadPurchase = ShopMenu.Text(consts.CommandUploadPurchase)
+	BtnPurchaseDone   = ShopMenu.Text(consts.CommandPurchaseDone)
+	BtnPostPurchase   = ShopMenu.Text(consts.CommandPostPurchase)
 
 	// News menu buttons.
-	BtnNewsDone    = NewsMenu.Text(commands.CommandNewsDone)
-	BtnPostNews    = NewsMenu.Text(commands.CommandPostNews)
-	BtnDeleteDraft = NewsMenu.Text(commands.CommandDeleteDraft)
+	BtnNewsDone    = NewsMenu.Text(consts.CommandNewsDone)
+	BtnPostNews    = NewsMenu.Text(consts.CommandPostNews)
+	BtnDeleteDraft = NewsMenu.Text(consts.CommandDeleteDraft)
 
 	// Setting menu buttons.
-	BtnNotificationSettings = SettingsMenu.Text(commands.CommandNotificationSettings)
-	BtnSettingsOfBot        = SettingsMenu.Text(commands.CommandSettingsOfBot)
+	BtnNotificationSettings = SettingsMenu.Text(consts.CommandNotificationSettings)
+	BtnSettingsOfBot        = SettingsMenu.Text(consts.CommandSettingsOfBot)
 
 	// Exam menu buttons.
-	BtnUploadExam = ExamMenu.Text(commands.CommandUploadExam)
-	BtnGetExam    = ExamMenu.Text(commands.CommandGetExam)
-	BtnExamDone   = ExamMenu.Text(commands.CommandExamDone)
+	BtnUploadExam = ExamMenu.Text(consts.CommandUploadExam)
+	BtnGetExam    = ExamMenu.Text(consts.CommandGetExam)
+	BtnExamDone   = ExamMenu.Text(consts.CommandExamDone)
 
 	// Subjects menu buttons.
 	Subject1  = SubjectMenu.Data("Compilers Construction", "CC")
@@ -149,12 +149,12 @@ func InitializeMenus() {
 
 	InitAquaManMenu.Inline(
 		InitAquaManMenu.Row(BtnNotInInnoAQ, BtnCantAQ),
-		InitAquaManMenu.Row(BtnBringWaterIN),
+		InitAquaManMenu.Row(BtnAquaManIN),
 	)
 
 	InitCleanManMenu.Inline(
 		InitCleanManMenu.Row(BtnNotInInnoCR, BtnCantCR),
-		InitCleanManMenu.Row(BtnCleanRoomIN),
+		InitCleanManMenu.Row(BtnCleanManIN),
 	)
 
 	CleanManMenu.Reply(
@@ -235,22 +235,27 @@ func InitializeMenus() {
 func GetMenus() map[string]*telegram.ReplyMarkup {
 	allMenus := map[string]*telegram.ReplyMarkup{}
 
-	allMenus[commands.CommandStart] = MainMenu
-	allMenus[commands.CommandRoom] = RoomMenu
-	allMenus[commands.CommandExam] = ExamMenu
-	allMenus[commands.CommandNews] = NewsMenu
-	allMenus[commands.CommandSettings] = SettingsMenu
-	allMenus[commands.CommandAquaMan] = AquaManMenu
-	allMenus[commands.CommandCleanMan] = CleanManMenu
-	allMenus[commands.CommandShop] = ShopMenu
-	allMenus[commands.CommandUploadPurchase] = ShopUploadMenu
-	allMenus[commands.CommandCheck] = ShopCheckMenu
-	allMenus[commands.CommandNewsDone] = PostNewsMenu
-	allMenus[commands.CommandPurchaseDone] = PostPurchaseMenu
-	allMenus[commands.CommandUploadExam] = ExamUploadMenu
-	allMenus[commands.CommandExamDone] = SubjectMenu
-	allMenus[commands.CommandAquaManIN] = InitAquaManMenu
-	allMenus[commands.CommandCleanManIN] = InitCleanManMenu
+	allMenus[consts.CommandStart] = MainMenu
+	allMenus[consts.CommandRoom] = RoomMenu
+	allMenus[consts.CommandExam] = ExamMenu
+	allMenus[consts.CommandNews] = NewsMenu
+	allMenus[consts.CommandSettings] = SettingsMenu
+	allMenus[consts.CommandAquaMan] = AquaManMenu
+	allMenus[consts.CommandCleanMan] = CleanManMenu
+	allMenus[consts.CommandShop] = ShopMenu
+	allMenus[consts.CommandUploadPurchase] = ShopUploadMenu
+	allMenus[consts.CommandCheck] = ShopCheckMenu
+	allMenus[consts.CommandNewsDone] = PostNewsMenu
+	allMenus[consts.CommandPurchaseDone] = PostPurchaseMenu
+	allMenus[consts.CommandUploadExam] = ExamUploadMenu
+	allMenus[consts.CommandExamDone] = SubjectMenu
+	allMenus[consts.CommandAquaManIN] = InitAquaManMenu
+	allMenus[consts.CommandCleanManIN] = InitCleanManMenu
+	allMenus[consts.NotificationNews] = MainMenu
+	allMenus[consts.NotificationMoney] = MainMenu
+	allMenus[consts.NotificationExam] = MainMenu
+	allMenus[consts.NotificationShop] = MainMenu
+	allMenus[consts.NotificationCleaning] = MainMenu
 
 	return allMenus
 }
