@@ -20,7 +20,9 @@ var (
 	CleanManMenu     = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	ShopMenu         = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
-	PostNewsMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	NewsUploadMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	NewsCheckMenu  = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	PostNewsMenu   = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
 	ShopUploadMenu   = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	ShopCheckMenu    = &telegram.ReplyMarkup{ResizeKeyboard: true}
@@ -29,17 +31,12 @@ var (
 	ExamUploadMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	SubjectMenu    = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
-	ListMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
-
 	// Main menu buttons.
 	BtnRoom     = MainMenu.Text(consts.CommandRoom)
 	BtnNews     = MainMenu.Text(consts.CommandNews)
 	BtnExam     = MainMenu.Text(consts.CommandExam)
 	BtnSettings = MainMenu.Text(consts.CommandSettings)
 	BtnBack     = MainMenu.Text(consts.CommandBack)
-	BtnPrevious = ListMenu.Data(consts.CommandPrevious, "prev")
-	BtnNext     = ListMenu.Data(consts.CommandNext, "next")
-	BtnExit     = ListMenu.Data(consts.CommandExit, "exit")
 
 	// Room menu buttons.
 	BtnShop     = RoomMenu.Text(consts.CommandShop)
@@ -60,12 +57,14 @@ var (
 	BtnCantCR      = InitCleanManMenu.Data(consts.CommandCant, "CantCR")
 
 	// Shop menu buttons.
-	BtnCheckShopping  = ShopMenu.Text(consts.CommandCheck)
+	BtnCheckShopping  = ShopMenu.Text(consts.CommandCheckPurchases)
 	BtnUploadPurchase = ShopMenu.Text(consts.CommandUploadPurchase)
 	BtnPurchaseDone   = ShopMenu.Text(consts.CommandPurchaseDone)
 	BtnPostPurchase   = ShopMenu.Text(consts.CommandPostPurchase)
 
 	// News menu buttons.
+	BtnCheckNews   = ShopMenu.Text(consts.CommandCheckNews)
+	BtnUploadNews  = ShopMenu.Text(consts.CommandUploadNews)
 	BtnNewsDone    = NewsMenu.Text(consts.CommandNewsDone)
 	BtnPostNews    = NewsMenu.Text(consts.CommandPostNews)
 	BtnDeleteDraft = NewsMenu.Text(consts.CommandDeleteDraft)
@@ -133,7 +132,7 @@ func InitializeMenus() {
 	)
 
 	NewsMenu.Reply(
-		NewsMenu.Row(BtnNewsDone, BtnDeleteDraft),
+		NewsMenu.Row(BtnUploadNews, BtnCheckNews),
 		NewsMenu.Row(BtnBack),
 	)
 
@@ -181,6 +180,15 @@ func InitializeMenus() {
 		PostPurchaseMenu.Row(BtnBack),
 	)
 
+	NewsUploadMenu.Reply(
+		NewsUploadMenu.Row(BtnNewsDone, BtnDeleteDraft),
+		NewsUploadMenu.Row(BtnBack),
+	)
+
+	NewsCheckMenu.Reply(
+		NewsCheckMenu.Row(BtnBack),
+	)
+
 	PostNewsMenu.Reply(
 		PostNewsMenu.Row(BtnPostNews, BtnDeleteDraft),
 		PostNewsMenu.Row(BtnBack),
@@ -190,8 +198,6 @@ func InitializeMenus() {
 		ExamUploadMenu.Row(BtnExamDone, BtnDeleteDraft),
 		ExamUploadMenu.Row(BtnBack),
 	)
-
-	ListMenu.Inline(ListMenu.Row(BtnPrevious, BtnExit, BtnNext))
 
 	SubjectMenu.Inline(
 		SubjectMenu.Row(Subject1),
@@ -239,13 +245,15 @@ func GetMenus() map[string]*telegram.ReplyMarkup {
 	allMenus[consts.CommandRoom] = RoomMenu
 	allMenus[consts.CommandExam] = ExamMenu
 	allMenus[consts.CommandNews] = NewsMenu
+	allMenus[consts.CommandUploadNews] = NewsUploadMenu
+	allMenus[consts.CommandCheckNews] = NewsCheckMenu
+	allMenus[consts.CommandPostNews] = PostNewsMenu
 	allMenus[consts.CommandSettings] = SettingsMenu
 	allMenus[consts.CommandAquaMan] = AquaManMenu
 	allMenus[consts.CommandCleanMan] = CleanManMenu
 	allMenus[consts.CommandShop] = ShopMenu
 	allMenus[consts.CommandUploadPurchase] = ShopUploadMenu
-	allMenus[consts.CommandCheck] = ShopCheckMenu
-	allMenus[consts.CommandNewsDone] = PostNewsMenu
+	allMenus[consts.CommandCheckPurchases] = ShopCheckMenu
 	allMenus[consts.CommandPurchaseDone] = PostPurchaseMenu
 	allMenus[consts.CommandUploadExam] = ExamUploadMenu
 	allMenus[consts.CommandExamDone] = SubjectMenu
