@@ -123,6 +123,7 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 
 func GetCurStateFromRDB(contex context.Context, rdb *redis.Client, id int64) (*State, error) {
 	states := States{}
+
 	err := GetStatesFromRDB(contex, rdb, id, &states)
 	if err != nil {
 		return nil, err
@@ -317,6 +318,7 @@ func ReturnToStartState(contex context.Context, rdb *redis.Client, ctx telegram.
 
 func SetNotificationToAllUsers(contex context.Context, rdb *redis.Client, kindNotification string, message Message) error {
 	allUsers := map[int64]telegram.User{}
+
 	err := user.GetUserUsersFromDB(contex, rdb, allUsers)
 	if err != nil {
 		return err

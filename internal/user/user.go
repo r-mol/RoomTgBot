@@ -33,7 +33,7 @@ func CreateUser(bot *telegram.Bot, ctx telegram.Context, newUser *User) error {
 		Username:  ctx.Sender().Username,
 		IsBot:     ctx.Sender().IsBot,
 	}
-	// err = contexts.SetUserCTXToDB(contex, rdb, ctx)
+	// TODO err = contexts.SetUserCTXToDB(contex, rdb, ctx)
 	// if err != nil {
 	//	return err
 	// }

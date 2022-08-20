@@ -4,13 +4,16 @@ import (
 	"RoomTgBot/internal/consts"
 	"RoomTgBot/internal/menus"
 	"RoomTgBot/internal/state"
+
 	"context"
+
 	"github.com/go-redis/redis/v9"
 	telegram "gopkg.in/telebot.v3"
 )
 
 func ChangeWantedNotificationsOf(contex context.Context, rdb *redis.Client, ctx telegram.Context, notificationKey string) error {
 	states := state.States{}
+
 	err := state.GetStatesFromRDB(contex, rdb, ctx.Sender().ID, &states)
 	if err == redis.Nil {
 		return ctx.Send("Please restart bot ✨")
