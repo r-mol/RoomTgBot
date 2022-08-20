@@ -33,10 +33,10 @@ func CreateUser(bot *telegram.Bot, ctx telegram.Context, newUser *User) error {
 		Username:  ctx.Sender().Username,
 		IsBot:     ctx.Sender().IsBot,
 	}
-	//err = contexts.SetUserCTXToDB(contex, rdb, ctx)
-	//if err != nil {
+	// err = contexts.SetUserCTXToDB(contex, rdb, ctx)
+	// if err != nil {
 	//	return err
-	//}
+	// }
 
 	if newUser.IsBot {
 		defer bot.Stop()
@@ -69,6 +69,7 @@ func GetUserUsersFromDB(contex context.Context, rdb *redis.Client, users map[int
 
 func SetUserToDB(contex context.Context, rdb *redis.Client, ctx telegram.Context) error {
 	users := map[int64]telegram.User{}
+
 	err := GetUserUsersFromDB(contex, rdb, users)
 	if err != nil {
 		return err
