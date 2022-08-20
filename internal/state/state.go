@@ -376,8 +376,11 @@ func ReturnToStartState(contex context.Context, rdb *redis.Client, ctx telegram.
 }
 
 func SetNotificationToAllUsers(contex context.Context, rdb *redis.Client, kindNotification string, message Message) error {
-	// TODO Get all users from database !!!!!!!!!!!!!!!!
-	allUsers := []user.User{}
+	allUsers := map[int64]telegram.User{}
+	err := user.GetUserUsersFromDB(contex, rdb, allUsers)
+	if err != nil {
+		return err
+	}
 
 	for _, u := range allUsers {
 		err := SetNotificationToUser(contex, rdb, u.ID, kindNotification, message)
@@ -423,7 +426,7 @@ func SetNotificationToUser(contex context.Context, rdb *redis.Client, id int64, 
 	return nil
 }
 
-func SendSpetialNotificationByKey(contex context.Context, bot *telegram.Bot, u *telegram.User, rdb *redis.Client, key string) error {
+func SendSpecialNotificationByKey(contex context.Context, bot *telegram.Bot, u *telegram.User, rdb *redis.Client, key string) error {
 	states := States{}
 	err := GetStatesFromRDB(contex, rdb, u.ID, &states)
 
