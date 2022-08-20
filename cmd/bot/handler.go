@@ -449,9 +449,11 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 
 func FindInitAquaMan() error {
 	// TODO Find person in database
-	ID := int64(471895149)
+	// 6572471895149
+	var ID int64
 
 	message := state.Message{Text: "Please, bring the water to room."}
+
 	err := state.SetNotificationToUser(contex, rdb, ID, consts.CommandAquaManIN, message)
 	if err != nil {
 		return err
@@ -496,6 +498,7 @@ func FindInitCleanMan() error {
 	var ID int64
 
 	message := state.Message{Text: "Please, clean room."}
+
 	err := state.SetNotificationToUser(contex, rdb, ID, consts.CommandCleanManIN, message)
 	if err != nil {
 		return err
@@ -658,139 +661,139 @@ func handlingExamMenu(bot *telegram.Bot, rdb *redis.Client) {
 
 func handlingSubjects(bot *telegram.Bot, rdb *redis.Client) {
 	bot.Handle(&menus.Subject1, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject1.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject1.Text)
 	})
 
 	bot.Handle(&menus.Subject2, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject2.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject2.Text)
 	})
 
 	bot.Handle(&menus.Subject3, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject3.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject3.Text)
 	})
 
 	bot.Handle(&menus.Subject4, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject4.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject4.Text)
 	})
 
 	bot.Handle(&menus.Subject5, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject5.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject5.Text)
 	})
 
 	bot.Handle(&menus.Subject6, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject6.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject6.Text)
 	})
 
 	bot.Handle(&menus.Subject7, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject7.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject7.Text)
 	})
 
 	bot.Handle(&menus.Subject8, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject8.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject8.Text)
 	})
 
 	bot.Handle(&menus.Subject9, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject9.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject9.Text)
 	})
 
 	bot.Handle(&menus.Subject10, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject10.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject10.Text)
 	})
 
 	bot.Handle(&menus.Subject11, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject11.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject11.Text)
 	})
 
 	bot.Handle(&menus.Subject12, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject12.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject12.Text)
 	})
 
 	bot.Handle(&menus.Subject13, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject13.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject13.Text)
 	})
 
 	bot.Handle(&menus.Subject14, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject14.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject14.Text)
 	})
 
 	bot.Handle(&menus.Subject15, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject15.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject15.Text)
 	})
 
 	bot.Handle(&menus.Subject16, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject16.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject16.Text)
 	})
 
 	bot.Handle(&menus.Subject17, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject17.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject17.Text)
 	})
 
 	bot.Handle(&menus.Subject18, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject18.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject18.Text)
 	})
 
 	bot.Handle(&menus.Subject19, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject19.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject19.Text)
 	})
 
 	bot.Handle(&menus.Subject20, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject20.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject20.Text)
 	})
 
 	bot.Handle(&menus.Subject21, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject21.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject21.Text)
 	})
 
 	bot.Handle(&menus.Subject22, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject22.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject22.Text)
 	})
 
 	bot.Handle(&menus.Subject23, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject23.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject23.Text)
 	})
 
 	bot.Handle(&menus.Subject24, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject24.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject24.Text)
 	})
 
 	bot.Handle(&menus.Subject25, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject25.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject25.Text)
 	})
 
 	bot.Handle(&menus.Subject26, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject26.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject26.Text)
 	})
 
 	bot.Handle(&menus.Subject27, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject27.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject27.Text)
 	})
 
 	bot.Handle(&menus.Subject28, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject28.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject28.Text)
 	})
 
 	bot.Handle(&menus.Subject29, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject29.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject29.Text)
 	})
 
 	bot.Handle(&menus.Subject30, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject30.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject30.Text)
 	})
 
 	bot.Handle(&menus.Subject31, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject31.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject31.Text)
 	})
 
 	bot.Handle(&menus.Subject32, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject32.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject32.Text)
 	})
 
 	bot.Handle(&menus.Subject33, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject33.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject33.Text)
 	})
 
 	bot.Handle(&menus.Subject34, func(ctx telegram.Context) error {
-		return exam.GetSetExam(bot, contex, rdb, ctx, menus.Subject34.Text)
+		return exam.GetSetExam(contex, bot, rdb, ctx, menus.Subject34.Text)
 	})
 }
 
