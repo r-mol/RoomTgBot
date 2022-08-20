@@ -256,7 +256,7 @@ func (state *State) SendAllAvailableMessage(bot *telegram.Bot, u *telegram.User,
 
 	if len(message.Photos) != 0 {
 		for index := range message.Photos {
-			_, err = bot.Send(u, message.Photos[index])
+			_, err = bot.Send(u, &message.Photos[index])
 			if err != nil {
 				return err
 			}
@@ -366,7 +366,7 @@ func SetNotificationToUser(contex context.Context, rdb *redis.Client, id int64, 
 	return nil
 }
 
-func SendSpecialNotificationByKey(contex context.Context, bot *telegram.Bot, u *telegram.User, rdb *redis.Client, key string) error {
+func SendSpecialNotificationByKey(contex context.Context, bot *telegram.Bot, u *telegram.User, rdb *redis.Client, notificationKey string) error {
 	states := States{}
 	err := GetStatesFromRDB(contex, rdb, u.ID, &states)
 
@@ -380,7 +380,7 @@ func SendSpecialNotificationByKey(contex context.Context, bot *telegram.Bot, u *
 		return err
 	}
 
-	messages := notificationState.Nfs[key]
+	messages := notificationState.Nfs[notificationKey]
 
 	if len(messages) == 0 {
 		_, err = bot.Send(u, "Unfortunately, there are not smth new 🤷🏼", menus.MainMenu)
@@ -389,19 +389,24 @@ func SendSpecialNotificationByKey(contex context.Context, bot *telegram.Bot, u *
 
 	allMenus := menus.GetMenus()
 
+	value, ok := allMenus[notificationKey]
+	if !ok {
+		value = allMenus[states[consts.InitState].StateName]
+	}
+
 	for _, message := range messages {
-		err = notificationState.SendAllAvailableMessage(bot, u, message, allMenus[key])
+		err = notificationState.SendAllAvailableMessage(bot, u, message, value)
 		if err != nil {
 			return err
 		}
 	}
 
-	notificationState.Nfs[key] = Messages{}
+	notificationState.Nfs[notificationKey] = Messages{}
 
 	return SetStatesToRDB(contex, rdb, u.ID, &states)
 }
 
-func CheckUserOnAvaliableNotifications(contex context.Context, bot *telegram.Bot, u *telegram.User, rdb *redis.Client) error {
+func CheckUserOnAvailableNotifications(contex context.Context, bot *telegram.Bot, u *telegram.User, rdb *redis.Client) error {
 	states := States{}
 	err := GetStatesFromRDB(contex, rdb, u.ID, &states)
 

@@ -65,7 +65,7 @@ func Setup() {
 				for key := range users {
 					u := users[key]
 
-					err = state.CheckUserOnAvaliableNotifications(contex, bot, &u, rdb)
+					err = state.CheckUserOnAvailableNotifications(contex, bot, &u, rdb)
 					if err != nil && err != redis.Nil {
 						log.Println(err)
 						break
