@@ -1,8 +1,12 @@
 package bot
 
 import (
+	"RoomTgBot/internal/contexts"
+	"RoomTgBot/internal/state"
+
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v9"
@@ -23,6 +27,8 @@ func init() {
 	rdb.Ping(contex)
 }
 
+var mu sync.Mutex
+
 func Setup() {
 	pref := telegram.Settings{
 		Token:  os.Getenv("TG_TOKEN"),
@@ -36,7 +42,42 @@ func Setup() {
 		return
 	}
 
-	handling(bot, rdb)
+	ticker := time.NewTicker(time.Minute)
+	wg := sync.WaitGroup{}
+
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		for {
+			select {
+			case <-ticker.C:
+				mu.Lock()
+				users := map[int64]telegram.User{}
+				err = contexts.GetUserUsersFromDB(contex, rdb, users)
+				if err != nil {
+					log.Println(err)
+				}
+				for _, user := range users {
+					err = state.CheckUserOnAvaliableNotifications(bot, &user, contex, rdb)
+					if err != nil && err != redis.Nil {
+						log.Println(err)
+					}
+				}
+				mu.Unlock()
+			default:
+				continue
+			}
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		mu.Lock()
+		handling(bot, rdb)
+
+		mu.Unlock()
+	}()
 
 	bot.Start()
+	wg.Wait()
 }
