@@ -1,7 +1,7 @@
 package exam
 
 import (
-	"RoomTgBot/internal/commands"
+	"RoomTgBot/internal/consts"
 	"RoomTgBot/internal/menus"
 	"RoomTgBot/internal/state"
 
@@ -11,15 +11,15 @@ import (
 	telegram "gopkg.in/telebot.v3"
 )
 
-func GetSetExam(contex context.Context, rdb *redis.Client, ctx telegram.Context, subjectName string) error {
-	curState, err := state.GetCurStateFromRDB(contex, rdb, ctx)
+func GetSetExam(bot *telegram.Bot, contex context.Context, rdb *redis.Client, ctx telegram.Context, subjectName string) error {
+	curState, err := state.GetCurStateFromRDB(contex, rdb, ctx.Sender().ID)
 	if err == redis.Nil {
 		return ctx.Send("Please restart bot ✨")
 	} else if err != nil {
 		return err
 	}
 
-	if curState.StateName == commands.CommandExamDone {
+	if curState.StateName == consts.CommandExamDone {
 		files := curState.Files
 		photos := curState.Photos
 		err = setExam(subjectName, files, photos)
@@ -29,7 +29,7 @@ func GetSetExam(contex context.Context, rdb *redis.Client, ctx telegram.Context,
 		}
 
 		commandFrom := curState.StateName
-		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, commands.CommandStart)
+		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, consts.CommandStart)
 
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
@@ -38,7 +38,7 @@ func GetSetExam(contex context.Context, rdb *redis.Client, ctx telegram.Context,
 		}
 
 		return ctx.Send("Exams successful set...", menus.MainMenu)
-	} else if curState.StateName == commands.CommandGetExam {
+	} else if curState.StateName == consts.CommandGetExam {
 		files, photos, err := getExam(subjectName)
 		if err != nil {
 			return err
@@ -46,30 +46,30 @@ func GetSetExam(contex context.Context, rdb *redis.Client, ctx telegram.Context,
 
 		curState.Files = files
 		curState.Photos = photos
-		err = curState.SendAllAvailableMessages(ctx, nil)
+		err = curState.SendAllAvailableMessages(bot, ctx.Sender(), state.Message{}, menus.MainMenu)
 		if err != nil {
 			return err
 		}
 
 		curState.RemoveAll()
 		commandFrom := curState.StateName
-		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, commands.CommandStart)
+		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, consts.CommandStart)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
 			return err
 		}
 
-		return ctx.Send("Exams successful get...", menus.MainMenu)
+		return ctx.Send("Exams successful set...", menus.MainMenu)
 	}
 
 	return ctx.Send("Please restart bot ✨")
 }
 
-func setExam(subjectName string, files []*telegram.Document, photos []*telegram.Photo) error {
+func setExam(subjectName string, files []telegram.Document, photos []telegram.Photo) error {
 	return nil
 }
 
-func getExam(subjectName string) ([]*telegram.Document, []*telegram.Photo, error) {
-	return []*telegram.Document{}, []*telegram.Photo{}, nil
+func getExam(subjectName string) ([]telegram.Document, []telegram.Photo, error) {
+	return []telegram.Document{}, []telegram.Photo{}, nil
 }
