@@ -1,8 +1,8 @@
 package bot
 
 import (
-	"RoomTgBot/internal/contexts"
 	"RoomTgBot/internal/state"
+	"RoomTgBot/internal/user"
 
 	"log"
 	"os"
@@ -53,7 +53,7 @@ func Setup() {
 			case <-ticker.C:
 				mu.Lock()
 				users := map[int64]telegram.User{}
-				err = contexts.GetUserUsersFromDB(contex, rdb, users)
+				err = user.GetUserUsersFromDB(contex, rdb, users)
 				if err != nil {
 					log.Println(err)
 				}
