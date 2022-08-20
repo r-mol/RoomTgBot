@@ -2,7 +2,6 @@ package user
 
 import (
 	"RoomTgBot/internal/consts"
-
 	"context"
 	"encoding/json"
 	"strconv"
@@ -19,28 +18,23 @@ type User struct {
 	IsBot     bool   `json:"is_bot"`
 }
 
-func CreateUser(bot *telegram.Bot, ctx telegram.Context, newUser *User) error {
-	id := ctx.Sender().ID
+func CreateUser(contex context.Context, rdb *redis.Client, bot *telegram.Bot, ctx telegram.Context) error {
+	idString := strconv.FormatInt(ctx.Sender().ID, consts.BaseForConvertToInt)
 
-	// TODO if user with id exist in database then:
-	//   newUser = database(id)
-	//   else create new user and add context to database
+	_, err := rdb.Get(contex, idString).Result()
+	if err == redis.Nil {
+		// TODO add new user to database
+		err = SetUserToRDB(contex, rdb, ctx)
+		if err != nil {
+			return err
+		}
 
-	*newUser = User{
-		ID: id,
-
-		FirstName: ctx.Sender().FirstName,
-		Username:  ctx.Sender().Username,
-		IsBot:     ctx.Sender().IsBot,
-	}
-	// TODO err = contexts.SetUserCTXToDB(contex, rdb, ctx)
-	// if err != nil {
-	//	return err
-	// }
-
-	if newUser.IsBot {
-		defer bot.Stop()
-		return ctx.Send("You are fucking bot...")
+		if ctx.Sender().IsBot {
+			defer bot.Stop()
+			return ctx.Send("You are fucking bot...")
+		}
+	} else if err != nil {
+		return err
 	}
 
 	return nil
@@ -67,7 +61,7 @@ func GetUserUsersFromDB(contex context.Context, rdb *redis.Client, users map[int
 	return nil
 }
 
-func SetUserToDB(contex context.Context, rdb *redis.Client, ctx telegram.Context) error {
+func SetUserToRDB(contex context.Context, rdb *redis.Client, ctx telegram.Context) error {
 	users := map[int64]telegram.User{}
 
 	err := GetUserUsersFromDB(contex, rdb, users)
