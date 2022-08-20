@@ -278,43 +278,6 @@ func (state *State) SendAllAvailableMessage(bot *telegram.Bot, u *telegram.User,
 	return err
 }
 
-func (state *State) SendAllAvailableMessages(bot *telegram.Bot, u *telegram.User, message Message, menu *telegram.ReplyMarkup) error {
-	var err error
-
-	if reflect.DeepEqual(message, Message{}) {
-		message = state.Message
-	}
-
-	if len(message.Files) != 0 {
-		for index := range message.Files {
-			_, err = bot.Send(u, message.Files[index])
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	if len(message.Photos) != 0 {
-		for index := range message.Photos {
-			_, err = bot.Send(u, message.Photos[index])
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	if message.Text != "" {
-		_, err = bot.Send(u, message.Text)
-		if err != nil {
-			return err
-		}
-	}
-
-	_, err = bot.Send(u, "You can list in the items:", menu)
-
-	return err
-}
-
 func (state *State) ChangeDataInState(contex context.Context, rdb *redis.Client, id int64) error {
 	states := States{}
 
@@ -337,26 +300,6 @@ func (state *State) ChangeDataInState(contex context.Context, rdb *redis.Client,
 	}
 
 	return nil
-}
-
-func (state *State) GetNextMessageOfList() Message {
-	if len(state.ListMessages)-1 == state.Index {
-		state.Index = 0
-	} else {
-		state.Index++
-	}
-
-	return state.ListMessages[state.Index]
-}
-
-func (state *State) GetPrevMessageOfList() Message {
-	if state.Index == 0 {
-		state.Index = len(state.ListMessages) - 1
-	} else {
-		state.Index--
-	}
-
-	return state.ListMessages[state.Index]
 }
 
 func ReturnToStartState(contex context.Context, rdb *redis.Client, ctx telegram.Context) error {
