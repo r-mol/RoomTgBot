@@ -15,16 +15,6 @@ import (
 	telegram "gopkg.in/telebot.v3"
 )
 
-type Message struct {
-	Text   string              `json:"text"`
-	Files  []telegram.Document `json:"document"`
-	Photos []telegram.Photo    `json:"photo"`
-}
-
-type Messages []Message
-
-type Notifications map[string]Messages
-
 type State struct {
 	StateName string `json:"init_state"`
 	PrevState string `json:"prev_state"`
@@ -33,7 +23,19 @@ type State struct {
 	IsNow         bool `json:"is_now"`
 }
 
+type Notifications struct {
+	WaitedNotification map[string]struct{} `json:"waited_notification"`
+	Nfs                map[string]Messages `json:"nfs"`
+}
+
+type Message struct {
+	Text   string              `json:"text"`
+	Files  []telegram.Document `json:"document"`
+	Photos []telegram.Photo    `json:"photo"`
+}
+
 type States map[string]*State
+type Messages []Message
 
 func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Context, prevCommand, initCommand string) error {
 	states := States{}
@@ -202,6 +204,18 @@ func GetSetOfAvailableChattingStates() map[string]struct{} {
 	return setOfStates
 }
 
+func GetMapOfWaitedNotifications() map[string]struct{} {
+	waitedNotification := map[string]struct{}{}
+
+	waitedNotification[consts.NotificationShop] = struct{}{}
+	waitedNotification[consts.NotificationNews] = struct{}{}
+	waitedNotification[consts.NotificationExam] = struct{}{}
+	waitedNotification[consts.NotificationMoney] = struct{}{}
+	waitedNotification[consts.NotificationCleaning] = struct{}{}
+
+	return waitedNotification
+}
+
 func (state *State) MoveMessagesTo(curState *State) {
 	if state.Text != "" {
 		curState.Text = state.Text
@@ -328,18 +342,18 @@ func SetNotificationToUser(contex context.Context, rdb *redis.Client, id int64, 
 
 	curState := states[consts.Notification]
 
-	if curState.Notifications == nil {
-		curState.Notifications = map[string]Messages{}
+	if curState.Nfs == nil {
+		curState.Nfs = map[string]Messages{}
 	}
 
-	messages := curState.Notifications[keyOfNotification]
+	messages := curState.Nfs[keyOfNotification]
 	if messages == nil {
 		messages = []Message{}
 	}
 
 	messages = append(messages, message)
 
-	curState.Notifications[keyOfNotification] = messages
+	curState.Nfs[keyOfNotification] = messages
 
 	states[consts.Notification] = curState
 
@@ -361,12 +375,12 @@ func SendSpecialNotificationByKey(contex context.Context, bot *telegram.Bot, u *
 	}
 
 	notificationState := states[consts.Notification]
-	if len(notificationState.Notifications) == 0 {
+	if len(notificationState.Nfs) == 0 {
 		_, err = bot.Send(u, "Unfortunately, there are not smth new 🤷🏼", menus.MainMenu)
 		return err
 	}
 
-	messages := notificationState.Notifications[key]
+	messages := notificationState.Nfs[key]
 
 	if len(messages) == 0 {
 		_, err = bot.Send(u, "Unfortunately, there are not smth new 🤷🏼", menus.MainMenu)
@@ -382,7 +396,7 @@ func SendSpecialNotificationByKey(contex context.Context, bot *telegram.Bot, u *
 		}
 	}
 
-	notificationState.Notifications[key] = Messages{}
+	notificationState.Nfs[key] = Messages{}
 
 	return SetStatesToRDB(contex, rdb, u.ID, &states)
 }
@@ -397,24 +411,26 @@ func CheckUserOnAvaliableNotifications(contex context.Context, bot *telegram.Bot
 
 	notificationState := states[consts.Notification]
 	if notificationState == nil {
-		states[consts.Notification] = &State{StateName: consts.Notification, PrevState: consts.CommandStart}
+		states[consts.Notification] = &State{
+			StateName: consts.Notification,
+			PrevState: consts.CommandStart,
+			Notifications: Notifications{
+				Nfs:                map[string]Messages{},
+				WaitedNotification: map[string]struct{}{},
+			},
+		}
 
 		err = SetStatesToRDB(contex, rdb, u.ID, &states)
 
 		return err
 	}
 
-	if len(notificationState.Notifications) == 0 {
+	if len(notificationState.Nfs) == 0 {
 		return nil
 	}
 
-	mapNotifications := notificationState.Notifications
-
-	// TODO get user preferences of notification from data base
-	waitedNotification := map[string]struct{}{}
-	waitedNotification[consts.CommandAquaManIN] = struct{}{}
-	waitedNotification[consts.NotificationShop] = struct{}{}
-	waitedNotification[consts.NotificationNews] = struct{}{}
+	mapNotifications := notificationState.Nfs
+	waitedNotification := notificationState.WaitedNotification
 
 	for key := range waitedNotification {
 		messages, ok := mapNotifications[key]
@@ -431,7 +447,7 @@ func CheckUserOnAvaliableNotifications(contex context.Context, bot *telegram.Bot
 			}
 		}
 
-		notificationState.Notifications[key] = Messages{}
+		notificationState.Nfs[key] = Messages{}
 
 		err = SetStatesToRDB(contex, rdb, u.ID, &states)
 		if err != nil {
