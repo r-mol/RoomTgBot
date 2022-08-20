@@ -16,11 +16,6 @@ const (
 	CommandSettings = "⚙️ Settings"
 	CommandBack     = "Back ↩️"
 
-	// Messages consts
-	CommandPrevious = "⬅️"
-	CommandNext     = "➡️"
-	CommandExit     = "Exit"
-
 	// Room consts
 	CommandShop       = "🛍 Shop"
 	CommandAquaMan    = "\U0001F9A6 Aqua-Man"
