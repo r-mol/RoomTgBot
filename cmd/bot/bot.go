@@ -45,30 +45,41 @@ func Setup() {
 	ticker := time.NewTicker(time.Minute)
 	wg := sync.WaitGroup{}
 
-	wg.Add(2)
+	wg.Add(1)
+
 	go func() {
 		defer wg.Done()
+
 		for {
 			select {
 			case <-ticker.C:
 				mu.Lock()
 				users := map[int64]telegram.User{}
+
 				err = user.GetUserUsersFromDB(contex, rdb, users)
 				if err != nil {
 					log.Println(err)
+					break
 				}
-				for _, user := range users {
-					err = state.CheckUserOnAvaliableNotifications(bot, &user, contex, rdb)
+
+				for key := range users {
+					u := users[key]
+
+					err = state.CheckUserOnAvaliableNotifications(contex, bot, &u, rdb)
 					if err != nil && err != redis.Nil {
 						log.Println(err)
+						break
 					}
 				}
+
 				mu.Unlock()
 			default:
 				continue
 			}
 		}
 	}()
+
+	wg.Add(1)
 
 	go func() {
 		defer wg.Done()
