@@ -21,15 +21,16 @@ var (
 	ShopMenu         = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
 	NewsUploadMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	NewsCheckMenu  = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	PostNewsMenu   = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
 	ShopUploadMenu   = &telegram.ReplyMarkup{ResizeKeyboard: true}
-	ShopCheckMenu    = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	PostPurchaseMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
 	ExamUploadMenu = &telegram.ReplyMarkup{ResizeKeyboard: true}
 	SubjectMenu    = &telegram.ReplyMarkup{ResizeKeyboard: true}
+
+	SettingsOfNotifications = &telegram.ReplyMarkup{ResizeKeyboard: true}
+	SettingsBackMenu        = &telegram.ReplyMarkup{ResizeKeyboard: true}
 
 	// Main menu buttons.
 	BtnRoom     = MainMenu.Text(consts.CommandRoom)
@@ -72,6 +73,11 @@ var (
 	// Setting menu buttons.
 	BtnNotificationSettings = SettingsMenu.Text(consts.CommandNotificationSettings)
 	BtnSettingsOfBot        = SettingsMenu.Text(consts.CommandSettingsOfBot)
+	BtnShopNotification     = SettingsOfNotifications.Data(consts.NotificationShop, "shop")
+	BtnNewsNotification     = SettingsOfNotifications.Data(consts.NotificationNews, "news")
+	BtnMoneyNotification    = SettingsOfNotifications.Data(consts.NotificationMoney, "money")
+	BtnExamNotification     = SettingsOfNotifications.Data(consts.NotificationExam, "exam")
+	BtnCleaningNotification = SettingsOfNotifications.Data(consts.NotificationCleaning, "cleaning")
 
 	// Exam menu buttons.
 	BtnUploadExam = ExamMenu.Text(consts.CommandUploadExam)
@@ -171,10 +177,6 @@ func InitializeMenus() {
 		ShopUploadMenu.Row(BtnBack),
 	)
 
-	ShopCheckMenu.Reply(
-		ShopCheckMenu.Row(BtnBack),
-	)
-
 	PostPurchaseMenu.Reply(
 		PostPurchaseMenu.Row(BtnPostPurchase, BtnDeleteDraft),
 		PostPurchaseMenu.Row(BtnBack),
@@ -185,8 +187,8 @@ func InitializeMenus() {
 		NewsUploadMenu.Row(BtnBack),
 	)
 
-	NewsCheckMenu.Reply(
-		NewsCheckMenu.Row(BtnBack),
+	SettingsBackMenu.Reply(
+		SettingsBackMenu.Row(BtnBack),
 	)
 
 	PostNewsMenu.Reply(
@@ -236,6 +238,12 @@ func InitializeMenus() {
 		SubjectMenu.Row(Subject33),
 		SubjectMenu.Row(Subject34),
 	)
+
+	SettingsOfNotifications.Inline(
+		SettingsOfNotifications.Row(BtnShopNotification, BtnNewsNotification),
+		SettingsOfNotifications.Row(BtnMoneyNotification, BtnExamNotification),
+		SettingsOfNotifications.Row(BtnCleaningNotification),
+	)
 }
 
 func GetMenus() map[string]*telegram.ReplyMarkup {
@@ -246,24 +254,18 @@ func GetMenus() map[string]*telegram.ReplyMarkup {
 	allMenus[consts.CommandExam] = ExamMenu
 	allMenus[consts.CommandNews] = NewsMenu
 	allMenus[consts.CommandUploadNews] = NewsUploadMenu
-	allMenus[consts.CommandCheckNews] = NewsCheckMenu
 	allMenus[consts.CommandPostNews] = PostNewsMenu
 	allMenus[consts.CommandSettings] = SettingsMenu
 	allMenus[consts.CommandAquaMan] = AquaManMenu
 	allMenus[consts.CommandCleanMan] = CleanManMenu
 	allMenus[consts.CommandShop] = ShopMenu
 	allMenus[consts.CommandUploadPurchase] = ShopUploadMenu
-	allMenus[consts.CommandCheckPurchases] = ShopCheckMenu
 	allMenus[consts.CommandPurchaseDone] = PostPurchaseMenu
 	allMenus[consts.CommandUploadExam] = ExamUploadMenu
 	allMenus[consts.CommandExamDone] = SubjectMenu
 	allMenus[consts.CommandAquaManIN] = InitAquaManMenu
 	allMenus[consts.CommandCleanManIN] = InitCleanManMenu
-	allMenus[consts.NotificationNews] = MainMenu
-	allMenus[consts.NotificationMoney] = MainMenu
-	allMenus[consts.NotificationExam] = MainMenu
-	allMenus[consts.NotificationShop] = MainMenu
-	allMenus[consts.NotificationCleaning] = MainMenu
+	allMenus[consts.CommandNotificationSettings] = SettingsOfNotifications
 
 	return allMenus
 }

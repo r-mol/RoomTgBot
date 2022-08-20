@@ -4,6 +4,7 @@ import (
 	"RoomTgBot/internal/consts"
 	"RoomTgBot/internal/exam"
 	"RoomTgBot/internal/menus"
+	"RoomTgBot/internal/settings"
 	"RoomTgBot/internal/state"
 	"RoomTgBot/internal/user"
 
@@ -789,7 +790,6 @@ func handlingSubjects(bot *telegram.Bot, rdb *redis.Client) {
 func handlingSettingsMenu(bot *telegram.Bot, rdb *redis.Client) {
 	bot.Handle(&menus.BtnSettings, func(ctx telegram.Context) error {
 		err := state.CheckOfUserState(contex, rdb, ctx, consts.CommandStart, consts.CommandSettings)
-
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -797,6 +797,42 @@ func handlingSettingsMenu(bot *telegram.Bot, rdb *redis.Client) {
 		}
 
 		return ctx.Send("Now you are in the settings menu...", menus.SettingsMenu)
+	})
+
+	bot.Handle(&menus.BtnNotificationSettings, func(ctx telegram.Context) error {
+		err := state.CheckOfUserState(contex, rdb, ctx, consts.CommandSettings, consts.CommandNotificationSettings)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
+		err = ctx.Send("Press on button to choose ", menus.SettingsBackMenu)
+		if err != nil {
+			return err
+		}
+
+		return ctx.Send("Which notification turn on/off:", menus.SettingsOfNotifications)
+	})
+
+	bot.Handle(&menus.BtnShopNotification, func(ctx telegram.Context) error {
+		return settings.ChangeWantedNotificationsOf(contex, rdb, ctx, menus.BtnShopNotification.Text)
+	})
+
+	bot.Handle(&menus.BtnNewsNotification, func(ctx telegram.Context) error {
+		return settings.ChangeWantedNotificationsOf(contex, rdb, ctx, menus.BtnNewsNotification.Text)
+	})
+
+	bot.Handle(&menus.BtnExamNotification, func(ctx telegram.Context) error {
+		return settings.ChangeWantedNotificationsOf(contex, rdb, ctx, menus.BtnExamNotification.Text)
+	})
+
+	bot.Handle(&menus.BtnMoneyNotification, func(ctx telegram.Context) error {
+		return settings.ChangeWantedNotificationsOf(contex, rdb, ctx, menus.BtnMoneyNotification.Text)
+	})
+
+	bot.Handle(&menus.BtnCleaningNotification, func(ctx telegram.Context) error {
+		return settings.ChangeWantedNotificationsOf(contex, rdb, ctx, menus.BtnCleaningNotification.Text)
 	})
 }
 
