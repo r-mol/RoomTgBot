@@ -34,11 +34,13 @@ const (
 	CommandPostPurchase   = "📦 Post purchase"
 	CommandUploadPurchase = "📥 Upload purchase"
 	CommandPurchaseDone   = "✅ Purchase done"
-	CommandCheck          = "\U0001F9FE Check"
+	CommandCheckPurchases = "\U0001F9FE Check purchases"
 
 	// News consts
 	CommandNewsDone    = "✅ News done"
-	CommandPostNews    = "✉️ Post news"
+	CommandUploadNews  = "📥 Upload News"
+	CommandPostNews    = "✉️ Post News"
+	CommandCheckNews   = "\U0001F9FE Check News"
 	CommandDeleteDraft = "🗑 Remove draft"
 
 	// Settings consts
