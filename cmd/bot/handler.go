@@ -33,20 +33,12 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 
 func handlingStart(bot *telegram.Bot, rdb *redis.Client) {
 	bot.Handle(consts.CommandStart, func(ctx telegram.Context) error {
-		newUser := &user.User{}
-		err := user.CreateUser(bot, ctx, newUser)
-		if err != nil {
-			return err
-		}
-
-		err = user.SetUserToDB(contex, rdb, ctx)
+		err := user.CreateUser(contex, rdb, bot, ctx)
 		if err != nil {
 			return err
 		}
 
 		log.Println("User is authorized")
-
-		// TODO Add new user to database
 
 		curState := &state.State{
 			StateName: consts.CommandStart,
@@ -81,7 +73,7 @@ func handlingStart(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		return ctx.Send("Nice to meet you "+newUser.FirstName+" !!!", menus.MainMenu)
+		return ctx.Send("Nice to meet you "+ctx.Sender().FirstName+" !!!", menus.MainMenu)
 	})
 }
 
@@ -147,7 +139,10 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		// TODO find next person to bring water
+		err = FindInitAquaMan()
+		if err != nil {
+			return err
+		}
 
 		return ctx.Send("Thanks for the answer, have a good time 😊", menus.MainMenu)
 	})
@@ -160,7 +155,10 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		// TODO find next person to clean room
+		err = FindInitCleanMan()
+		if err != nil {
+			return err
+		}
 
 		return ctx.Send("Thanks for the answer, have a good time 😊", menus.MainMenu)
 	})
@@ -175,7 +173,10 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		// TODO find next person to bring water
+		err = FindInitAquaMan()
+		if err != nil {
+			return err
+		}
 
 		return ctx.Send("We heard you, please don't let this happen again 🥺", menus.MainMenu)
 	})
@@ -190,15 +191,16 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		// TODO find next person to clean room
+		err = FindInitCleanMan()
+		if err != nil {
+			return err
+		}
 
 		return ctx.Send("We heard you, please don't let this happen again 🥺", menus.MainMenu)
 	})
 
 	bot.Handle(&menus.BtnAquaManIN, func(ctx telegram.Context) error {
-		// TODO Find person in database
-		//   tgUser := &user.User{}
-		//   tgUser = testUser
+		// TODO Find person in database and add one credit
 
 		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
@@ -206,17 +208,12 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 		} else if err != nil {
 			return err
 		}
-
-		// TODO Add new data of user to database
-		//   testUser = tgUser
 
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
 
 	bot.Handle(&menus.BtnCleanManIN, func(ctx telegram.Context) error {
-		// TODO Find person in database
-		//  tgUser := &user.User{}
-		//  tgUser = testUser
+		// TODO Find person in database and add one credit
 
 		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
@@ -224,9 +221,6 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 		} else if err != nil {
 			return err
 		}
-
-		// TODO Add new data of user to database
-		//  testUser = tgUser
 
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
@@ -297,8 +291,6 @@ func handlingShopMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		// TODO add purchase to database
-
 		err = state.SetNotificationToAllUsers(contex, rdb, consts.NotificationShop, curState.Message)
 		if err != nil {
 			return err
@@ -352,9 +344,7 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(consts.CommandBringWater, func(ctx telegram.Context) error {
-		// TODO Find person in database
-		//   tgUser := &user.User{}
-		//   tgUser = testUser
+		// TODO Find person in database and add one credit
 
 		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
@@ -362,9 +352,6 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 		} else if err != nil {
 			return err
 		}
-
-		// TODO Add new data of user to database
-		//   testUser = tgUser
 
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
@@ -388,7 +375,7 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 }
 
 func FindInitAquaMan() error {
-	// TODO Find person in database
+	// TODO Find next person in database to bring water
 	// 6572471895149
 	var ID int64
 
@@ -415,9 +402,7 @@ func handlingCleanMan(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(consts.CommandCleanRoom, func(ctx telegram.Context) error {
-		// TODO Find person in database
-		//  tgUser := &user.User{}
-		//  tgUser = testUser
+		// TODO Find person in database and add one credit
 
 		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
@@ -426,15 +411,12 @@ func handlingCleanMan(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		// TODO Add new data of user to database
-		//  testUser = tgUser
-
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
 }
 
 func FindInitCleanMan() error {
-	// TODO Find person in database
+	// TODO Find next person in database to clean room
 	var ID int64
 
 	message := state.Message{Text: "Please, clean room."}
@@ -512,7 +494,6 @@ func handlingNewsMenu(bot *telegram.Bot, rdb *redis.Client, allMenus map[string]
 			return err
 		}
 
-		// TODO add news to database
 		err = state.SetNotificationToAllUsers(contex, rdb, consts.NotificationNews, curState.Message)
 		if err != nil {
 			return err
