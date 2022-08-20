@@ -53,7 +53,22 @@ func handlingStart(bot *telegram.Bot, rdb *redis.Client) {
 		}
 
 		states := state.States{}
-		states[consts.Notification] = &state.State{StateName: consts.Notification, PrevState: consts.CommandStart, Notifications: state.Notifications{}}
+
+		err = state.GetStatesFromRDB(contex, rdb, ctx.Sender().ID, &states)
+		if err == redis.Nil {
+			waitedNotification := state.GetMapOfWaitedNotifications()
+
+			states[consts.Notification] = &state.State{StateName: consts.Notification,
+				PrevState: consts.CommandStart,
+				Notifications: state.Notifications{
+					Nfs:                map[string]state.Messages{},
+					WaitedNotification: waitedNotification,
+				},
+			}
+		} else if err != nil && err != redis.Nil {
+			return err
+		}
+
 		states[consts.CommandStart] = curState
 		states[consts.InitState] = curState
 
