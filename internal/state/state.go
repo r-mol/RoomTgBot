@@ -21,22 +21,16 @@ type Message struct {
 	Photos []telegram.Photo    `json:"photo"`
 }
 
-type Messages struct {
-	Index        int       `json:"index"`
-	ListMessages []Message `json:"list_messages"`
-}
+type Messages []Message
 
-type Notifications struct {
-	MapNotifications map[string]Messages `json:"map_notifications"`
-}
+type Notifications map[string]Messages
 
 type State struct {
 	StateName string `json:"init_state"`
 	PrevState string `json:"prev_state"`
 	Message
-	Messages
-	Notifications
-	IsNow bool `json:"is_now"`
+	Notifications `json:"map_notifications"`
+	IsNow         bool `json:"is_now"`
 }
 
 type States map[string]*State
@@ -128,7 +122,6 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 func GetCurStateFromRDB(contex context.Context, rdb *redis.Client, id int64) (*State, error) {
 	states := States{}
 	err := GetStatesFromRDB(contex, rdb, id, &states)
-
 	if err != nil {
 		return nil, err
 	}
@@ -202,18 +195,9 @@ func resetToZeroState(contex context.Context, rdb *redis.Client, id int64, state
 func GetSetOfAvailableChattingStates() map[string]struct{} {
 	setOfStates := map[string]struct{}{}
 
-	setOfStates[consts.CommandNews] = struct{}{}
+	setOfStates[consts.CommandUploadNews] = struct{}{}
 	setOfStates[consts.CommandUploadPurchase] = struct{}{}
 	setOfStates[consts.CommandUploadExam] = struct{}{}
-
-	return setOfStates
-}
-
-func GetSetOfAvailableListStates() map[string]struct{} {
-	setOfStates := map[string]struct{}{}
-
-	setOfStates[consts.CommandCheck] = struct{}{}
-	setOfStates[consts.Notification] = struct{}{}
 
 	return setOfStates
 }
@@ -241,7 +225,6 @@ func (state *State) RemoveAll() {
 	state.Text = ""
 	state.Files = []telegram.Document{}
 	state.Photos = []telegram.Photo{}
-	state.ListMessages = []Message{}
 }
 
 func (state *State) SendAllAvailableMessage(bot *telegram.Bot, u *telegram.User, message Message, menu *telegram.ReplyMarkup) error {
@@ -251,14 +234,11 @@ func (state *State) SendAllAvailableMessage(bot *telegram.Bot, u *telegram.User,
 		message = state.Message
 	}
 
-	if len(message.Files) != 0 {
-		for index := range message.Files {
-			_, err = bot.Send(u, message.Files[index])
-			if err != nil {
-				return err
-			}
-		}
+	if message.Text == "" {
+		message.Text = "Empty Text"
 	}
+
+	_, err = bot.Send(u, message.Text, menu)
 
 	if len(message.Photos) != 0 {
 		for index := range message.Photos {
@@ -269,11 +249,14 @@ func (state *State) SendAllAvailableMessage(bot *telegram.Bot, u *telegram.User,
 		}
 	}
 
-	if message.Text == "" {
-		message.Text = "Empty Text"
+	if len(message.Files) != 0 {
+		for index := range message.Files {
+			_, err = bot.Send(u, &message.Files[index])
+			if err != nil {
+				return err
+			}
+		}
 	}
-
-	_, err = bot.Send(u, message.Text, menu)
 
 	return err
 }
@@ -345,18 +328,18 @@ func SetNotificationToUser(contex context.Context, rdb *redis.Client, id int64, 
 
 	curState := states[consts.Notification]
 
-	if curState.MapNotifications == nil {
-		curState.MapNotifications = map[string]Messages{}
+	if curState.Notifications == nil {
+		curState.Notifications = map[string]Messages{}
 	}
 
-	listMessages := curState.MapNotifications[keyOfNotification].ListMessages
-	if listMessages == nil {
-		listMessages = []Message{}
+	messages := curState.Notifications[keyOfNotification]
+	if messages == nil {
+		messages = []Message{}
 	}
 
-	listMessages = append(listMessages, message)
+	messages = append(messages, message)
 
-	curState.MapNotifications[keyOfNotification] = Messages{ListMessages: listMessages}
+	curState.Notifications[keyOfNotification] = messages
 
 	states[consts.Notification] = curState
 
@@ -378,24 +361,30 @@ func SendSpecialNotificationByKey(contex context.Context, bot *telegram.Bot, u *
 	}
 
 	notificationState := states[consts.Notification]
-	if len(notificationState.MapNotifications) == 0 {
-		return nil
+	if len(notificationState.Notifications) == 0 {
+		_, err = bot.Send(u, "Unfortunately, there are not smth new 🤷🏼", menus.MainMenu)
+		return err
 	}
 
-	messages := notificationState.MapNotifications[key]
+	messages := notificationState.Notifications[key]
+
+	if len(messages) == 0 {
+		_, err = bot.Send(u, "Unfortunately, there are not smth new 🤷🏼", menus.MainMenu)
+		return err
+	}
 
 	allMenus := menus.GetMenus()
 
-	for _, message := range messages.ListMessages {
-		err = notificationState.SendAllAvailableMessages(bot, u, message, allMenus[key])
+	for _, message := range messages {
+		err = notificationState.SendAllAvailableMessage(bot, u, message, allMenus[key])
 		if err != nil {
 			return err
 		}
 	}
 
-	notificationState.MapNotifications[key] = Messages{}
+	notificationState.Notifications[key] = Messages{}
 
-	return nil
+	return SetStatesToRDB(contex, rdb, u.ID, &states)
 }
 
 func CheckUserOnAvaliableNotifications(contex context.Context, bot *telegram.Bot, u *telegram.User, rdb *redis.Client) error {
@@ -415,15 +404,17 @@ func CheckUserOnAvaliableNotifications(contex context.Context, bot *telegram.Bot
 		return err
 	}
 
-	if len(notificationState.MapNotifications) == 0 {
+	if len(notificationState.Notifications) == 0 {
 		return nil
 	}
 
-	mapNotifications := notificationState.MapNotifications
+	mapNotifications := notificationState.Notifications
 
 	// TODO get user preferences of notification from data base
 	waitedNotification := map[string]struct{}{}
 	waitedNotification[consts.CommandAquaManIN] = struct{}{}
+	waitedNotification[consts.NotificationShop] = struct{}{}
+	waitedNotification[consts.NotificationNews] = struct{}{}
 
 	for key := range waitedNotification {
 		messages, ok := mapNotifications[key]
@@ -433,14 +424,14 @@ func CheckUserOnAvaliableNotifications(contex context.Context, bot *telegram.Bot
 
 		allMenus := menus.GetMenus()
 
-		for _, message := range messages.ListMessages {
+		for _, message := range messages {
 			err = notificationState.SendAllAvailableMessage(bot, u, message, allMenus[key])
 			if err != nil {
 				return err
 			}
 		}
 
-		notificationState.MapNotifications[key] = Messages{}
+		notificationState.Notifications[key] = Messages{}
 
 		err = SetStatesToRDB(contex, rdb, u.ID, &states)
 		if err != nil {
