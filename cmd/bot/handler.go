@@ -33,6 +33,8 @@ func handling(bot *telegram.Bot, rdb *redis.Client) {
 
 func handlingStart(bot *telegram.Bot, rdb *redis.Client) {
 	bot.Handle(consts.CommandStart, func(ctx telegram.Context) error {
+		var notificationState *state.State
+
 		err := user.CreateUser(contex, rdb, bot, ctx)
 		if err != nil {
 			return err
@@ -46,10 +48,10 @@ func handlingStart(bot *telegram.Bot, rdb *redis.Client) {
 		}
 
 		states := state.States{}
-		notificationState := &state.State{}
 
 		err = state.GetStatesFromRDB(contex, rdb, ctx.Sender().ID, &states)
-		if err == redis.Nil {
+		switch err {
+		case redis.Nil:
 			waitedNotification := state.GetMapOfWaitedNotifications()
 
 			notificationState = &state.State{StateName: consts.Notification,
@@ -59,10 +61,10 @@ func handlingStart(bot *telegram.Bot, rdb *redis.Client) {
 					WaitedNotification: waitedNotification,
 				},
 			}
-		} else if err != nil {
-			return err
-		} else {
+		case nil:
 			notificationState = states[consts.Notification]
+		default:
+			return err
 		}
 
 		states = state.States{}
