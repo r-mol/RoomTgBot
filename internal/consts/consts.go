@@ -32,9 +32,9 @@ const (
 	CommandCheckPurchases = "\U0001F9FE Check purchases"
 
 	// News consts
-	CommandNewsDone    = "✅ News done"
-	CommandUploadNews  = "📥 Upload News"
 	CommandPostNews    = "✉️ Post News"
+	CommandUploadNews  = "📥 Upload News"
+	CommandNewsDone    = "✅ News done"
 	CommandCheckNews   = "\U0001F9FE Check News"
 	CommandDeleteDraft = "🗑 Remove draft"
 
@@ -57,4 +57,5 @@ const (
 
 	InitState           = "init_state"
 	BaseForConvertToInt = 10
+	TimeOutMultiplier   = 10
 )
