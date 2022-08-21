@@ -22,16 +22,17 @@ func GetSetExam(contex context.Context, bot *telegram.Bot, rdb *redis.Client, ct
 	if curState.StateName == consts.CommandExamDone {
 		files := curState.Files
 		photos := curState.Photos
-		err = setExam(subjectName, files, photos)
 
+		err = setExam(subjectName, files, photos)
 		if err != nil {
 			return err
 		}
 
 		curState.RemoveAll()
-		commandFrom := curState.StateName
-		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, consts.CommandStart)
 
+		commandFrom := curState.StateName
+
+		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, consts.CommandStart)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -40,20 +41,20 @@ func GetSetExam(contex context.Context, bot *telegram.Bot, rdb *redis.Client, ct
 
 		return ctx.Send("Exams successful set...", menus.MainMenu)
 	} else if curState.StateName == consts.CommandGetExam {
-		files, photos, err := getExam(subjectName)
+		curState.Files, curState.Photos, err = getExam(subjectName)
 		if err != nil {
 			return err
 		}
 
-		curState.Files = files
-		curState.Photos = photos
 		err = curState.SendAllAvailableMessage(bot, ctx.Sender(), state.Message{}, menus.MainMenu)
 		if err != nil {
 			return err
 		}
 
 		curState.RemoveAll()
+
 		commandFrom := curState.StateName
+
 		err = state.CheckOfUserState(contex, rdb, ctx, commandFrom, consts.CommandStart)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
