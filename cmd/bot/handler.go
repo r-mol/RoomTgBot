@@ -46,27 +46,31 @@ func handlingStart(bot *telegram.Bot, rdb *redis.Client) {
 		}
 
 		states := state.States{}
+		notificationState := &state.State{}
 
 		err = state.GetStatesFromRDB(contex, rdb, ctx.Sender().ID, &states)
 		if err == redis.Nil {
 			waitedNotification := state.GetMapOfWaitedNotifications()
 
-			states[consts.Notification] = &state.State{StateName: consts.Notification,
+			notificationState = &state.State{StateName: consts.Notification,
 				PrevState: consts.CommandStart,
 				Notifications: state.Notifications{
 					Nfs:                map[string]state.Messages{},
 					WaitedNotification: waitedNotification,
 				},
 			}
-		} else if err != nil && err != redis.Nil {
+		} else if err != nil {
 			return err
+		} else {
+			notificationState = states[consts.Notification]
 		}
 
+		states = state.States{}
+		states[consts.Notification] = notificationState
 		states[consts.CommandStart] = curState
 		states[consts.InitState] = curState
 
 		err = state.SetStatesToRDB(contex, rdb, ctx.Sender().ID, &states)
-
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
