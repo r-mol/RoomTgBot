@@ -16,7 +16,7 @@ import (
 )
 
 type State struct {
-	StateName string `json:"init_state"`
+	StateName string `json:"state_name"`
 	PrevState string `json:"prev_state"`
 	Message
 	Notifications `json:"map_notifications"`
@@ -41,7 +41,6 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 	states := States{}
 
 	err := GetStatesFromRDB(contex, rdb, ctx.Sender().ID, &states)
-
 	if err != nil {
 		return err
 	}
@@ -49,13 +48,11 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 	prevState, ok := states[prevCommand]
 	if !ok {
 		err = ctx.Send("Something bad happened,\nwe return you to the beginning...", menus.MainMenu)
-
 		if err != nil {
 			return err
 		}
 
 		err = resetToZeroState(contex, rdb, ctx.Sender().ID, states)
-
 		if err != nil {
 			return err
 		}
@@ -63,19 +60,13 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 		return fmt.Errorf("bad request prevState is not exist")
 	}
 
-	if err != nil {
-		return err
-	}
-
 	if !prevState.IsNow {
 		err = ctx.Send("Something bad happened,\nwe return you to the beginning...", menus.MainMenu)
-
 		if err != nil {
 			return err
 		}
 
 		err = resetToZeroState(contex, rdb, ctx.Sender().ID, states)
-
 		if err != nil {
 			return err
 		}
@@ -85,12 +76,7 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 
 	prevState.IsNow = false
 
-	if err != nil {
-		return err
-	}
-
 	curState, ok := states[initCommand]
-
 	if !ok {
 		curState = &State{
 			StateName: initCommand,
@@ -112,13 +98,7 @@ func CheckOfUserState(contex context.Context, rdb *redis.Client, ctx telegram.Co
 	states[initCommand] = curState
 	states[consts.InitState] = curState
 
-	err = SetStatesToRDB(contex, rdb, ctx.Sender().ID, &states)
-
-	if err != nil {
-		return err
-	}
-
-	return err
+	return SetStatesToRDB(contex, rdb, ctx.Sender().ID, &states)
 }
 
 func GetCurStateFromRDB(contex context.Context, rdb *redis.Client, id int64) (*State, error) {
@@ -156,7 +136,6 @@ func SetStatesToRDB(contex context.Context, rdb *redis.Client, id int64, sts *St
 	idString := strconv.FormatInt(id, consts.BaseForConvertToInt)
 
 	stateBytes, err := json.Marshal(sts)
-
 	if err != nil {
 		return err
 	}
@@ -171,7 +150,6 @@ func SetStatesToRDB(contex context.Context, rdb *redis.Client, id int64, sts *St
 
 func resetToZeroState(contex context.Context, rdb *redis.Client, id int64, states States) error {
 	curState, err := GetCurStateFromRDB(contex, rdb, id)
-
 	if err != nil {
 		return err
 	}
@@ -187,7 +165,6 @@ func resetToZeroState(contex context.Context, rdb *redis.Client, id int64, state
 	states[newCurState.StateName] = newCurState
 
 	err = SetStatesToRDB(contex, rdb, id, &states)
-
 	if err != nil {
 		return err
 	}
@@ -225,13 +202,11 @@ func (state *State) MoveMessagesTo(curState *State) {
 
 	if len(state.Files) != 0 {
 		curState.Files = append(curState.Files, state.Files...)
-
 		state.Files = []telegram.Document{}
 	}
 
 	if len(state.Photos) != 0 {
 		curState.Photos = append(curState.Photos, state.Photos...)
-
 		state.Photos = []telegram.Photo{}
 	}
 }
@@ -254,6 +229,9 @@ func (state *State) SendAllAvailableMessage(bot *telegram.Bot, u *telegram.User,
 	}
 
 	_, err = bot.Send(u, message.Text, menu)
+	if err != nil {
+		return err
+	}
 
 	if len(message.Photos) != 0 {
 		for index := range message.Photos {
@@ -273,14 +251,13 @@ func (state *State) SendAllAvailableMessage(bot *telegram.Bot, u *telegram.User,
 		}
 	}
 
-	return err
+	return nil
 }
 
 func (state *State) ChangeDataInState(contex context.Context, rdb *redis.Client, id int64) error {
 	states := States{}
 
 	err := GetStatesFromRDB(contex, rdb, id, &states)
-
 	if err != nil {
 		return err
 	}
@@ -291,13 +268,7 @@ func (state *State) ChangeDataInState(contex context.Context, rdb *redis.Client,
 
 	states[state.StateName] = state
 
-	err = SetStatesToRDB(contex, rdb, id, &states)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return SetStatesToRDB(contex, rdb, id, &states)
 }
 
 func ReturnToStartState(contex context.Context, rdb *redis.Client, ctx telegram.Context) error {
@@ -307,8 +278,8 @@ func ReturnToStartState(contex context.Context, rdb *redis.Client, ctx telegram.
 	}
 
 	commandFrom := state.StateName
-	err = CheckOfUserState(contex, rdb, ctx, commandFrom, consts.CommandStart)
 
+	err = CheckOfUserState(contex, rdb, ctx, commandFrom, consts.CommandStart)
 	if err != nil {
 		return err
 	}
@@ -349,6 +320,7 @@ func SetNotificationToUser(contex context.Context, rdb *redis.Client, id int64, 
 	}
 
 	messages := curState.Nfs[keyOfNotification]
+
 	if messages == nil {
 		messages = []Message{}
 	}
@@ -360,7 +332,6 @@ func SetNotificationToUser(contex context.Context, rdb *redis.Client, id int64, 
 	states[consts.Notification] = curState
 
 	err = SetStatesToRDB(contex, rdb, id, &states)
-
 	if err != nil {
 		return err
 	}
@@ -370,8 +341,8 @@ func SetNotificationToUser(contex context.Context, rdb *redis.Client, id int64, 
 
 func SendSpecialNotificationByKey(contex context.Context, bot *telegram.Bot, u *telegram.User, rdb *redis.Client, notificationKey string) error {
 	states := States{}
-	err := GetStatesFromRDB(contex, rdb, u.ID, &states)
 
+	err := GetStatesFromRDB(contex, rdb, u.ID, &states)
 	if err != nil {
 		return err
 	}
@@ -410,8 +381,8 @@ func SendSpecialNotificationByKey(contex context.Context, bot *telegram.Bot, u *
 
 func CheckUserOnAvailableNotifications(contex context.Context, bot *telegram.Bot, u *telegram.User, rdb *redis.Client) error {
 	states := States{}
-	err := GetStatesFromRDB(contex, rdb, u.ID, &states)
 
+	err := GetStatesFromRDB(contex, rdb, u.ID, &states)
 	if err != nil {
 		return err
 	}
