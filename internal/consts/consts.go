@@ -3,8 +3,6 @@ package consts
 const (
 	// Commands
 	CommandStart       = "/start"
-	CommandContact     = "/contact"
-	CommandHelp        = "/help"
 	CommandBringWater  = "/bring_water"
 	CommandWaterIsOver = "/water_is_over"
 	CommandCleanRoom   = "/clean_room"
