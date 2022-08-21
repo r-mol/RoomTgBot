@@ -22,11 +22,9 @@ func ChangeWantedNotificationsOf(contex context.Context, rdb *redis.Client, ctx 
 	}
 
 	notificationState := states[consts.Notification]
-
 	waitedNotification := notificationState.WaitedNotification
 
-	_, ok := waitedNotification[notificationKey]
-	if ok {
+	if _, ok := waitedNotification[notificationKey]; ok {
 		delete(waitedNotification, notificationKey)
 
 		err = ctx.Send("This notification has been turn off.", menus.SettingsBackMenu)
