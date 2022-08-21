@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"RoomTgBot/internal/consts"
 	"RoomTgBot/internal/state"
 	"RoomTgBot/internal/user"
 
@@ -13,9 +14,8 @@ import (
 	telegram "gopkg.in/telebot.v3"
 )
 
-const timeOutMultiplier = 10
-
 var rdb *redis.Client
+var mu sync.Mutex
 
 func init() {
 	rdb = redis.NewClient(&redis.Options{
@@ -27,12 +27,10 @@ func init() {
 	rdb.Ping(contex)
 }
 
-var mu sync.Mutex
-
 func Setup() {
 	pref := telegram.Settings{
 		Token:  os.Getenv("TG_TOKEN"),
-		Poller: &telegram.LongPoller{Timeout: timeOutMultiplier * time.Second},
+		Poller: &telegram.LongPoller{Timeout: consts.TimeOutMultiplier * time.Second},
 	}
 
 	bot, err := telegram.NewBot(pref)
