@@ -16,27 +16,19 @@ import (
 type ID primitive.ObjectID
 
 type User struct {
-	MongoID    ID     `json:"_id",bson:"_id",omitempty`
-	TelegramID string `json:"telegram_id",bson:"telegram_id"`
+	MongoID    ID    `json:"_id" bson:"_id,omitempty"`
+	TelegramID int64 `json:"telegram_id" bson:"telegram_id"`
 
-	TelegramUsername string `json:"telegram_username",bson:"telegram_username"`
-	FirstName        string `json:"first_name",bson:"first_name"`
+	TelegramUsername string `json:"telegram_username" bson:"telegram_username"`
+	FirstName        string `json:"first_name" bson:"first_name"`
 
-	NotificationList map[ID]bool `json:"notification_list",bson:"notification_list"`
-	ScoreList        map[ID]int  `json:"score_list",bson:"score_list"`
+	NotificationList map[ID]bool `json:"notification_list" bson:"notification_list"`
+	ScoreList        map[ID]int  `json:"score_list" bson:"score_list"`
 
-	Order    uint `json:"order",bson:"order"`
-	IsAbsent bool `json:"is_absent",bson:"is_absent"`
-	IsBot    bool `json:"is_bot",bson:"is_bot"`
+	Order    uint `json:"order" bson:"order"`
+	IsAbsent bool `json:"is_absent" bson:"is_absent"`
+	IsBot    bool `json:"is_bot" bson:"is_bot"`
 }
-
-// type User struct {
-// 	ID int64 `json:"id"`
-//
-// 	FirstName string `json:"first_name"`
-// 	Username  string `json:"username"`
-// 	IsBot     bool   `json:"is_bot"`
-// }
 
 // Create new User
 
