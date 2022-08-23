@@ -313,7 +313,7 @@ func handlingShopMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		return ctx.Send("Your purchase has been sand to database 📨", menus.MainMenu)
+		return ctx.Send("Your purchase has been send to database 📨", menus.MainMenu)
 	})
 
 	bot.Handle(&menus.BtnCheckShopping, func(ctx telegram.Context) error {
