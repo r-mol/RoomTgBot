@@ -30,23 +30,7 @@ type User struct {
 	IsBot    bool `json:"is_bot" bson:"is_bot"`
 }
 
-// Create new User
-
-func CreateUser()  {
-	// rdbAddUser()
-	// mongodbAddUser()
-}
-
-func mongodbAddUser(ctx context.Context, db *mongo.Client, user User) (*mongo.InsertOneResult, error) {
-	users := db.Database(consts.MongoDBName).Collection("users")
-    insertResult, err := users.InsertOne(ctx, user)
-    if err != nil{
-        return insertResult, fmt.Errorf("Unable to add new user to MongoDB: %v", err)
-    }
-    return insertResult, nil
-}
-
-func rdbAddUser(contex context.Context, rdb *redis.Client, bot *telegram.Bot, ctx telegram.Context) error {
+func CreateUser(contex context.Context, rdb *redis.Client, bot *telegram.Bot, ctx telegram.Context) error {
 	idString := strconv.FormatInt(ctx.Sender().ID, consts.BaseForConvertToInt)
 
 	_, err := rdb.Get(contex, idString).Result()
@@ -70,14 +54,6 @@ func rdbAddUser(contex context.Context, rdb *redis.Client, bot *telegram.Bot, ct
 
 func (u *User) Recipient() string {
 	return strconv.FormatInt(u.TelegramID, consts.BaseForConvertToInt)
-}
-
-func GetUserUsersFromDB()(){
-    // if not in redis
-    // add to redis from mongo
-    
-    // return users
-       
 }
 
 func GetUserUsersFromDB(contex context.Context, rdb *redis.Client, users map[int64]telegram.User) error {
@@ -118,4 +94,41 @@ func SetUserToRDB(contex context.Context, rdb *redis.Client, ctx telegram.Contex
 	}
 
 	return nil
+}
+
+func mongodbAddUser(ctx context.Context, db *mongo.Client, user User) (*mongo.InsertOneResult, error) {
+	users := db.Database(consts.MongoDBName).Collection("users")
+	insertResult, err := users.InsertOne(ctx, user)
+
+	if err != nil {
+		return insertResult, fmt.Errorf("unable to add new user to MongoDB: %v", err)
+	}
+
+	return insertResult, nil
+}
+
+func mongodbGetUsers(ctx context.Context, db *mongo.Client) ([]User, error) {
+	usersCollection := db.Database(consts.MongoDBName).Collection("users")
+
+	cursor, err := usersCollection.Find(ctx, nil)
+	if err != nil {
+		return []User{}, fmt.Errorf("unable to get users from MongoDB: %v", err)
+	}
+
+	users := []User{}
+
+	for cursor.Next(context.TODO()) {
+		var result User
+		if err := cursor.Decode(&result); err != nil {
+			return []User{}, fmt.Errorf("unable to get users from MongoDB: %v", err)
+		}
+
+		users = append(users, result)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return []User{}, fmt.Errorf("unable to get users from MongoDB: %v", err)
+	}
+
+	return users, nil
 }
