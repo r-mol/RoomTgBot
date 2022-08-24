@@ -313,7 +313,7 @@ func handlingShopMenu(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		return ctx.Send("Your purchase has been sand to database 📨", menus.MainMenu)
+		return ctx.Send("Your purchase has been send to database 📨", menus.MainMenu)
 	})
 
 	bot.Handle(&menus.BtnCheckShopping, func(ctx telegram.Context) error {
@@ -425,6 +425,28 @@ func FindInitCleanMan() error {
 	message := state.Message{Text: "Please, clean room."}
 
 	err := state.SetNotificationToUser(contex, rdb, ID, consts.CommandCleanManIN, message)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NotifyAboutCleaning() error {
+	message := state.Message{Text: "Please, don't forget that tomorrow will be cleaning."}
+
+	err := state.SetNotificationToAllUsers(contex, rdb, consts.NotificationCleaning, message)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NotifyAboutMoney() error {
+	message := state.Message{Text: "Please, don't forget to deposit room account."}
+
+	err := state.SetNotificationToAllUsers(contex, rdb, consts.NotificationMoney, message)
 	if err != nil {
 		return err
 	}

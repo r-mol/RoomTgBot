@@ -36,7 +36,7 @@ func CreateUser(contex context.Context, rdb *redis.Client, bot *telegram.Bot, ct
 // 	return strconv.FormatInt(u.TelegramID, consts.BaseForConvertToInt)
 // }
 
-func GetUserUsersFromDB(contex context.Context, rdb *redis.Client, users map[int64]telegram.User) error {
+func GetUsersFromDB(contex context.Context, rdb *redis.Client, users map[int64]telegram.User) error {
 	stateString, err := rdb.Get(contex, "0").Result()
 
 	switch err {
@@ -56,7 +56,7 @@ func GetUserUsersFromDB(contex context.Context, rdb *redis.Client, users map[int
 func SetUserToRDB(contex context.Context, rdb *redis.Client, ctx telegram.Context) error {
 	users := map[int64]telegram.User{}
 
-	err := GetUserUsersFromDB(contex, rdb, users)
+	err := GetUsersFromDB(contex, rdb, users)
 	if err != nil {
 		return err
 	}

@@ -54,7 +54,7 @@ func Setup() {
 				mu.Lock()
 				users := map[int64]telegram.User{}
 
-				err = user.GetUserUsersFromDB(contex, rdb, users)
+				err = user.GetUsersFromDB(contex, rdb, users)
 				if err != nil {
 					log.Println(err)
 					break

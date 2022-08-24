@@ -290,7 +290,7 @@ func ReturnToStartState(contex context.Context, rdb *redis.Client, ctx telegram.
 func SetNotificationToAllUsers(contex context.Context, rdb *redis.Client, kindNotification string, message Message) error {
 	allUsers := map[int64]telegram.User{}
 
-	err := user.GetUserUsersFromDB(contex, rdb, allUsers)
+	err := user.GetUsersFromDB(contex, rdb, allUsers)
 	if err != nil {
 		return err
 	}
