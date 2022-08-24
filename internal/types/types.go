@@ -9,6 +9,9 @@ import (
 
 type ID primitive.ObjectID
 
+type MongoObject interface {
+	User | ShoppingEntry | Activity | ExamEntry
+}
 
 // -------- Users -----------------------
 
