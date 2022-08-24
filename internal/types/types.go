@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"gopkg.in/telebot.v3"
 )
 
 type ID primitive.ObjectID
@@ -34,8 +35,8 @@ type User struct {
 
 type ShoppingEntry struct {
 	MongoID    ID             `json:"_id",bson:"_id",omitempty`
-	Photos     state.Messages `json:"shopping_items",bson:"shopping_items"`
-	Bill       state.Message  `json:"bill",bson:"bill"`
+	Photos     []telebot.Photo `json:"shopping_items",bson:"shopping_items"`
+	Bill       telebot.Photo  `json:"bill",bson:"bill"`
 	TotalPrice float64        `json:"total_price",bson:"total_price"`
 	Person     User           `json:"user",bson:"user"`
 	Date       time.Time      `json:"date",bson:"date"`
