@@ -169,7 +169,7 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnCantAQ, func(ctx telegram.Context) error {
-		// TODO Find person and remove one credit from him
+		// TODO Find person and remove one credit from him about bring water
 
 		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
@@ -187,7 +187,7 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnCantCR, func(ctx telegram.Context) error {
-		// TODO Find person and remove one credit from him
+		// TODO Find person and remove one credit from him about cleaning
 
 		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
@@ -205,7 +205,7 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnAquaManIN, func(ctx telegram.Context) error {
-		// TODO Find person in database and add one credit
+		// TODO Find person in database and add one credit about bring water
 
 		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
@@ -218,7 +218,7 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnCleanManIN, func(ctx telegram.Context) error {
-		// TODO Find person in database and add one credit
+		// TODO Find person in database and add one credit about cleaning
 
 		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
@@ -346,7 +346,7 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(consts.CommandBringWater, func(ctx telegram.Context) error {
-		// TODO Find person in database and add one credit
+		// TODO Find person in database and add one credit about bring water
 
 		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
@@ -378,7 +378,7 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 }
 
 func FindInitAquaMan() error {
-	// TODO Find next person in database to bring water
+	// TODO Find id of the next person in database to bring water
 	// 6572471895149
 	var ID int64
 
@@ -405,7 +405,7 @@ func handlingCleanMan(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(consts.CommandCleanRoom, func(ctx telegram.Context) error {
-		// TODO Find person in database and add one credit
+		// TODO Find person in database and add one credit about cleaning
 
 		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
@@ -419,7 +419,7 @@ func handlingCleanMan(bot *telegram.Bot, rdb *redis.Client) {
 }
 
 func FindInitCleanMan() error {
-	// TODO Find next person in database to clean room
+	// TODO Find id of the next person in database to clean room
 	var ID int64
 
 	message := state.Message{Text: "Please, clean room."}
