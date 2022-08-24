@@ -32,6 +32,9 @@ func CreateUser(contex context.Context, rdb *redis.Client, bot *telegram.Bot, ct
 	return nil
 }
 
+// func (u *User) Recipient() string {
+// 	return strconv.FormatInt(u.TelegramID, consts.BaseForConvertToInt)
+// }
 
 func GetUserUsersFromDB(contex context.Context, rdb *redis.Client, users map[int64]telegram.User) error {
 	stateString, err := rdb.Get(contex, "0").Result()
@@ -71,41 +74,4 @@ func SetUserToRDB(contex context.Context, rdb *redis.Client, ctx telegram.Contex
 	}
 
 	return nil
-}
-
-func mongodbAddUser(ctx context.Context, db *mongo.Client, user User) (*mongo.InsertOneResult, error) {
-	users := db.Database(consts.MongoDBName).Collection("users")
-	insertResult, err := users.InsertOne(ctx, user)
-
-	if err != nil {
-		return insertResult, fmt.Errorf("unable to add new user to MongoDB: %v", err)
-	}
-
-	return insertResult, nil
-}
-
-func mongodbGetUsers(ctx context.Context, db *mongo.Client) ([]User, error) {
-	usersCollection := db.Database(consts.MongoDBName).Collection("users")
-
-	cursor, err := usersCollection.Find(ctx, nil)
-	if err != nil {
-		return []User{}, fmt.Errorf("unable to get users from MongoDB: %v", err)
-	}
-
-	users := []User{}
-
-	for cursor.Next(context.TODO()) {
-		var result User
-		if err := cursor.Decode(&result); err != nil {
-			return []User{}, fmt.Errorf("unable to get users from MongoDB: %v", err)
-		}
-
-		users = append(users, result)
-	}
-
-	if err := cursor.Err(); err != nil {
-		return []User{}, fmt.Errorf("unable to get users from MongoDB: %v", err)
-	}
-
-	return users, nil
 }
