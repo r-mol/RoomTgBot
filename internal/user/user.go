@@ -10,14 +10,6 @@ import (
 	telegram "gopkg.in/telebot.v3"
 )
 
-type User struct {
-	ID int64 `json:"id"`
-
-	FirstName string `json:"first_name"`
-	Username  string `json:"username"`
-	IsBot     bool   `json:"is_bot"`
-}
-
 func CreateUser(contex context.Context, rdb *redis.Client, bot *telegram.Bot, ctx telegram.Context) error {
 	idString := strconv.FormatInt(ctx.Sender().ID, consts.BaseForConvertToInt)
 
@@ -40,9 +32,9 @@ func CreateUser(contex context.Context, rdb *redis.Client, bot *telegram.Bot, ct
 	return nil
 }
 
-func (u *User) Recipient() string {
-	return strconv.FormatInt(u.ID, consts.BaseForConvertToInt)
-}
+// func (u *User) Recipient() string {
+// 	return strconv.FormatInt(u.TelegramID, consts.BaseForConvertToInt)
+// }
 
 func GetUsersFromDB(contex context.Context, rdb *redis.Client, users map[int64]telegram.User) error {
 	stateString, err := rdb.Get(contex, "0").Result()

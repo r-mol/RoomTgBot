@@ -1,93 +1,69 @@
 package types
 
 import (
-	// "go.mongodb.org/mongo-driver/bson"
-	// "go.mongodb.org/mongo-driver/bson/primitive"
-	// "go.mongodb.org/mongo-driver/mongo"
-	// "go.mongodb.org/mongo-driver/mongo/options"
+	"RoomTgBot/internal/state"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type ID string
+type ID primitive.ObjectID
 
-// -------- People -----------------------
-type Person struct {
-	MongoID       ID     `bson:"_id,omitempty"`
-	TelegramAlias string `bson:"telegramAlias"`
-	Nickname      string `bson:"nickname"`
+type MongoObject interface {
+	User | ShoppingEntry | Activity | ExamEntry
+}
 
-	NotificationList map[ID]bool `bson:"notificationList"`
-	ScoreList        map[ID]int  `bson:"scoreList"`
+// -------- Users -----------------------
 
-	Order    uint `bson:"order"`
-	IsAbsent bool `bson:"isAbsent"`
+type User struct {
+	MongoID    ID    `json:"_id" bson:"_id,omitempty"`
+	TelegramID int64 `json:"telegram_id" bson:"telegram_id"`
+
+	TelegramUsername string `json:"telegram_username" bson:"telegram_username"`
+	FirstName        string `json:"first_name" bson:"first_name"`
+
+	NotificationList map[ID]bool `json:"notification_list" bson:"notification_list"`
+	ScoreList        map[ID]int  `json:"score_list" bson:"score_list"`
+
+	Order    uint `json:"order" bson:"order"`
+	IsAbsent bool `json:"is_absent" bson:"is_absent"`
+	IsBot    bool `json:"is_bot" bson:"is_bot"`
 }
 
 // -------- Shopping -----------------------
 
-type ShoppingItem struct {
-	Name  string `bson:"name" `
-	Photo File   `bson:"photo"`
-}
 type ShoppingEntry struct {
-	MongoID       ID             `bson:"_id,omitempty"`
-	ShoppingItems []ShoppingItem `bson:"shoppingItems"`
-	Bill          File           `bson:"bill"       `
-	TotalPrice    float64        `bson:"totalPrice"  `
-	Person        Person         `bson:"person"       `
-	Date          time.Time      `bson:"date"      `
+	MongoID    ID             `json:"_id",bson:"_id",omitempty`
+	Photos     state.Messages `json:"shopping_items",bson:"shopping_items"`
+	Bill       state.Message  `json:"bill",bson:"bill"`
+	TotalPrice float64        `json:"total_price",bson:"total_price"`
+	Person     User           `json:"user",bson:"user"`
+	Date       time.Time      `json:"date",bson:"date"`
 }
 
 // -------- Activities -----------------------
 
 type Activity struct {
-	MongoID          ID        `bson:"_id, omitempty"`
-	Name             string    `bson:"name"          `
-	ScorePerActivity int       `bson:"scorePerActivity"`
-	ScoreMultiplier  int       `bson:"scoreMultiplier"`
-	Scheduled        time.Time `bson:"scheduled"      `
-	RepeatEach       time.Time `bson:"repeatEach"     `
+	MongoID          ID        `json:"_id",bson:"_id",omitempty`
+	Name             string    `json:"name",bson:"name"`
+	ScorePerActivity int       `json:"score_per_activity",bson:"score_per_activity"`
+	ScoreMultiplier  int       `json:"score_multiplier",bson:"score_multiplier"`
+	Scheduled        time.Time `json:"scheduled",bson:"scheduled"`
+	RepeatEach       time.Time `json:"repeat_each",bson:"repeat_each"`
 	// peolpe circularQueue <person>
 }
 
-// -------- Notifications -----------------------
-
-//
-// type Notifiable interface {
-// 	Notify() error
-// }
-//
-// func (textInformaiton TextInformation) Notify() error {
-// 	// TODO: implement notify function
-// 	return nil
-// }
-//
-// func (activity Activity) Notify() error {
-// 	// TODO: implement notify function
-// 	return nil
-// }
-
 // -------- Files -----------------------
 
-type TextInformation struct {
-	Header string `bson:"header"`
-	Body   string `bson:"body"`
+type ExamMetaData struct {
+	Year     uint   `json:"year",bson:"year"`
+	Semester uint   `json:"semester",bson:"semester"`
+	Course   string `json:"course",bson:"course"`
+	Kind     string `json:"kind",bson:"kind"`
 }
 
-type File interface {
-	// TODO: implement File
-}
-
-type FileInformation struct {
-	Year     uint            `bson:"year"    `
-	Semester uint            `bson:"semester"`
-	Course   string          `bson:"course"`
-	Kind     string          `bson:"kind"  `
-	Info     TextInformation `bson:"info" `
-}
-
-type FileEntry struct {
-	MongoID  ID              `bson:"_id, omitempty"`
-	MetaData FileInformation `bson:"metaData"`
-	Files    []File          `bson:"files" `
+type ExamEntry struct {
+	MongoID  ID             `json:"_id",bson:"_id",omitempty`
+	MetaData ExamMetaData   `json:"meta_data",bson:"meta_data"`
+	Files    state.Messages `json:"files",bson:"files"`
 }

@@ -56,4 +56,7 @@ const (
 	InitState           = "init_state"
 	BaseForConvertToInt = 10
 	TimeOutMultiplier   = 10
+
+	// DB consts
+	MongoDBName = "RoomTgBot"
 )
