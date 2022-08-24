@@ -4,31 +4,11 @@ import (
 	"RoomTgBot/internal/consts"
 	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/go-redis/redis/v9"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 	telegram "gopkg.in/telebot.v3"
 )
-
-type ID primitive.ObjectID
-
-type User struct {
-	MongoID    ID    `json:"_id" bson:"_id,omitempty"`
-	TelegramID int64 `json:"telegram_id" bson:"telegram_id"`
-
-	TelegramUsername string `json:"telegram_username" bson:"telegram_username"`
-	FirstName        string `json:"first_name" bson:"first_name"`
-
-	NotificationList map[ID]bool `json:"notification_list" bson:"notification_list"`
-	ScoreList        map[ID]int  `json:"score_list" bson:"score_list"`
-
-	Order    uint `json:"order" bson:"order"`
-	IsAbsent bool `json:"is_absent" bson:"is_absent"`
-	IsBot    bool `json:"is_bot" bson:"is_bot"`
-}
 
 func CreateUser(contex context.Context, rdb *redis.Client, bot *telegram.Bot, ctx telegram.Context) error {
 	idString := strconv.FormatInt(ctx.Sender().ID, consts.BaseForConvertToInt)
@@ -52,9 +32,6 @@ func CreateUser(contex context.Context, rdb *redis.Client, bot *telegram.Bot, ct
 	return nil
 }
 
-func (u *User) Recipient() string {
-	return strconv.FormatInt(u.TelegramID, consts.BaseForConvertToInt)
-}
 
 func GetUserUsersFromDB(contex context.Context, rdb *redis.Client, users map[int64]telegram.User) error {
 	stateString, err := rdb.Get(contex, "0").Result()
