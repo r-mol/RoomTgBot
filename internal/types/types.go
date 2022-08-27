@@ -51,7 +51,6 @@ type Activity struct {
 	ScoreMultiplier  int       `json:"score_multiplier",bson:"score_multiplier"`
 	Scheduled        time.Time `json:"scheduled",bson:"scheduled"`
 	RepeatEach       time.Time `json:"repeat_each",bson:"repeat_each"`
-	// peolpe circularQueue <person>
 }
 
 // -------- Files -----------------------
