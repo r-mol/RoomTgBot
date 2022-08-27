@@ -7,15 +7,14 @@ import (
 	"fmt"
 	"os"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var mongoClient *mongo.Client
-
 // ---------------- DB interactions -----------------------------
 
-func AddOne[mongoObject types.MongoObject](ctx context.Context, client *mongo.Client, collectionName string, object mongoObject) (*mongo.InsertOneResult, error) {
+func AddOne[mongoObject types.MongoObject](ctx context.Context, client *mongo.Client, collectionName string, object *mongoObject) (*mongo.InsertOneResult, error) {
 	collection := client.Database(consts.MongoDBName).Collection(collectionName)
 	insertResult, err := collection.InsertOne(ctx, object)
 
@@ -27,7 +26,7 @@ func AddOne[mongoObject types.MongoObject](ctx context.Context, client *mongo.Cl
 }
 
 func GetAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Client, collectionName string) ([]mongoObject, error) {
-	collection := client.Database(consts.MongoDBName).Collection("users")
+	collection := client.Database(consts.MongoDBName).Collection(collectionName)
 	getError := func(err error) error {
 		return fmt.Errorf("unable to get %s from MongoDB: %v", collectionName, err)
 	}
@@ -55,31 +54,40 @@ func GetAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Cl
 	return users, nil
 }
 
+func UpdateAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Client, collectionName string, objects []mongoObject)(error){
+	collection := client.Database(consts.MongoDBName).Collection(collectionName)
+    for _, elem := range objects{
+        filter := bson.M{"_id" : elem.MongoId()}
+        _, err := collection.UpdateOne(ctx, filter, elem)
+        if err != nil{
+            return fmt.Errorf("Unable to update %s due to : %v", elem, err)
+        }
+
+    }
+    return nil
+}
+
 // ---------------- DB initialization -----------------------------
 
-func init() {
-	var err error
-	mongoClient, err = newClient()
-
-	if err != nil {
-		panic(err)
-	}
-
-	err = Ping(mongoClient)
-	if err != nil {
-		panic(fmt.Errorf("Ping to MongoDB is unsuccessful: %v", err))
-	}
-}
+// func init() {
+// 	var err error
+// 	mongoClient, err = newClient()
+//
+// 	if err != nil {
+// 		panic(err)
+// 	}
+//
+// 	err = Ping(mongoClient)
+// 	if err != nil {
+// 		panic(fmt.Errorf("Ping to MongoDB is unsuccessful: %v", err))
+// 	}
+// }
 
 func Ping(client *mongo.Client) error {
 	if client == nil {
 		return fmt.Errorf("MongoDB client is nil")
 	}
 	return client.Ping(context.TODO(), nil)
-}
-
-func Client() *mongo.Client {
-	return mongoClient
 }
 
 func uri() (string, error) {
@@ -91,7 +99,7 @@ func uri() (string, error) {
 	return uri, nil
 }
 
-func newClient() (*mongo.Client, error) {
+func NewClient() (*mongo.Client, error) {
 	uri, err := uri()
 	if err != nil {
 		return nil, err
@@ -102,4 +110,8 @@ func newClient() (*mongo.Client, error) {
 		return nil, err
 	}
 	return client, nil
+}
+
+func Disconnect(client *mongo.Client) {
+	client.Disconnect(context.TODO())
 }
