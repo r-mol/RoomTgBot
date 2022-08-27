@@ -11,6 +11,7 @@ import (
 type ID primitive.ObjectID
 
 type MongoObject interface {
+	MongoId() ID
 	User | ShoppingEntry | Activity | ExamEntry
 }
 
@@ -31,15 +32,23 @@ type User struct {
 	IsBot    bool `json:"is_bot" bson:"is_bot"`
 }
 
+func (user User) MongoId() ID {
+	return user.MongoID
+}
+
 // -------- Shopping -----------------------
 
 type ShoppingEntry struct {
-	MongoID    ID             `json:"_id",bson:"_id",omitempty`
+	MongoID    ID              `json:"_id",bson:"_id",omitempty`
 	Photos     []telebot.Photo `json:"shopping_items",bson:"shopping_items"`
-	Bill       telebot.Photo  `json:"bill",bson:"bill"`
-	TotalPrice float64        `json:"total_price",bson:"total_price"`
-	Person     User           `json:"user",bson:"user"`
-	Date       time.Time      `json:"date",bson:"date"`
+	Bill       telebot.Photo   `json:"bill",bson:"bill"`
+	TotalPrice float64         `json:"total_price",bson:"total_price"`
+	Person     User            `json:"user",bson:"user"`
+	Date       time.Time       `json:"date",bson:"date"`
+}
+
+func (shoppingEntry ShoppingEntry) MongoId() ID {
+	return shoppingEntry.MongoID
 }
 
 // -------- Activities -----------------------
@@ -53,6 +62,10 @@ type Activity struct {
 	RepeatEach       time.Time `json:"repeat_each",bson:"repeat_each"`
 }
 
+func (activity Activity) MongoId() ID {
+	return activity.MongoID
+}
+
 // -------- Files -----------------------
 
 type Files struct {
@@ -60,6 +73,7 @@ type Files struct {
 	Files  []telegram.Document `json:"document"`
 	Photos []telegram.Photo    `json:"photo"`
 }
+
 type ExamMetaData struct {
 	Year     uint   `json:"year",bson:"year"`
 	Semester uint   `json:"semester",bson:"semester"`
@@ -71,4 +85,8 @@ type ExamEntry struct {
 	MongoID  ID           `json:"_id",bson:"_id",omitempty`
 	MetaData ExamMetaData `json:"meta_data",bson:"meta_data"`
 	Files    Files        `json:"files",bson:"files"`
+}
+
+func (examEntry ExamEntry) MongoId() ID {
+	return examEntry.MongoID
 }
