@@ -1,7 +1,7 @@
 package types
 
 import (
-	"RoomTgBot/internal/state"
+	telegram "gopkg.in/telebot.v3"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -55,6 +55,11 @@ type Activity struct {
 
 // -------- Files -----------------------
 
+type Files struct {
+	Text   string              `json:"text"`
+	Files  []telegram.Document `json:"document"`
+	Photos []telegram.Photo    `json:"photo"`
+}
 type ExamMetaData struct {
 	Year     uint   `json:"year",bson:"year"`
 	Semester uint   `json:"semester",bson:"semester"`
@@ -63,7 +68,7 @@ type ExamMetaData struct {
 }
 
 type ExamEntry struct {
-	MongoID  ID             `json:"_id",bson:"_id",omitempty`
-	MetaData ExamMetaData   `json:"meta_data",bson:"meta_data"`
-	Files    state.Messages `json:"files",bson:"files"`
+	MongoID  ID           `json:"_id",bson:"_id",omitempty`
+	MetaData ExamMetaData `json:"meta_data",bson:"meta_data"`
+	Files    Files        `json:"files",bson:"files"`
 }
