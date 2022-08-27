@@ -37,6 +37,34 @@ func CreateUser(contex context.Context, rdb *redis.Client, bot *telegram.Bot, ct
 	return nil
 }
 
+// ---------------------------Score-------------------------------------
+
+func IncreaseScore(tgID int64, usersMap map[int64]types.User, activityName string,
+	activityMap map[string]types.Activity) (map[int64]types.User, error) {
+	return changeScore(tgID, usersMap, activityName, activityMap, 1)
+}
+
+func DecreaseScore(tgID int64, usersMap map[int64]types.User, activityName string,
+	activityMap map[string]types.Activity) (map[int64]types.User, error) {
+	return changeScore(tgID, usersMap, activityName, activityMap, -1)
+}
+func changeScore(tgID int64, usersMap map[int64]types.User, activityName string,
+	activityMap map[string]types.Activity, sign int) (map[int64]types.User, error) {
+	activity, ok := activityMap[activityName]
+	if !ok {
+		return usersMap, fmt.Errorf("such activity does not exist: %s", activityName)
+	}
+
+	user, ok := usersMap[tgID]
+	if !ok {
+		return usersMap, fmt.Errorf("user with id %v does not exist", tgID)
+	}
+
+	user.ScoreList[activity.MongoID] += activity.ScoreMultiplier * activity.ScorePerActivity * sign
+
+	return usersMap, nil
+}
+
 // Normalize order of people so the smallest one is 0 and others ared 1, 2...
 func normalizeOrder(users []types.User) []types.User {
 	sort.Slice(users, func(p, q int) bool {
@@ -86,10 +114,6 @@ func NextInOrder(prevID int64, usersMap map[int64]types.User, users []types.User
 	return users[index].TelegramID, nil
 }
 
-// func IncreaseScore(tgID int64, usersMap map[int64]types.User, activityName string, activityMap [string]types.Activity) (map[int64]types.User, error){
-//     activity := activityMap[activityName]
-//     usersMap[tgID].ScoreList[activity.MongoID]
-// }
 
 func MongoGetMap(ctx context.Context, client *mongo.Client) (map[int64]types.User, error) {
 	mongoUsers, err := mongodb.GetAll[types.User](ctx, client, consts.MongoUsersCollection)
