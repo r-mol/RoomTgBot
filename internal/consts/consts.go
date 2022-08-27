@@ -58,5 +58,9 @@ const (
 	TimeOutMultiplier   = 10
 
 	// DB consts
-	MongoDBName = "RoomTgBot"
+	MongoDBName               = "RoomTgBot"
+	MongoUsersCollection      = "Users"
+	MongoActivitiesCollection = "Activities"
+	MongoShoppingCollection   = "Shopping"
+	MongoExamCollection       = "Exams"
 )
