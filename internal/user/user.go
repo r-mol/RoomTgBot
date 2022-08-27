@@ -65,6 +65,8 @@ func changeScore(tgID int64, usersMap map[int64]types.User, activityName string,
 	return usersMap, nil
 }
 
+// ---------------------------Order-------------------------------------
+
 // Normalize order of people so the smallest one is 0 and others ared 1, 2...
 func normalizeOrder(users []types.User) []types.User {
 	sort.Slice(users, func(p, q int) bool {
@@ -93,10 +95,11 @@ func ChangeOrder(ctx context.Context, client *mongo.Client, users []types.User, 
 		return fmt.Errorf("unable to change order of users: %v", err)
 	}
 
+	// TODO update order of users in Redis
 	return nil
 }
 
-// What is the next order value of a person
+// Next order value of a person
 func nextOrderValue(users []types.User) int {
 	return len(users)
 }
@@ -114,6 +117,7 @@ func NextInOrder(prevID int64, usersMap map[int64]types.User, users []types.User
 	return users[index].TelegramID, nil
 }
 
+// ---------------------------Databases-------------------------------------
 
 func MongoGetMap(ctx context.Context, client *mongo.Client) (map[int64]types.User, error) {
 	mongoUsers, err := mongodb.GetAll[types.User](ctx, client, consts.MongoUsersCollection)
@@ -128,6 +132,21 @@ func MongoGetMap(ctx context.Context, client *mongo.Client) (map[int64]types.Use
 
 	return users, nil
 }
+
+func MongoActivitiesMap(ctx context.Context, client *mongo.Client) (map[string]types.Activity, error) {
+	mongoActivities, err := mongodb.GetAll[types.Activity](ctx, client, consts.MongoActivitiesCollection)
+	if err != nil {
+		return map[string]types.Activity{}, fmt.Errorf("unable to get Users from mongodb: %v", err)
+	}
+
+	activities := map[string]types.Activity{}
+	for _, elem := range mongoActivities {
+		activities[elem.Name] = elem
+	}
+
+	return activities, nil
+}
+
 func MongoGet(ctx context.Context, client *mongo.Client) ([]types.User, error) {
 	mongoUsers, err := mongodb.GetAll[types.User](ctx, client, "Users")
 	if err != nil {
@@ -136,6 +155,7 @@ func MongoGet(ctx context.Context, client *mongo.Client) ([]types.User, error) {
 
 	return mongoUsers, nil
 }
+
 func MongoAdd(ctx context.Context, client *mongo.Client, user *types.User) error {
 	_, err := mongodb.AddOne(ctx, client, consts.MongoUsersCollection, user)
 
