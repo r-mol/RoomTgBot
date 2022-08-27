@@ -50,18 +50,46 @@ func normalizeOrder(users []types.User) []types.User {
 	return users
 }
 
+func ChangeOrder(ctx context.Context, client *mongo.Client, users []types.User, indexIDmap map[int64]uint) error {
+	updatedUsers := []types.User{}
+
+	for _, user := range users {
+		user.Order = indexIDmap[user.TelegramID]
+		updatedUsers = append(updatedUsers, user)
+	}
+
+	updatedUsers = normalizeOrder(updatedUsers)
+
+	err := mongodb.UpdateAll(ctx, client, consts.MongoUsersCollection, updatedUsers)
+	if err != nil {
+		return fmt.Errorf("unable to change order of users: %v", err)
+	}
+
+	return nil
+}
+
+// What is the next order value of a person
+func nextOrderValue(users []types.User) int {
+	return len(users)
+}
+
 // Users list and map should be normalized using normalizeOrder
 func NextInOrder(prevID int64, usersMap map[int64]types.User, users []types.User) (int64, error) {
 	prevOrder := usersMap[prevID].Order
 
 	if len(users) == 0 {
-		return 0, fmt.Errorf("no next user, because list of users is empty")
+		return 0, fmt.Errorf("no next user: list of users is empty")
 	}
 
 	index := (int(prevOrder) + 1) % len(users)
 
 	return users[index].TelegramID, nil
 }
+
+// func IncreaseScore(tgID int64, usersMap map[int64]types.User, activityName string, activityMap [string]types.Activity) (map[int64]types.User, error){
+//     activity := activityMap[activityName]
+//     usersMap[tgID].ScoreList[activity.MongoID]
+// }
 
 func MongoGetMap(ctx context.Context, client *mongo.Client) (map[int64]types.User, error) {
 	mongoUsers, err := mongodb.GetAll[types.User](ctx, client, consts.MongoUsersCollection)
