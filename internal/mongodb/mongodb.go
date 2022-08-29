@@ -54,6 +54,7 @@ func GetAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Cl
 	return users, nil
 }
 
+
 func UpdateAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Client, collectionName string, objects []mongoObject)(error){
 	collection := client.Database(consts.MongoDBName).Collection(collectionName)
     for _, elem := range objects{
@@ -69,19 +70,6 @@ func UpdateAll[mongoObject types.MongoObject](ctx context.Context, client *mongo
 
 // ---------------- DB initialization -----------------------------
 
-// func init() {
-// 	var err error
-// 	mongoClient, err = newClient()
-//
-// 	if err != nil {
-// 		panic(err)
-// 	}
-//
-// 	err = Ping(mongoClient)
-// 	if err != nil {
-// 		panic(fmt.Errorf("Ping to MongoDB is unsuccessful: %v", err))
-// 	}
-// }
 
 func Ping(client *mongo.Client) error {
 	if client == nil {
