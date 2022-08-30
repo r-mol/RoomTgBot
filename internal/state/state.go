@@ -190,6 +190,8 @@ func GetMapOfWaitedNotifications() map[string]struct{} {
 	waitedNotification[consts.NotificationExam] = struct{}{}
 	waitedNotification[consts.NotificationMoney] = struct{}{}
 	waitedNotification[consts.NotificationCleaning] = struct{}{}
+	waitedNotification[consts.CommandAquaManIN] = struct{}{}
+	waitedNotification[consts.CommandCleanManIN] = struct{}{}
 
 	return waitedNotification
 }
