@@ -10,6 +10,7 @@ import (
 
 	"context"
 	"log"
+	"time"
 
 	"github.com/go-redis/redis/v9"
 	telegram "gopkg.in/telebot.v3"
@@ -444,11 +445,13 @@ func NotifyAboutCleaning() error {
 }
 
 func NotifyAboutMoney() error {
-	message := state.Message{Text: "Please, don't forget to deposit room account."}
+	if time.Now().Day() == 28 {
+		message := state.Message{Text: "Please, don't forget to pay 100rub to room account ."}
 
-	err := state.SetNotificationToAllUsers(contex, rdb, consts.NotificationMoney, message)
-	if err != nil {
-		return err
+		err := state.SetNotificationToAllUsers(contex, rdb, consts.NotificationMoney, message)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
