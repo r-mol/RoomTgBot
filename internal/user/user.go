@@ -123,6 +123,9 @@ func nextOrderValue(users []types.User) int {
 
 // Users list and map should be normalized using normalizeOrder
 func NextInOrder(prevID int64, usersMap map[int64]types.User, activityId types.ID) (int64, error) {
+	if prevID == 0 {
+		prevID = us[len(us)-1].TelegramID
+	}
 	prevOrder := usersMap[prevID].Order
 
 	if len(us) == 0 {
