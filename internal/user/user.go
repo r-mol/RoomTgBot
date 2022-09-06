@@ -5,6 +5,7 @@ import (
 	"RoomTgBot/internal/mongodb"
 	"RoomTgBot/internal/types"
 	"context"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -23,7 +24,15 @@ func CreateUser(contex context.Context, rdb *redis.Client, mdb *mongo.Client, bo
 
 	_, err := rdb.Get(contex, idString).Result()
 	if err == redis.Nil {
+		b := []byte{}
+		binary.LittleEndian.PutUint64(b, uint64(ctx.Sender().ID))
+
+		var arr [12]byte
+
+		copy(arr[:], b[:12])
+
 		user := &types.User{
+			MongoID:          arr,
 			TelegramID:       ctx.Sender().ID,
 			TelegramUsername: ctx.Sender().Username,
 			FirstName:        ctx.Sender().FirstName,
