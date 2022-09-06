@@ -54,34 +54,20 @@ func GetAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Cl
 	return users, nil
 }
 
-func UpdateAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Client, collectionName string, objects []mongoObject)(error){
+func UpdateAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Client, collectionName string, objects []mongoObject) error {
 	collection := client.Database(consts.MongoDBName).Collection(collectionName)
-    for _, elem := range objects{
-        filter := bson.M{"_id" : elem.MongoId()}
-        _, err := collection.UpdateOne(ctx, filter, elem)
-        if err != nil{
-            return fmt.Errorf("Unable to update %s due to : %v", elem, err)
-        }
+	for _, elem := range objects {
+		filter := bson.M{"_id": elem.MongoId()}
+		_, err := collection.UpdateOne(ctx, filter, elem)
+		if err != nil {
+			return fmt.Errorf("Unable to update %s due to : %v", elem, err)
+		}
 
-    }
-    return nil
+	}
+	return nil
 }
 
 // ---------------- DB initialization -----------------------------
-
-// func init() {
-// 	var err error
-// 	mongoClient, err = newClient()
-//
-// 	if err != nil {
-// 		panic(err)
-// 	}
-//
-// 	err = Ping(mongoClient)
-// 	if err != nil {
-// 		panic(fmt.Errorf("Ping to MongoDB is unsuccessful: %v", err))
-// 	}
-// }
 
 func Ping(client *mongo.Client) error {
 	if client == nil {

@@ -39,13 +39,13 @@ func cronExample() {
 
 func testAllServices() {
 	// cron
-	cronExample()
+	//cronExample()
 
 	// mongodb
-	DBTest()
+	//DBTest()
 
 	// redis
-	ExampleClient()
+	//ExampleClient()
 
 	// start echo bot
 	bot.Setup()

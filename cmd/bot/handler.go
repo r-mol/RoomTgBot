@@ -4,9 +4,12 @@ import (
 	"RoomTgBot/internal/consts"
 	"RoomTgBot/internal/exam"
 	"RoomTgBot/internal/menus"
+	"RoomTgBot/internal/mongodb"
 	"RoomTgBot/internal/settings"
 	"RoomTgBot/internal/state"
+	"RoomTgBot/internal/types"
 	"RoomTgBot/internal/user"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"context"
 	"log"
@@ -18,25 +21,25 @@ import (
 
 var contex = context.Background()
 
-func handling(bot *telegram.Bot, rdb *redis.Client) {
+func handling(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 	menus.InitializeMenus()
 
 	allMenus := menus.GetMenus()
 
-	handlingStart(bot, rdb)
+	handlingStart(bot, rdb, mdb)
 	functionalHandling(bot, rdb, allMenus)
-	handlingRoomMenu(bot, rdb)
+	handlingRoomMenu(bot, rdb, mdb)
 	handlingNewsMenu(bot, rdb, allMenus)
 	handlingExamMenu(bot, rdb)
 	handlingSettingsMenu(bot, rdb)
 	handlingTriggersOnMessages(bot, rdb)
 }
 
-func handlingStart(bot *telegram.Bot, rdb *redis.Client) {
+func handlingStart(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 	bot.Handle(consts.CommandStart, func(ctx telegram.Context) error {
 		var notificationState *state.State
 
-		err := user.CreateUser(contex, rdb, bot, ctx)
+		err := user.CreateUser(contex, rdb, mdb, bot, ctx)
 		if err != nil {
 			return err
 		}
@@ -118,7 +121,7 @@ func functionalHandling(bot *telegram.Bot, rdb *redis.Client, allMenus map[strin
 	})
 }
 
-func handlingRoomMenu(bot *telegram.Bot, rdb *redis.Client) {
+func handlingRoomMenu(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 	bot.Handle(&menus.BtnRoom, func(ctx telegram.Context) error {
 		err := state.CheckOfUserState(contex, rdb, ctx, consts.CommandStart, consts.CommandRoom)
 		if err == redis.Nil {
@@ -130,18 +133,31 @@ func handlingRoomMenu(bot *telegram.Bot, rdb *redis.Client) {
 		return ctx.Send("Now you are in the room menu...", menus.RoomMenu)
 	})
 
-	handlingDebter(bot, rdb)
+	handlingDebter(bot, rdb, mdb)
 	handlingShopMenu(bot, rdb)
 	handlingAquaMan(bot, rdb)
 	handlingCleanMan(bot, rdb)
 }
 
-func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
+func handlingDebter(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 	bot.Handle(&menus.BtnNotInInnoAQ, func(ctx telegram.Context) error {
 		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
+			return err
+		}
+
+		usersMap, err := user.MongoGetMap(contex, mdb)
+		if err != nil {
+			return err
+		}
+
+		u := usersMap[ctx.Sender().ID]
+		u.IsAbsent = true
+
+		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{u})
+		if err != nil {
 			return err
 		}
 
@@ -161,6 +177,19 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
+		usersMap, err := user.MongoGetMap(contex, mdb)
+		if err != nil {
+			return err
+		}
+
+		u := usersMap[ctx.Sender().ID]
+		u.IsAbsent = true
+
+		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{u})
+		if err != nil {
+			return err
+		}
+
 		err = FindInitCleanMan()
 		if err != nil {
 			return err
@@ -170,9 +199,22 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnCantAQ, func(ctx telegram.Context) error {
-		// TODO Find person and remove one credit from him about bring water
+		usersMap, err := user.MongoGetMap(contex, mdb)
+		if err != nil {
+			return err
+		}
 
-		err := state.ReturnToStartState(contex, rdb, ctx)
+		usersMap, err = user.DecreaseScore(ctx.Sender().ID, usersMap, consts.CommandAquaManIN, consts.InitialActivityList)
+		if err != nil {
+			return err
+		}
+
+		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{usersMap[ctx.Sender().ID]})
+		if err != nil {
+			return err
+		}
+
+		err = state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -188,9 +230,22 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnCantCR, func(ctx telegram.Context) error {
-		// TODO Find person and remove one credit from him about cleaning
+		usersMap, err := user.MongoGetMap(contex, mdb)
+		if err != nil {
+			return err
+		}
 
-		err := state.ReturnToStartState(contex, rdb, ctx)
+		usersMap, err = user.DecreaseScore(ctx.Sender().ID, usersMap, consts.CommandCleanManIN, consts.InitialActivityList)
+		if err != nil {
+			return err
+		}
+
+		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{usersMap[ctx.Sender().ID]})
+		if err != nil {
+			return err
+		}
+
+		err = state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -206,9 +261,22 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnAquaManIN, func(ctx telegram.Context) error {
-		// TODO Find person in database and add one credit about bring water
+		usersMap, err := user.MongoGetMap(contex, mdb)
+		if err != nil {
+			return err
+		}
 
-		err := state.ReturnToStartState(contex, rdb, ctx)
+		usersMap, err = user.IncreaseScore(ctx.Sender().ID, usersMap, consts.CommandAquaManIN, consts.InitialActivityList)
+		if err != nil {
+			return err
+		}
+
+		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{usersMap[ctx.Sender().ID]})
+		if err != nil {
+			return err
+		}
+
+		err = state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -219,9 +287,22 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(&menus.BtnCleanManIN, func(ctx telegram.Context) error {
-		// TODO Find person in database and add one credit about cleaning
+		usersMap, err := user.MongoGetMap(contex, mdb)
+		if err != nil {
+			return err
+		}
 
-		err := state.ReturnToStartState(contex, rdb, ctx)
+		usersMap, err = user.IncreaseScore(ctx.Sender().ID, usersMap, consts.CommandCleanManIN, consts.InitialActivityList)
+		if err != nil {
+			return err
+		}
+
+		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{usersMap[ctx.Sender().ID]})
+		if err != nil {
+			return err
+		}
+
+		err = state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -347,9 +428,22 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(consts.CommandBringWater, func(ctx telegram.Context) error {
-		// TODO Find person in database and add one credit about bring water
+		usersMap, err := user.MongoGetMap(contex, mdb)
+		if err != nil {
+			return err
+		}
 
-		err := state.ReturnToStartState(contex, rdb, ctx)
+		usersMap, err = user.IncreaseScore(ctx.Sender().ID, usersMap, consts.CommandAquaManIN, consts.InitialActivityList)
+		if err != nil {
+			return err
+		}
+
+		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{usersMap[ctx.Sender().ID]})
+		if err != nil {
+			return err
+		}
+
+		err = state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -378,14 +472,19 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 	})
 }
 
+var prevIDAQ = int64(0)
+
 func FindInitAquaMan() error {
-	// TODO Find id of the next person in database to bring water
-	// 6572471895149
-	var ID int64
+	usersMap, err := user.MongoGetMap(contex, mdb)
+	if err != nil {
+		return err
+	}
+
+	prevIDAQ, err = user.NextInOrder(prevIDAQ, usersMap, consts.InitialActivityList[consts.CommandAquaManIN].MongoID)
 
 	message := state.Message{Text: "Please, bring the water to room."}
 
-	err := state.SetNotificationToUser(contex, rdb, ID, consts.CommandAquaManIN, message)
+	err = state.SetNotificationToUser(contex, rdb, prevIDAQ, consts.CommandAquaManIN, message)
 	if err != nil {
 		return err
 	}
@@ -406,9 +505,22 @@ func handlingCleanMan(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(consts.CommandCleanRoom, func(ctx telegram.Context) error {
-		// TODO Find person in database and add one credit about cleaning
+		usersMap, err := user.MongoGetMap(contex, mdb)
+		if err != nil {
+			return err
+		}
 
-		err := state.ReturnToStartState(contex, rdb, ctx)
+		usersMap, err = user.IncreaseScore(ctx.Sender().ID, usersMap, consts.CommandCleanManIN, consts.InitialActivityList)
+		if err != nil {
+			return err
+		}
+
+		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{usersMap[ctx.Sender().ID]})
+		if err != nil {
+			return err
+		}
+
+		err = state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -419,13 +531,19 @@ func handlingCleanMan(bot *telegram.Bot, rdb *redis.Client) {
 	})
 }
 
+var prevIDC = int64(0)
+
 func FindInitCleanMan() error {
-	// TODO Find id of the next person in database to clean room
-	var ID int64
+	usersMap, err := user.MongoGetMap(contex, mdb)
+	if err != nil {
+		return err
+	}
+
+	prevIDC, err = user.NextInOrder(prevIDC, usersMap, consts.InitialActivityList[consts.CommandCleanManIN].MongoID)
 
 	message := state.Message{Text: "Please, clean room."}
 
-	err := state.SetNotificationToUser(contex, rdb, ID, consts.CommandCleanManIN, message)
+	err = state.SetNotificationToUser(contex, rdb, prevIDC, consts.CommandCleanManIN, message)
 	if err != nil {
 		return err
 	}

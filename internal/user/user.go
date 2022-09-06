@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"sort"
 	"strconv"
 
@@ -15,12 +16,30 @@ import (
 	telegram "gopkg.in/telebot.v3"
 )
 
-func CreateUser(contex context.Context, rdb *redis.Client, bot *telegram.Bot, ctx telegram.Context) error {
+var us = []types.User{}
+
+func CreateUser(contex context.Context, rdb *redis.Client, mdb *mongo.Client, bot *telegram.Bot, ctx telegram.Context) error {
 	idString := strconv.FormatInt(ctx.Sender().ID, consts.BaseForConvertToInt)
 
 	_, err := rdb.Get(contex, idString).Result()
 	if err == redis.Nil {
-		// TODO add new user to mongoDB and don't forget to normalizeOrder
+		user := &types.User{
+			TelegramID:       ctx.Sender().ID,
+			TelegramUsername: ctx.Sender().Username,
+			FirstName:        ctx.Sender().FirstName,
+			Order:            100,
+			IsBot:            ctx.Sender().IsBot,
+			NotificationList: map[types.ID]bool{},
+			ScoreList:        map[types.ID]int{},
+		}
+
+		us = append(us, *user)
+
+		err = MongoAdd(contex, mdb, user)
+		if err != nil {
+			return err
+		}
+
 		err = SetUserToRDB(contex, rdb, ctx)
 		if err != nil {
 			return err
@@ -39,8 +58,7 @@ func CreateUser(contex context.Context, rdb *redis.Client, bot *telegram.Bot, ct
 
 // ---------------------------Score-------------------------------------
 
-func IncreaseScore(tgID int64, usersMap map[int64]types.User, activityName string,
-	activityMap map[string]types.Activity) (map[int64]types.User, error) {
+func IncreaseScore(tgID int64, usersMap map[int64]types.User, activityName string, activityMap map[string]types.Activity) (map[int64]types.User, error) {
 	return changeScore(tgID, usersMap, activityName, activityMap, 1)
 }
 
@@ -80,10 +98,10 @@ func normalizeOrder(users []types.User) []types.User {
 	return users
 }
 
-func ChangeOrder(ctx context.Context, client *mongo.Client, users []types.User, indexIDmap map[int64]uint) error {
+func ChangeOrder(ctx context.Context, client *mongo.Client, indexIDmap map[int64]uint) error {
 	updatedUsers := []types.User{}
 
-	for _, user := range users {
+	for _, user := range us {
 		user.Order = indexIDmap[user.TelegramID]
 		updatedUsers = append(updatedUsers, user)
 	}
@@ -95,7 +113,6 @@ func ChangeOrder(ctx context.Context, client *mongo.Client, users []types.User, 
 		return fmt.Errorf("unable to change order of users: %v", err)
 	}
 
-	// TODO update order of users in Redis
 	return nil
 }
 
@@ -105,16 +122,33 @@ func nextOrderValue(users []types.User) int {
 }
 
 // Users list and map should be normalized using normalizeOrder
-func NextInOrder(prevID int64, usersMap map[int64]types.User, users []types.User) (int64, error) {
+func NextInOrder(prevID int64, usersMap map[int64]types.User, activityId types.ID) (int64, error) {
 	prevOrder := usersMap[prevID].Order
 
-	if len(users) == 0 {
+	if len(us) == 0 {
 		return 0, fmt.Errorf("no next user: list of users is empty")
 	}
 
-	index := (int(prevOrder) + 1) % len(users)
+	var same int
+	var id int64
+	var score = math.MaxInt64
 
-	return users[index].TelegramID, nil
+	for _, user := range us {
+		tmpScore := user.ScoreList[activityId]
+
+		if user.IsAbsent || score == tmpScore {
+			same++
+		} else if score > tmpScore {
+			score = tmpScore
+			id = user.TelegramID
+		}
+	}
+
+	if same == len(us)-1 {
+		return us[(int(prevOrder)+1)%len(us)].TelegramID, nil
+	}
+
+	return us[id].TelegramID, nil
 }
 
 // ---------------------------Databases-------------------------------------

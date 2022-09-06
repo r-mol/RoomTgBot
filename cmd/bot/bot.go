@@ -2,8 +2,11 @@ package bot
 
 import (
 	"RoomTgBot/internal/consts"
+	"RoomTgBot/internal/mongodb"
 	"RoomTgBot/internal/state"
 	"RoomTgBot/internal/user"
+	"fmt"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"log"
 	"os"
@@ -15,6 +18,7 @@ import (
 )
 
 var rdb *redis.Client
+var mdb *mongo.Client
 var mu sync.Mutex
 
 func init() {
@@ -25,6 +29,20 @@ func init() {
 	})
 
 	rdb.Ping(contex)
+}
+
+func init() {
+	var err error
+	mdb, err = mongodb.NewClient()
+
+	if err != nil {
+		panic(err)
+	}
+
+	err = mongodb.Ping(mdb)
+	if err != nil {
+		panic(fmt.Errorf("Ping to MongoDB is unsuccessful: %v", err))
+	}
 }
 
 func Setup() {
@@ -82,7 +100,7 @@ func Setup() {
 	go func() {
 		defer wg.Done()
 		mu.Lock()
-		handling(bot, rdb)
+		handling(bot, rdb, mdb)
 
 		mu.Unlock()
 	}()

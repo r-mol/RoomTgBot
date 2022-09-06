@@ -1,5 +1,7 @@
 package consts
 
+import "RoomTgBot/internal/types"
+
 const (
 	// Commands
 	CommandStart       = "/start"
@@ -63,4 +65,19 @@ const (
 	MongoActivitiesCollection = "Activities"
 	MongoShoppingCollection   = "Shopping"
 	MongoExamCollection       = "Exams"
+)
+
+var (
+	InitialActivityList = map[string]types.Activity{
+		CommandAquaManIN: {
+			Name:             CommandAquaManIN,
+			ScorePerActivity: 1,
+			ScoreMultiplier:  1,
+		},
+		CommandCleanManIN: {
+			Name:             CommandCleanManIN,
+			ScorePerActivity: 1,
+			ScoreMultiplier:  1,
+		},
+	}
 )
