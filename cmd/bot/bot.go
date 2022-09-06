@@ -58,7 +58,7 @@ func Setup() {
 		return
 	}
 
-	ticker := time.NewTicker(time.Minute)
+	ticker := time.NewTicker(time.Second)
 	wg := sync.WaitGroup{}
 
 	wg.Add(1)

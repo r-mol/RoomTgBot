@@ -42,8 +42,8 @@ func CreateUser(contex context.Context, rdb *redis.Client, mdb *mongo.Client, bo
 			Order:            uint(len(us)),
 			IsBot:            ctx.Sender().IsBot,
 			NotificationList: map[primitive.ObjectID]bool{},
-			ScoreList:        map[primitive.ObjectID]int{},
-		}
+            ScoreList:        map[primitive.ObjectID]int{consts.InitialActivityList[consts.CommandCleanManIN].MongoID: 0, consts.InitialActivityList[consts.CommandAquaManIN].MongoID: 0},
+        }
 
 		us = append(us, *user)
 
@@ -160,10 +160,11 @@ func NextInOrder(prevID int64, usersMap map[int64]types.User, activityId primiti
 	}
 
 	if same == len(us)-1 {
+        println("biba")
 		return us[(int(prevOrder)+1)%len(us)].TelegramID, nil
 	}
-
-	return us[id].TelegramID, nil
+    println("boba")
+	return id, nil
 }
 
 // ---------------------------Databases-------------------------------------
