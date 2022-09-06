@@ -11,7 +11,7 @@ import (
 	"sort"
 	"strconv"
 
-    "go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/go-redis/redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -25,15 +25,6 @@ func CreateUser(contex context.Context, rdb *redis.Client, mdb *mongo.Client, bo
 
 	_, err := rdb.Get(contex, idString).Result()
 	if err == redis.Nil {
-/*		b := make([]byte, 12)
-		binary.LittleEndian.PutUint64(b, uint64(ctx.Sender().ID))
-
-		var arr [12]byte
-
-		copy(arr[1:], b[:11])
-   
-        arr[0] = '$'
-*/
 		user := &types.User{
 			MongoID:          primitive.NewObjectID(),
 			TelegramID:       ctx.Sender().ID,
@@ -42,8 +33,8 @@ func CreateUser(contex context.Context, rdb *redis.Client, mdb *mongo.Client, bo
 			Order:            uint(len(us)),
 			IsBot:            ctx.Sender().IsBot,
 			NotificationList: map[primitive.ObjectID]bool{},
-            ScoreList:        map[primitive.ObjectID]int{consts.InitialActivityList[consts.CommandCleanManIN].MongoID: 0, consts.InitialActivityList[consts.CommandAquaManIN].MongoID: 0},
-        }
+			ScoreList:        map[primitive.ObjectID]int{consts.InitialActivityList[consts.CommandCleanManIN].MongoID: 0, consts.InitialActivityList[consts.CommandAquaManIN].MongoID: 0},
+		}
 
 		us = append(us, *user)
 
@@ -160,11 +151,10 @@ func NextInOrder(prevID int64, usersMap map[int64]types.User, activityId primiti
 	}
 
 	if same == len(us)-1 {
-        println("biba")
 		return us[(int(prevOrder)+1)%len(us)].TelegramID, nil
 	}
-    println("boba")
-	return id, nil
+
+	return us[id].TelegramID, nil
 }
 
 // ---------------------------Databases-------------------------------------
@@ -172,18 +162,14 @@ func NextInOrder(prevID int64, usersMap map[int64]types.User, activityId primiti
 // Get map of [telegramID]user from Mongodb
 func MongoGetMap(ctx context.Context, client *mongo.Client) (map[int64]types.User, error) {
 	mongoUsers, err := mongodb.GetAll[types.User](ctx, client, consts.MongoUsersCollection)
-    
-    println("ppp1")
 	if err != nil {
 		return map[int64]types.User{}, fmt.Errorf("unable to get Users from mongodb: %v", err)
 	}
-    println("ppp2")
 
 	users := map[int64]types.User{}
 	for _, elem := range mongoUsers {
 		users[elem.TelegramID] = elem
 	}
-    println("ppp3")
 
 	return users, nil
 }
