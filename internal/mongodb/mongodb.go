@@ -14,6 +14,7 @@ import (
 
 // ---------------- DB interactions -----------------------------
 
+// Add one object to a specified collection
 func AddOne[mongoObject types.MongoObject](ctx context.Context, client *mongo.Client, collectionName string, object *mongoObject) (*mongo.InsertOneResult, error) {
 	collection := client.Database(consts.MongoDBName).Collection(collectionName)
 	insertResult, err := collection.InsertOne(ctx, object)
@@ -25,6 +26,7 @@ func AddOne[mongoObject types.MongoObject](ctx context.Context, client *mongo.Cl
 	return insertResult, nil
 }
 
+// Get all objects from specified collection
 func GetAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Client, collectionName string) ([]mongoObject, error) {
 	collection := client.Database(consts.MongoDBName).Collection(collectionName)
 	getError := func(err error) error {
@@ -54,20 +56,29 @@ func GetAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Cl
 	return users, nil
 }
 
+func UpdateOne[mongoObject types.MongoObject](ctx context.Context, client *mongo.Client, collectionName string, object mongoObject) error {
+	collection := client.Database(consts.MongoDBName).Collection(collectionName)
+	filter := bson.M{"_id": object.MongoId()}
+	_, err := collection.UpdateOne(ctx, filter, object)
+	if err != nil {
+		return fmt.Errorf("Unable to update object due to : %v", err)
+	}
+
+	return nil
+}
+
 func UpdateAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Client, collectionName string, objects []mongoObject) error {
 	collection := client.Database(consts.MongoDBName).Collection(collectionName)
 	for _, elem := range objects {
 		filter := bson.M{"_id": elem.MongoId()}
 		_, err := collection.UpdateOne(ctx, filter, elem)
 		if err != nil {
-			return fmt.Errorf("Unable to update %s due to : %v", elem, err)
+			return fmt.Errorf("Unable to update object due to : %v", err)
 		}
 
 	}
 	return nil
 }
-
-// ---------------- DB initialization -----------------------------
 
 func Ping(client *mongo.Client) error {
 	if client == nil {

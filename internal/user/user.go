@@ -153,6 +153,7 @@ func NextInOrder(prevID int64, usersMap map[int64]types.User, activityId types.I
 
 // ---------------------------Databases-------------------------------------
 
+// Get map of [telegramID]user from Mongodb
 func MongoGetMap(ctx context.Context, client *mongo.Client) (map[int64]types.User, error) {
 	mongoUsers, err := mongodb.GetAll[types.User](ctx, client, consts.MongoUsersCollection)
 	if err != nil {
@@ -167,6 +168,7 @@ func MongoGetMap(ctx context.Context, client *mongo.Client) (map[int64]types.Use
 	return users, nil
 }
 
+// Get map of [activityName]activity from Mongodb
 func MongoActivitiesMap(ctx context.Context, client *mongo.Client) (map[string]types.Activity, error) {
 	mongoActivities, err := mongodb.GetAll[types.Activity](ctx, client, consts.MongoActivitiesCollection)
 	if err != nil {
@@ -181,6 +183,7 @@ func MongoActivitiesMap(ctx context.Context, client *mongo.Client) (map[string]t
 	return activities, nil
 }
 
+// Get user from Mongodb
 func MongoGet(ctx context.Context, client *mongo.Client) ([]types.User, error) {
 	mongoUsers, err := mongodb.GetAll[types.User](ctx, client, "Users")
 	if err != nil {
@@ -190,6 +193,7 @@ func MongoGet(ctx context.Context, client *mongo.Client) ([]types.User, error) {
 	return mongoUsers, nil
 }
 
+// Add user to Mongodb
 func MongoAdd(ctx context.Context, client *mongo.Client, user *types.User) error {
 	_, err := mongodb.AddOne(ctx, client, consts.MongoUsersCollection, user)
 
@@ -200,9 +204,10 @@ func MongoAdd(ctx context.Context, client *mongo.Client, user *types.User) error
 	return nil
 }
 
-// func (u *User) Recipient() string {
-// 	return strconv.FormatInt(u.TelegramID, consts.BaseForConvertToInt)
-// }
+// Update user in Mongodb
+func MongoUpdate(ctx context.Context, client *mongo.Client, user types.User) error {
+	return mongodb.UpdateOne(ctx, client, consts.MongoUsersCollection, user)
+}
 
 func GetUsersFromDB(contex context.Context, rdb *redis.Client, users map[int64]telegram.User) error {
 	stateString, err := rdb.Get(contex, "0").Result()
