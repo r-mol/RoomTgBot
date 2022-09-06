@@ -7,7 +7,6 @@ import (
 	"RoomTgBot/internal/mongodb"
 	"RoomTgBot/internal/settings"
 	"RoomTgBot/internal/state"
-	"RoomTgBot/internal/types"
 	"RoomTgBot/internal/user"
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -156,7 +155,7 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 		u := usersMap[ctx.Sender().ID]
 		u.IsAbsent = true
 
-		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{u})
+		err = mongodb.UpdateOne(contex, mdb, consts.MongoUsersCollection, u)
 		if err != nil {
 			return err
 		}
@@ -185,7 +184,7 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 		u := usersMap[ctx.Sender().ID]
 		u.IsAbsent = true
 
-		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{u})
+		err = mongodb.UpdateOne(contex, mdb, consts.MongoUsersCollection, u)
 		if err != nil {
 			return err
 		}
@@ -209,7 +208,7 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 			return err
 		}
 
-		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{usersMap[ctx.Sender().ID]})
+		err = mongodb.UpdateOne(contex, mdb, consts.MongoUsersCollection, usersMap[ctx.Sender().ID])
 		if err != nil {
 			return err
 		}
@@ -240,7 +239,7 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 			return err
 		}
 
-		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{usersMap[ctx.Sender().ID]})
+		err = mongodb.UpdateOne(contex, mdb, consts.MongoUsersCollection, usersMap[ctx.Sender().ID])
 		if err != nil {
 			return err
 		}
@@ -271,7 +270,7 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 			return err
 		}
 
-		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{usersMap[ctx.Sender().ID]})
+		err = mongodb.UpdateOne(contex, mdb, consts.MongoUsersCollection, usersMap[ctx.Sender().ID])
 		if err != nil {
 			return err
 		}
@@ -297,7 +296,7 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 			return err
 		}
 
-		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{usersMap[ctx.Sender().ID]})
+		err = mongodb.UpdateOne(contex, mdb, consts.MongoUsersCollection, usersMap[ctx.Sender().ID])
 		if err != nil {
 			return err
 		}
@@ -438,7 +437,7 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{usersMap[ctx.Sender().ID]})
+		err = mongodb.UpdateOne(contex, mdb, consts.MongoUsersCollection, usersMap[ctx.Sender().ID])
 		if err != nil {
 			return err
 		}
@@ -515,7 +514,7 @@ func handlingCleanMan(bot *telegram.Bot, rdb *redis.Client) {
 			return err
 		}
 
-		err = mongodb.UpdateAll(contex, mdb, consts.MongoUsersCollection, []types.User{usersMap[ctx.Sender().ID]})
+		err = mongodb.UpdateOne(contex, mdb, consts.MongoUsersCollection, usersMap[ctx.Sender().ID])
 		if err != nil {
 			return err
 		}
