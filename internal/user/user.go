@@ -5,12 +5,13 @@ import (
 	"RoomTgBot/internal/mongodb"
 	"RoomTgBot/internal/types"
 	"context"
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"math"
 	"sort"
 	"strconv"
+
+    "go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/go-redis/redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -24,22 +25,24 @@ func CreateUser(contex context.Context, rdb *redis.Client, mdb *mongo.Client, bo
 
 	_, err := rdb.Get(contex, idString).Result()
 	if err == redis.Nil {
-		b := []byte{}
+/*		b := make([]byte, 12)
 		binary.LittleEndian.PutUint64(b, uint64(ctx.Sender().ID))
 
 		var arr [12]byte
 
-		copy(arr[:], b[:12])
-
+		copy(arr[1:], b[:11])
+   
+        arr[0] = '$'
+*/
 		user := &types.User{
-			MongoID:          arr,
+			MongoID:          primitive.NewObjectID(),
 			TelegramID:       ctx.Sender().ID,
 			TelegramUsername: ctx.Sender().Username,
 			FirstName:        ctx.Sender().FirstName,
-			Order:            100,
+			Order:            uint(len(us)),
 			IsBot:            ctx.Sender().IsBot,
-			NotificationList: map[types.ID]bool{},
-			ScoreList:        map[types.ID]int{},
+			NotificationList: map[primitive.ObjectID]bool{},
+			ScoreList:        map[primitive.ObjectID]int{},
 		}
 
 		us = append(us, *user)
@@ -131,7 +134,7 @@ func nextOrderValue(users []types.User) int {
 }
 
 // Users list and map should be normalized using normalizeOrder
-func NextInOrder(prevID int64, usersMap map[int64]types.User, activityId types.ID) (int64, error) {
+func NextInOrder(prevID int64, usersMap map[int64]types.User, activityId primitive.ObjectID) (int64, error) {
 	if prevID == 0 {
 		prevID = us[len(us)-1].TelegramID
 	}
@@ -145,7 +148,7 @@ func NextInOrder(prevID int64, usersMap map[int64]types.User, activityId types.I
 	var id int64
 	var score = math.MaxInt64
 
-	for _, user := range us {
+	for _, user := range usersMap {
 		tmpScore := user.ScoreList[activityId]
 
 		if user.IsAbsent || score == tmpScore {
@@ -168,14 +171,18 @@ func NextInOrder(prevID int64, usersMap map[int64]types.User, activityId types.I
 // Get map of [telegramID]user from Mongodb
 func MongoGetMap(ctx context.Context, client *mongo.Client) (map[int64]types.User, error) {
 	mongoUsers, err := mongodb.GetAll[types.User](ctx, client, consts.MongoUsersCollection)
+    
+    println("ppp1")
 	if err != nil {
 		return map[int64]types.User{}, fmt.Errorf("unable to get Users from mongodb: %v", err)
 	}
+    println("ppp2")
 
 	users := map[int64]types.User{}
 	for _, elem := range mongoUsers {
 		users[elem.TelegramID] = elem
 	}
+    println("ppp3")
 
 	return users, nil
 }

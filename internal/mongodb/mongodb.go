@@ -33,15 +33,18 @@ func GetAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Cl
 		return fmt.Errorf("unable to get %s from MongoDB: %v", collectionName, err)
 	}
 
-	cursor, err := collection.Find(ctx, nil)
+	cursor, err := collection.Find(ctx, bson.D{})
+    println("zzz1")
 	if err != nil {
 		return []mongoObject{}, getError(err)
 	}
 
 	users := []mongoObject{}
 
+    println("ZZZ1")
 	for cursor.Next(context.TODO()) {
 		var result mongoObject
+        println("zzz2")
 		if err := cursor.Decode(&result); err != nil {
 			return []mongoObject{}, getError(err)
 		}
@@ -49,6 +52,7 @@ func GetAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Cl
 		users = append(users, result)
 	}
 
+        println("zzz3")
 	if err := cursor.Err(); err != nil {
 		return []mongoObject{}, getError(err)
 	}
@@ -58,9 +62,10 @@ func GetAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Cl
 
 func UpdateOne[mongoObject types.MongoObject](ctx context.Context, client *mongo.Client, collectionName string, object mongoObject) error {
 	collection := client.Database(consts.MongoDBName).Collection(collectionName)
-	filter := bson.M{"_id": object.MongoId()}
-	_, err := collection.UpdateOne(ctx, filter, object)
-	if err != nil {
+    filter := bson.M{"_id": object.MongoId()}
+    update := bson.M{"$set": object}
+    _, err := collection.UpdateOne(ctx, filter, update)
+    if err != nil {
 		return fmt.Errorf("Unable to update object due to : %v", err)
 	}
 
@@ -70,8 +75,9 @@ func UpdateOne[mongoObject types.MongoObject](ctx context.Context, client *mongo
 func UpdateAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Client, collectionName string, objects []mongoObject) error {
 	collection := client.Database(consts.MongoDBName).Collection(collectionName)
 	for _, elem := range objects {
-		filter := bson.M{"_id": elem.MongoId()}
-		_, err := collection.UpdateOne(ctx, filter, elem)
+    filter := bson.M{"_id": elem.MongoId()}
+    update := bson.M{"$set": elem}
+    _, err := collection.UpdateOne(ctx, filter, update)
 		if err != nil {
 			return fmt.Errorf("Unable to update object due to : %v", err)
 		}

@@ -7,10 +7,11 @@ import (
 	"RoomTgBot/internal/mongodb"
 	"RoomTgBot/internal/settings"
 	"RoomTgBot/internal/state"
-	"RoomTgBot/internal/user"
+    "RoomTgBot/internal/user"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"context"
+    "fmt"
 	"log"
 	"time"
 
@@ -427,20 +428,24 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(consts.CommandBringWater, func(ctx telegram.Context) error {
+        fmt.Println("flag0")
 		usersMap, err := user.MongoGetMap(contex, mdb)
 		if err != nil {
 			return err
 		}
+        fmt.Println("flag1")
 
 		usersMap, err = user.IncreaseScore(ctx.Sender().ID, usersMap, consts.CommandAquaManIN, consts.InitialActivityList)
 		if err != nil {
 			return err
 		}
+        fmt.Println("flag2")
 
 		err = mongodb.UpdateOne(contex, mdb, consts.MongoUsersCollection, usersMap[ctx.Sender().ID])
 		if err != nil {
 			return err
 		}
+        fmt.Println("flag3")
 
 		err = state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
@@ -448,6 +453,7 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 		} else if err != nil {
 			return err
 		}
+        fmt.Println("flag4")
 
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
