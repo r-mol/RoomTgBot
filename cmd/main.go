@@ -12,19 +12,36 @@ func init() {
 	planner.Cron.Start()
 }
 
+// store values in days for each notification type
 type Config struct {
-	selfCleaningNotification time.Duration
-	cleaningNotificationList []time.Duration
-	moneyNotification        time.Duration
+	selfCleaningNotification int64
+	// cleaningNotificationList []int64
+	moneyNotification int64
 }
 
-var config Config = Config{
+func day2duration(x int64) time.Duration {
+	return time.Duration(x) * 24 * time.Hour
 }
 
 func main() {
-	fmt.Println("Read Config")
+	fmt.Println("(not) Read Config")
+	// TODO add YAML support
 
+	config := Config{
+		selfCleaningNotification: 7,
+		moneyNotification:        30,
+	}
 	fmt.Println("Setup schedule")
+	planner.ScheduleForEvery(
+		day2duration(config.selfCleaningNotification),
+		func() { bot.FindInitCleanMan() },
+	)
+	planner.ScheduleForEvery(
+		day2duration(config.moneyNotification),
+		func() { bot.NotifyAboutMoney() },
+	)
+	// for _, day := range config.cleaningNotificationList{
+	// }
 
 	fmt.Println("Start bot")
 	bot.Setup()
