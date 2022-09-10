@@ -1,3 +1,3 @@
 TG_TOKEN=Your_bot_token
-MONGO_URI=url
+MONGODB_URL=url
 REDIS_URI=url
