@@ -254,3 +254,21 @@ func SetUserToRDB(contex context.Context, rdb *redis.Client, ctx telegram.Contex
 
 	return nil
 }
+
+func NotAbsentAllUsers(contex context.Context, mdb *mongo.Client) error {
+	usersMap, err := MongoGetMap(contex, mdb)
+	if err != nil {
+		return err
+	}
+
+	for _, u := range usersMap {
+		u.IsAbsent = false
+
+		err = mongodb.UpdateOne(contex, mdb, consts.MongoUsersCollection, u)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
