@@ -1,4 +1,4 @@
-package main
+package planner
 
 import (
 	"time"
@@ -22,3 +22,5 @@ func RunOnceAfter(t time.Duration, cmd func()) {
 func CancelTask(id cron.EntryID) {
 	Cron.Remove(id)
 }
+
+
