@@ -7,16 +7,14 @@ import (
 	"RoomTgBot/internal/mongodb"
 	"RoomTgBot/internal/settings"
 	"RoomTgBot/internal/state"
-    "RoomTgBot/internal/user"
+	"RoomTgBot/internal/user"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"context"
-    "fmt"
-	"log"
-	"time"
-
+	"fmt"
 	"github.com/go-redis/redis/v9"
 	telegram "gopkg.in/telebot.v3"
+	"log"
 )
 
 var contex = context.Background()
@@ -428,24 +426,24 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 	})
 
 	bot.Handle(consts.CommandBringWater, func(ctx telegram.Context) error {
-        fmt.Println("flag0")
+		fmt.Println("flag0")
 		usersMap, err := user.MongoGetMap(contex, mdb)
 		if err != nil {
 			return err
 		}
-        fmt.Println("flag1")
+		fmt.Println("flag1")
 
 		usersMap, err = user.IncreaseScore(ctx.Sender().ID, usersMap, consts.CommandAquaManIN, consts.InitialActivityList)
 		if err != nil {
 			return err
 		}
-        fmt.Println("flag2")
+		fmt.Println("flag2")
 
 		err = mongodb.UpdateOne(contex, mdb, consts.MongoUsersCollection, usersMap[ctx.Sender().ID])
 		if err != nil {
 			return err
 		}
-        fmt.Println("flag3")
+		fmt.Println("flag3")
 
 		err = state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
@@ -453,7 +451,7 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 		} else if err != nil {
 			return err
 		}
-        fmt.Println("flag4")
+		fmt.Println("flag4")
 
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
@@ -568,16 +566,18 @@ func NotifyAboutCleaning() error {
 }
 
 func NotifyAboutMoney() error {
-	if time.Now().Day() == 28 {
-		message := state.Message{Text: "Please, don't forget to pay 100rub to room account ."}
+	message := state.Message{Text: "Please, don't forget to pay 100rub to room account ."}
 
-		err := state.SetNotificationToAllUsers(contex, rdb, consts.NotificationMoney, message)
-		if err != nil {
-			return err
-		}
+	err := state.SetNotificationToAllUsers(contex, rdb, consts.NotificationMoney, message)
+	if err != nil {
+		return err
 	}
 
 	return nil
+}
+
+func PutNotAbsentToAllUsers() error {
+	return user.NotAbsentAllUsers(contex, mdb)
 }
 
 func handlingNewsMenu(bot *telegram.Bot, rdb *redis.Client, allMenus map[string]*telegram.ReplyMarkup) {
