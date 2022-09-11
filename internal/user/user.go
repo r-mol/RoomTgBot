@@ -154,7 +154,7 @@ func NextInOrder(prevID int64, usersMap map[int64]types.User, activityId primiti
 		return us[(int(prevOrder)+1)%len(us)].TelegramID, nil
 	}
 
-	return us[id].TelegramID, nil
+	return id, nil
 }
 
 // ---------------------------Databases-------------------------------------
