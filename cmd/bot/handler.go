@@ -197,22 +197,7 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 	})
 
 	bot.Handle(&menus.BtnCantAQ, func(ctx telegram.Context) error {
-		usersMap, err := user.MongoGetMap(contex, mdb)
-		if err != nil {
-			return err
-		}
-
-		usersMap, err = user.DecreaseScore(ctx.Sender().ID, usersMap, consts.CommandAquaManIN, consts.InitialActivityList)
-		if err != nil {
-			return err
-		}
-
-		err = mongodb.UpdateOne(contex, mdb, consts.MongoUsersCollection, usersMap[ctx.Sender().ID])
-		if err != nil {
-			return err
-		}
-
-		err = state.ReturnToStartState(contex, rdb, ctx)
+		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -228,22 +213,7 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 	})
 
 	bot.Handle(&menus.BtnCantCR, func(ctx telegram.Context) error {
-		usersMap, err := user.MongoGetMap(contex, mdb)
-		if err != nil {
-			return err
-		}
-
-		usersMap, err = user.DecreaseScore(ctx.Sender().ID, usersMap, consts.CommandCleanManIN, consts.InitialActivityList)
-		if err != nil {
-			return err
-		}
-
-		err = mongodb.UpdateOne(contex, mdb, consts.MongoUsersCollection, usersMap[ctx.Sender().ID])
-		if err != nil {
-			return err
-		}
-
-		err = state.ReturnToStartState(contex, rdb, ctx)
+		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
@@ -259,6 +229,13 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 	})
 
 	bot.Handle(&menus.BtnAquaManIN, func(ctx telegram.Context) error {
+		err := state.ReturnToStartState(contex, rdb, ctx)
+		if err == redis.Nil {
+			return ctx.Send("Please restart bot ✨")
+		} else if err != nil {
+			return err
+		}
+
 		usersMap, err := user.MongoGetMap(contex, mdb)
 		if err != nil {
 			return err
@@ -274,17 +251,17 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 			return err
 		}
 
-		err = state.ReturnToStartState(contex, rdb, ctx)
+		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
+	})
+
+	bot.Handle(&menus.BtnCleanManIN, func(ctx telegram.Context) error {
+		err := state.ReturnToStartState(contex, rdb, ctx)
 		if err == redis.Nil {
 			return ctx.Send("Please restart bot ✨")
 		} else if err != nil {
 			return err
 		}
 
-		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
-	})
-
-	bot.Handle(&menus.BtnCleanManIN, func(ctx telegram.Context) error {
 		usersMap, err := user.MongoGetMap(contex, mdb)
 		if err != nil {
 			return err
@@ -297,13 +274,6 @@ func handlingDebter(bot *telegram.Bot, rdb *redis.Client, mdb *mongo.Client) {
 
 		err = mongodb.UpdateOne(contex, mdb, consts.MongoUsersCollection, usersMap[ctx.Sender().ID])
 		if err != nil {
-			return err
-		}
-
-		err = state.ReturnToStartState(contex, rdb, ctx)
-		if err == redis.Nil {
-			return ctx.Send("Please restart bot ✨")
-		} else if err != nil {
 			return err
 		}
 
