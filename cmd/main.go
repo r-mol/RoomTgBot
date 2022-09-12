@@ -16,6 +16,7 @@ func init() {
 type Config struct {
 	selfCleaningNotification int64
 	// cleaningNotificationList []int64
+	removeAbsent      int64
 	moneyNotification int64
 }
 
@@ -29,8 +30,10 @@ func main() {
 
 	config := Config{
 		selfCleaningNotification: 7,
+		removeAbsent:             3,
 		moneyNotification:        30,
 	}
+
 	fmt.Println("Setup schedule")
 	planner.ScheduleForEvery(
 		day2duration(config.selfCleaningNotification),
@@ -39,6 +42,10 @@ func main() {
 	planner.ScheduleForEvery(
 		day2duration(config.moneyNotification),
 		func() { bot.NotifyAboutMoney() },
+	)
+	planner.ScheduleForEvery(
+		day2duration(config.removeAbsent),
+		func() { bot.PutNotAbsentToAllUsers() },
 	)
 	// for _, day := range config.cleaningNotificationList{
 	// }
