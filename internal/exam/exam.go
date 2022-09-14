@@ -6,11 +6,11 @@ import (
 	"RoomTgBot/internal/mongodb"
 	"RoomTgBot/internal/state"
 	"RoomTgBot/internal/types"
-	"fmt"
-	"go.mongodb.org/mongo-driver/mongo"
 
+	"fmt"
 	"context"
 
+	"go.mongodb.org/mongo-driver/mongo"
 	"github.com/go-redis/redis/v9"
 	telegram "gopkg.in/telebot.v3"
 )
@@ -18,8 +18,7 @@ import (
 type Subject string
 
 const (
-	Subject0  Subject = ""
-	Subject1          = "Compilers Construction"
+	Subject1 Subject= "Compilers Construction"
 	Subject2          = "Control Theory"
 	Subject3          = "Data Mining"
 	Subject4          = "Data Modeling and Databases I"
@@ -125,8 +124,9 @@ func (s Subject) ToId() [12]byte {
 		return [12]byte{32}
 	case Subject34:
 		return [12]byte{33}
+    default:
+        return [12]byte{}
 	}
-	return [12]byte{}
 }
 
 func ToSubject(subject string) Subject {
@@ -199,8 +199,9 @@ func ToSubject(subject string) Subject {
 		return Subject33
 	case string(Subject34):
 		return Subject34
+    default:
+        return ""
 	}
-	return Subject0
 }
 
 func GetSetExam(contex context.Context, bot *telegram.Bot, mdb *mongo.Client, rdb *redis.Client, ctx telegram.Context, subjectName string) error {
@@ -291,7 +292,8 @@ func setExam(ctx context.Context, client *mongo.Client, subjectName string, file
 		if tmpExam.MongoID == ToSubject(subjectName).ToId() {
 			exam = tmpExam
 			flag = true
-			break
+
+            break
 		}
 	}
 
@@ -303,10 +305,10 @@ func setExam(ctx context.Context, client *mongo.Client, subjectName string, file
 	exam.Files.Photos = append(exam.Files.Photos, photos...)
 
 	_, err = mongodb.AddOne(ctx, client, consts.MongoExamCollection, &exam)
-
 	if err != nil {
 		return fmt.Errorf("unable to add exam to mongodb: %v", err)
 	}
+
 	return nil
 }
 
@@ -319,5 +321,6 @@ func GetExam(ctx context.Context, client *mongo.Client, subjectName string) ([]t
 	if err != nil {
 		return []telegram.Document{}, []telegram.Photo{}, err
 	}
+
 	return exam.Files.Files, exam.Files.Photos, nil
 }

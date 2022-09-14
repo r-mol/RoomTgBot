@@ -43,7 +43,7 @@ func CreateUser(contex context.Context, rdb *redis.Client, mdb *mongo.Client, bo
 			return err
 		}
 
-		err = SetUserToRDB(contex, rdb, ctx)
+		err = SetUserToRDB(contex, rdb, *ctx.Sender())
 		if err != nil {
 			return err
 		}
@@ -159,6 +159,8 @@ func NextInOrder(prevID int64, usersMap map[int64]types.User, activityId primiti
 
 // ---------------------------Databases-------------------------------------
 
+// -----------------------------Mongo---------------------------------------
+
 // Get map of [telegramID]user from Mongodb
 func MongoGetMap(ctx context.Context, client *mongo.Client) (map[int64]types.User, error) {
 	mongoUsers, err := mongodb.GetAll[types.User](ctx, client, consts.MongoUsersCollection)
@@ -215,46 +217,7 @@ func MongoUpdate(ctx context.Context, client *mongo.Client, user types.User) err
 	return mongodb.UpdateOne(ctx, client, consts.MongoUsersCollection, user)
 }
 
-func GetUsersFromDB(contex context.Context, rdb *redis.Client, users map[int64]telegram.User) error {
-	stateString, err := rdb.Get(contex, "0").Result()
-
-	switch err {
-	case nil:
-		err = json.Unmarshal([]byte(stateString), &users)
-		if err != nil {
-			return err
-		}
-	case redis.Nil:
-	default:
-		return err
-	}
-
-	return nil
-}
-
-func SetUserToRDB(contex context.Context, rdb *redis.Client, ctx telegram.Context) error {
-	users := map[int64]telegram.User{}
-
-	err := GetUsersFromDB(contex, rdb, users)
-	if err != nil {
-		return err
-	}
-
-	users[ctx.Sender().ID] = *ctx.Sender()
-	stateBytes, err := json.Marshal(users)
-
-	if err != nil {
-		return err
-	}
-
-	err = rdb.Set(contex, "0", stateBytes, 0).Err()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
+// Put reset parameter is absent in structure user for all users
 func NotAbsentAllUsers(contex context.Context, mdb *mongo.Client) error {
 	usersMap, err := MongoGetMap(contex, mdb)
 	if err != nil {
@@ -272,3 +235,46 @@ func NotAbsentAllUsers(contex context.Context, mdb *mongo.Client) error {
 
 	return nil
 }
+
+// -----------------------------Redis---------------------------------------
+
+func GetUsersFromDB(contex context.Context, rdb *redis.Client, users map[int64]telegram.User) error {
+	stateString, err := rdb.Get(contex, "0").Result()
+
+	switch err {
+	case nil:
+		err = json.Unmarshal([]byte(stateString), &users)
+		if err != nil {
+			return err
+		}
+	case redis.Nil:
+	default:
+		return err
+	}
+
+	return nil
+}
+
+func SetUserToRDB(contex context.Context, rdb *redis.Client, user telegram.User) error {
+	users := map[int64]telegram.User{}
+
+	err := GetUsersFromDB(contex, rdb, users)
+	if err != nil {
+		return err
+	}
+
+	users[user.ID] = user
+	stateBytes, err := json.Marshal(users)
+
+	if err != nil {
+		return err
+	}
+
+	err = rdb.Set(contex, "0", stateBytes, 0).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+

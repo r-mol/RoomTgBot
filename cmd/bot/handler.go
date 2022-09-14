@@ -8,13 +8,14 @@ import (
 	"RoomTgBot/internal/settings"
 	"RoomTgBot/internal/state"
 	"RoomTgBot/internal/user"
-	"go.mongodb.org/mongo-driver/mongo"
 
 	"context"
 	"fmt"
+	"log"
+
+    "go.mongodb.org/mongo-driver/mongo"
 	"github.com/go-redis/redis/v9"
 	telegram "gopkg.in/telebot.v3"
-	"log"
 )
 
 var contex = context.Background()
@@ -454,6 +455,9 @@ func FindInitAquaMan() error {
 	}
 
 	prevIDAQ, err = user.NextInOrder(prevIDAQ, usersMap, consts.InitialActivityList[consts.CommandAquaManIN].MongoID)
+    if err != nil {
+		return err
+	}
 
 	message := state.Message{Text: "Please, bring the water to room."}
 
@@ -513,6 +517,9 @@ func FindInitCleanMan() error {
 	}
 
 	prevIDC, err = user.NextInOrder(prevIDC, usersMap, consts.InitialActivityList[consts.CommandCleanManIN].MongoID)
+    if err != nil {
+		return err
+	}
 
 	message := state.Message{Text: "Please, clean room."}
 

@@ -60,9 +60,10 @@ func UpdateOne[mongoObject types.MongoObject](ctx context.Context, client *mongo
 	collection := client.Database(consts.MongoDBName).Collection(collectionName)
 	filter := bson.M{"_id": object.MongoId()}
 	update := bson.M{"$set": object}
-	_, err := collection.UpdateOne(ctx, filter, update)
+
+    _, err := collection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		return fmt.Errorf("Unable to update object due to : %v", err)
+		return fmt.Errorf("unable to update object due to : %v", err)
 	}
 
 	return nil
@@ -70,15 +71,17 @@ func UpdateOne[mongoObject types.MongoObject](ctx context.Context, client *mongo
 
 func UpdateAll[mongoObject types.MongoObject](ctx context.Context, client *mongo.Client, collectionName string, objects []mongoObject) error {
 	collection := client.Database(consts.MongoDBName).Collection(collectionName)
-	for _, elem := range objects {
+
+    for _, elem := range objects {
 		filter := bson.M{"_id": elem.MongoId()}
 		update := bson.M{"$set": elem}
-		_, err := collection.UpdateOne(ctx, filter, update)
-		if err != nil {
-			return fmt.Errorf("Unable to update object due to : %v", err)
-		}
 
+        _, err := collection.UpdateOne(ctx, filter, update)
+		if err != nil {
+			return fmt.Errorf("unable to update object due to : %v", err)
+		}
 	}
+
 	return nil
 }
 
@@ -86,6 +89,7 @@ func Ping(client *mongo.Client) error {
 	if client == nil {
 		return fmt.Errorf("MongoDB client is nil")
 	}
+
 	return client.Ping(context.TODO(), nil)
 }
 
@@ -95,7 +99,8 @@ func uri() (string, error) {
 		err := fmt.Errorf("'MONGODB_URI' is not set as environmental variable")
 		return uri, err
 	}
-	return uri, nil
+
+    return uri, nil
 }
 
 func NewClient() (*mongo.Client, error) {
@@ -103,12 +108,15 @@ func NewClient() (*mongo.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	clientOptions := options.Client().ApplyURI(uri)
-	client, err := mongo.Connect(context.TODO(), clientOptions)
+
+    clientOptions := options.Client().ApplyURI(uri)
+
+    client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		return nil, err
-	}
-	return client, nil
+    }
+
+    return client, nil
 }
 
 func Disconnect(client *mongo.Client) {

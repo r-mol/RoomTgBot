@@ -5,14 +5,14 @@ import (
 	"RoomTgBot/internal/mongodb"
 	"RoomTgBot/internal/state"
 	"RoomTgBot/internal/user"
-	"fmt"
-	"go.mongodb.org/mongo-driver/mongo"
 
+    "fmt"
 	"log"
 	"os"
 	"sync"
 	"time"
 
+	"go.mongodb.org/mongo-driver/mongo"
 	"github.com/go-redis/redis/v9"
 	telegram "gopkg.in/telebot.v3"
 )
@@ -41,7 +41,7 @@ func init() {
 
 	err = mongodb.Ping(mdb)
 	if err != nil {
-		panic(fmt.Errorf("Ping to MongoDB is unsuccessful: %v", err))
+		panic(fmt.Errorf("ping to MongoDB is unsuccessful: %v", err))
 	}
 }
 

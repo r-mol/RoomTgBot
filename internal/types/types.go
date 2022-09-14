@@ -1,11 +1,10 @@
 package types
 
 import (
-	telegram "gopkg.in/telebot.v3"
-	"time"
+    "time"
 
+	telegram "gopkg.in/telebot.v3"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"gopkg.in/telebot.v3"
 )
 
 type MongoObject interface {
@@ -37,12 +36,12 @@ func (user User) MongoId() primitive.ObjectID {
 // -------- Shopping -----------------------
 
 type ShoppingEntry struct {
-	MongoID    primitive.ObjectID `json:"_id",bson:"_id",omitempty`
-	Photos     []telebot.Photo    `json:"shopping_items",bson:"shopping_items"`
-	Bill       telebot.Photo      `json:"bill",bson:"bill"`
-	TotalPrice float64            `json:"total_price",bson:"total_price"`
-	Person     User               `json:"user",bson:"user"`
-	Date       time.Time          `json:"date",bson:"date"`
+	MongoID    primitive.ObjectID `json:"_id" bson:"_id,omitempty"`
+	Photos     []telegram.Photo    `json:"shopping_items" bson:"shopping_items"`
+	Bill       telegram.Photo      `json:"bill" bson:"bill"`
+	TotalPrice float64            `json:"total_price" bson:"total_price"`
+	Person     User               `json:"user" bson:"user"`
+	Date       time.Time          `json:"date" bson:"date"`
 }
 
 func (shoppingEntry ShoppingEntry) MongoId() primitive.ObjectID {
@@ -52,12 +51,12 @@ func (shoppingEntry ShoppingEntry) MongoId() primitive.ObjectID {
 // -------- Activities -----------------------
 
 type Activity struct {
-	MongoID          primitive.ObjectID `json:"_id",bson:"_id",omitempty`
-	Name             string             `json:"name",bson:"name"`
-	ScorePerActivity int                `json:"score_per_activity",bson:"score_per_activity"`
-	ScoreMultiplier  int                `json:"score_multiplier",bson:"score_multiplier"`
-	Scheduled        time.Time          `json:"scheduled",bson:"scheduled"`
-	RepeatEach       time.Time          `json:"repeat_each",bson:"repeat_each"`
+	MongoID          primitive.ObjectID `json:"_id" bson:"_id ,omitempty"`
+	Name             string             `json:"name" bson:"name"`
+	ScorePerActivity int                `json:"score_per_activity" bson:"score_per_activity"`
+	ScoreMultiplier  int                `json:"score_multiplier" bson:"score_multiplier"`
+	Scheduled        time.Time          `json:"scheduled" bson:"scheduled"`
+	RepeatEach       time.Time          `json:"repeat_each" bson:"repeat_each"`
 }
 
 func (activity Activity) MongoId() primitive.ObjectID {
@@ -73,16 +72,16 @@ type Files struct {
 }
 
 type ExamMetaData struct {
-	Year     uint   `json:"year",bson:"year"`
-	Semester uint   `json:"semester",bson:"semester"`
-	Course   string `json:"course",bson:"course"`
-	Kind     string `json:"kind",bson:"kind"`
+	Year     uint   `json:"year" bson:"year"`
+	Semester uint   `json:"semester" bson:"semester"`
+	Course   string `json:"course" bson:"course"`
+	Kind     string `json:"kind" bson:"kind"`
 }
 
 type ExamEntry struct {
-	MongoID  primitive.ObjectID `json:"_id",bson:"_id",omitempty`
-	MetaData ExamMetaData       `json:"meta_data",bson:"meta_data"`
-	Files    Files              `json:"files",bson:"files"`
+	MongoID  primitive.ObjectID `json:"_id" bson:"_id ,omitempty"`
+	MetaData ExamMetaData       `json:"meta_data" bson:"meta_data"`
+	Files    Files              `json:"files" bson:"files"`
 }
 
 func (examEntry ExamEntry) MongoId() primitive.ObjectID {
