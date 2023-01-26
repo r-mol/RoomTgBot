@@ -8,13 +8,14 @@ import (
 	"RoomTgBot/internal/settings"
 	"RoomTgBot/internal/state"
 	"RoomTgBot/internal/user"
+	"strconv"
 
 	"context"
 	"fmt"
 	"log"
 
-    "go.mongodb.org/mongo-driver/mongo"
 	"github.com/go-redis/redis/v9"
+	"go.mongodb.org/mongo-driver/mongo"
 	telegram "gopkg.in/telebot.v3"
 )
 
@@ -444,6 +445,21 @@ func handlingAquaMan(bot *telegram.Bot, rdb *redis.Client) {
 
 		return ctx.Send("We really appreciate your contribution in maintaining the room 💪🏽", menus.MainMenu)
 	})
+	bot.Handle(consts.CommandGetScore, func(ctx telegram.Context) error {
+		usersMap, err := user.MongoGetMap(contex, mdb)
+		if err != nil {
+			return err
+		}
+		answ := "Total score is:"
+		for _, user := range usersMap {
+			answ += "\n" + user.TelegramUsername + ":"
+			for _, val := range user.ScoreList {
+				answ += " " + strconv.Itoa(val)
+			}
+		}
+		return ctx.Send(answ)
+	})
+
 }
 
 var prevIDAQ = int64(0)
@@ -455,7 +471,7 @@ func FindInitAquaMan() error {
 	}
 
 	prevIDAQ, err = user.NextInOrder(prevIDAQ, usersMap, consts.InitialActivityList[consts.CommandAquaManIN].MongoID)
-    if err != nil {
+	if err != nil {
 		return err
 	}
 
@@ -517,7 +533,7 @@ func FindInitCleanMan() error {
 	}
 
 	prevIDC, err = user.NextInOrder(prevIDC, usersMap, consts.InitialActivityList[consts.CommandCleanManIN].MongoID)
-    if err != nil {
+	if err != nil {
 		return err
 	}
 

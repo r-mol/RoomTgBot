@@ -47,6 +47,7 @@ var (
 	// Aqua man menu buttons.
 	BtnBringWater  = AquaManMenu.Text(consts.CommandBringWater)
 	BtnWaterIsOver = AquaManMenu.Text(consts.CommandWaterIsOver)
+  BtnGetScore    = AquaManMenu.Text(consts.CommandGetScore)
 	BtnAquaManIN   = InitAquaManMenu.Data(consts.CommandAquaManIN, "BW")
 	BtnNotInInnoAQ = InitAquaManMenu.Data(consts.CommandNotInInno, "NIIAQ")
 	BtnCantAQ      = InitAquaManMenu.Data(consts.CommandCant, "CantAQ")
@@ -149,7 +150,7 @@ func InitializeMenus() {
 
 	AquaManMenu.Reply(
 		AquaManMenu.Row(BtnBringWater, BtnWaterIsOver),
-		AquaManMenu.Row(BtnBack),
+		AquaManMenu.Row(BtnBack, BtnGetScore),
 	)
 
 	InitAquaManMenu.Inline(

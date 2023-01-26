@@ -8,6 +8,7 @@ const (
 	CommandBringWater  = "/bring_water"
 	CommandWaterIsOver = "/water_is_over"
 	CommandCleanRoom   = "/clean_room"
+  CommandGetScore    = "/get_score"
 
 	// Main consts
 	CommandRoom     = "\U0001F6D6 Room"
