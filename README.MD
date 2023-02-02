@@ -19,23 +19,27 @@
 | Получать статистику по приносу воды              |     ✅     |
 | Настройка получения уведомлений от бота          |     ✅     |
 
-## 🎛️ Requirements
-Requires ___ installed.
-To install dependencies:
-```
 
-```
+##  Getting started
+Мы рекомендуем использовать docker, как наиболее простое и независимое
+от платформы решение.
 
-## ⚙️ Project Instalation
+### Setup credits
+- Откройте папку `env`.
+- `*.env.tpl` файлы это файлы шаблоны с необходимыми параметрами.
+скопируйте все `<file>.env.tpl` в `<file>.env` и введите секреты для приложения
+(телеграм токен, пароль для баз данных). В сумме всего 6 строк. Поделены на 
+файлы для вашей безопасности :)
 
-1. Install the requirements.
-2. 
+### 🐳 Using Docker
+- `docker-compose up` для запуска основного приложения.
+- Все :^)
 
-## 🐳 Running server inside docker container
-    `docker-compose up`
-    `docker-compose --profile=debug up`
-    `docker-compose build app`
-    `export $(cat env/*.env)`
+### ⚙️ Configure manually
+1. `go build -o bot-exe ./cmd` - компилирует бота
+3. `source ./env/*` добавляет переменные из env в шелл.
+5. `./bot-exe` - бот подключится к базам данных, которые
+Вы указали в файле и начнет работу.
 
 ## 🔧 Technologies & Tools
 ![Code Go](https://img.shields.io/badge/Code-Go-informational?style=flat&logo=Go&logoColor=white&color=2bbc8a)
@@ -43,7 +47,11 @@ To install dependencies:
 ![DB Redis](https://img.shields.io/badge/DB-Redis-informational?style=flat&logo=Redis&logoColor=white&color=2bbc8a)
 ![Linter GoLinter](https://img.shields.io/badge/Linter-GoLinter-informational?style=flat&logo=GoLinter&logoColor=white&color=2bbc8a)
 
-## 🎛️ Services
+## 🎛️ Hints for developers
 - MongoDB `localhost:27017`
 - Redis `localhost:6379`
-- DB viewer `localhost:8081`
+- MongoExpress `localhost:8081`
+  - `docker-compose --profile=debug up` для запуска
+- После измменений в коде, пересоберите бота
+  - `docker-compose build app`
+
